@@ -12,7 +12,7 @@ import java.util.Map;
 // 配置管理器，用于读取与管理与服务器相关的各种配置
 public class ConfigureManager {
 
-    //成员属性
+    // 成员属性
     private static ConfigureManager instance;// 单例模式实现
 
     private final String configPath = "resource/config.yml";// 配置读取路径
