@@ -26,7 +26,7 @@ public class ConfigureManager {
     }
 
     // 获取单例
-    public ConfigureManager getInstance(){
+    public static ConfigureManager getInstance(){
         if(instance == null){
             instance = new ConfigureManager();
         }

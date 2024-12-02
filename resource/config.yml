@@ -21,3 +21,10 @@ mvc:
 # IOC配置
 ioc:
   scan-path: / #拓展程序扫描路径
+
+# 日志配置
+log:
+  output-file-path: log # 日志文件输出路径
+  output-form: file #文件输出(file)还是命令行输出(command)，使用其他选项则默认文件输出
+  choose-class: default # 拓展程序的类选择，如果没有找到则使用默认程序
+
