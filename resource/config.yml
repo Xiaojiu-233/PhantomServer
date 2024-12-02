@@ -1,0 +1,23 @@
+# 服务器配置
+server:
+  port: 50001
+
+# 动态线程池配置
+thread-pool:
+  connect: # 连接用
+    max-thread: 20 # 最大线程数
+    core-thread: 10 # 核心线程数
+    queue-capacity: 5 # 工作队列大小
+  resource: # 资源用
+    max-thread: 20 # 最大线程数
+    core-thread: 10 # 核心线程数
+    queue-capacity: 5 # 工作队列大小
+
+# MVC配置
+mvc:
+  resource-path: / #资源映射路径
+  webpage-path: / #网页映射路径
+
+# IOC配置
+ioc:
+  scan-path: / #拓展程序扫描路径
