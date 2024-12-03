@@ -1,6 +1,8 @@
 package xj.component.conf;
 
 import org.yaml.snakeyaml.Yaml;
+import sun.rmi.runtime.Log;
+import xj.component.log.LogManager;
 import xj.tool.StrPool;
 
 import java.io.FileInputStream;
@@ -21,30 +23,33 @@ public class ConfigureManager {
 
     // 成员行为
     // 初始化
-    public ConfigureManager(){
+    public ConfigureManager() {
         initConfig();
     }
 
-    // 获取单例
-    public static ConfigureManager getInstance(){
-        if(instance == null){
-            instance = new ConfigureManager();
-        }
+    // 获取单例（防止高并发导致资源访问问题进行双判空保护）
+    public static ConfigureManager getInstance() {
+        if(instance == null)
+            synchronized (ConfigureManager.class){
+                if(instance == null)
+                    instance = new ConfigureManager();
+            }
         return instance;
     }
 
     // 读取配置文件
-    public void initConfig(){
+    public void initConfig() {
         // 创建Yaml对象
         Yaml yaml = new Yaml();
         // 读取配置文件并解析
         Map<String,Object> map;
+        FileInputStream fileInputStream = null;
         try {
-            FileInputStream fileInputStream = new FileInputStream(configPath);
-            map = yaml.load(fileInputStream);
+            fileInputStream = new FileInputStream(configPath);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            LogManager.error("配置读取时出现异常", e);
         }
+        map = yaml.load(fileInputStream);
         // 遍历Map对象，处理读取到的数据
         readConfigFromMap(map,"");
     }
@@ -65,6 +70,8 @@ public class ConfigureManager {
 
     // 返回配置
     public Object getConfig(String key){
-        return configList.getOrDefault(key,null);
+        synchronized (ConfigureManager.class){
+            return configList.getOrDefault(key,null);
+        }
     }
 }

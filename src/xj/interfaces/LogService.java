@@ -1,14 +1,25 @@
 package xj.interfaces;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Date;
 
 // 日志服务接口
 // 实现这个接口的类都可以作为LogManager的拓展程序使用
 public interface LogService {
 
+    // 处理日志的日期、日志等级的前缀格式
+    public String handlePrefixFormat(Date date,LogLevel level);
+
     // 处理接入的消息
     public String handleMessage(String message,Object... args);
 
     // 确定日志输出文件的名字，以日期为参数
-    public String logFileName(Date date);
+    public String setLogFileName(Date date);
+
+    // 确定输出流，参数为输出日志文件的完整路径
+    public Writer setOutputWriter(String outputFile) throws IOException;
+
+    // 额外输出的方式，诸如命令行输出等
+    public void exOutputForm(String msg);
 }
