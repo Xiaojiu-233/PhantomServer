@@ -24,7 +24,10 @@ public class ConfigureManager {
     // 成员行为
     // 初始化
     public ConfigureManager() {
+        LogManager.info("【配置模块】开始初始化");
         initConfig();
+        initSystemConfig();
+        LogManager.info("【配置模块】初始化完成");
     }
 
     // 获取单例（防止高并发导致资源访问问题进行双判空保护）
@@ -39,6 +42,7 @@ public class ConfigureManager {
 
     // 读取配置文件
     public void initConfig() {
+        LogManager.info("【配置模块】正在读取配置文件...");
         // 创建Yaml对象
         Yaml yaml = new Yaml();
         // 读取配置文件并解析
@@ -52,6 +56,15 @@ public class ConfigureManager {
         map = yaml.load(fileInputStream);
         // 遍历Map对象，处理读取到的数据
         readConfigFromMap(map,"");
+    }
+
+    // 读取系统配置（如工作路径等）
+    public void initSystemConfig(){
+        LogManager.info("【配置模块】正在读取系统配置...");
+        // 读取工作路径
+        String workpath = System.getProperty("user.dir");
+        configList.put("workpath",workpath);
+        LogManager.info("当前的工作路径为",workpath);
     }
 
     // dfs遍历读取map容器数据并存入配置列表

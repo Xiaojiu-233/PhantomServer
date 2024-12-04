@@ -46,15 +46,19 @@ public class LogManager {
 
     //初始化（服务器开机阶段，可以执行用户的自定义日志模块）
     public void initLogManager() {
+        info("【日志模块】开始自定义初始化");
         // 读取配置并执行相应策略
         String chooseLogService = (String) ConfigureManager.getInstance().getConfig("log.choose-class");
         // 通过IOC容器找到对应的logService对象，如果没找到则继续使用默认的
         logService = new DefaultLogServiceImpl();
 
         // 读取输出文件名
-        String outputFile = outputFilePath + StrPool.SLASH + logService.setLogFileName(new Date())
-                + StrPool.LOG_POINT;
+        String outputFile = ConfigureManager.getInstance().getConfig("workpath") + StrPool.SLASH + outputFilePath
+                + StrPool.SLASH + logService.setLogFileName(new Date()) + StrPool.LOG_POINT;
         try {
+            // 没有文件时创建文件
+            File file = new File(outputFile);
+            if(!file.exists())file.createNewFile();
             synchronized (writerLock){
                 // 停止旧的输出流等资源
                 if(outputWriter != null){
@@ -67,6 +71,7 @@ public class LogManager {
         } catch (Exception e) {
             LogManager.error("服务器开机初始化日志模块时出现异常", e);
         }
+        info("【日志模块】自定义初始化完成");
     }
 
     // 获取单例（防止高并发导致资源访问问题进行双判空保护）
@@ -81,23 +86,19 @@ public class LogManager {
 
     // 日志存入队列，交给日志线程处理
     public static void info(String message,Object... args){
-        String handledMsg = getInstance().logService.handlePrefixFormat(new Date(), LogLevel.INFO) +
-                getInstance().logService.handleMessage(message,args);
+        String handledMsg = getInstance().logService.handleMessage(new Date(), LogLevel.INFO,message,args);
         pushIntoQueue(handledMsg);
     }
     public static void warn(String message,Object... args){
-        String handledMsg = getInstance().logService.handlePrefixFormat(new Date(), LogLevel.WARNING) +
-                getInstance().logService.handleMessage(message,args);
+        String handledMsg = getInstance().logService.handleMessage(new Date(), LogLevel.WARNING,message,args);
         pushIntoQueue(handledMsg);
     }
     public static void debug(String message,Object... args){
-        String handledMsg = getInstance().logService.handlePrefixFormat(new Date(), LogLevel.DEBUG) +
-                getInstance().logService.handleMessage(message,args);
+        String handledMsg = getInstance().logService.handleMessage(new Date(), LogLevel.DEBUG,message,args);
         pushIntoQueue(handledMsg);
     }
     public static void error(String message,Object... args){
-        String handledMsg = getInstance().logService.handlePrefixFormat(new Date(), LogLevel.ERROR) +
-                getInstance().logService.handleMessage(message,args);
+        String handledMsg = getInstance().logService.handleMessage(new Date(), LogLevel.ERROR,message,args);
         pushIntoQueue(handledMsg);
     }
 
@@ -122,10 +123,12 @@ public class LogManager {
                                 msg = (String) messageQueue.poll();
                             }
                         }
+                        if(msg == null)continue;
                         // 输出日志
                         try {
                             synchronized (writerLock){
                                 outputWriter.write(msg + "\n");
+                                outputWriter.flush();
                             }
                         } catch (IOException e) {
                             LogManager.error("输出日志记录时出现异常", e);

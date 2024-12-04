@@ -14,20 +14,23 @@ import java.util.Date;
 public class DefaultLogServiceImpl implements LogService {
 
     @Override
-    public String handlePrefixFormat(Date date, LogLevel level) {
-        return "[" + new SimpleDateFormat("yyyy_MM_dd HH:mm:ss").format(date) + "]"
-                + "[" + level.name() + "] ";
-    }
-
-    @Override
-    public String handleMessage(String message, Object... args) {
-        String arg = args.toString();
-        return message + " : " + arg;
+    public String handleMessage(Date date, LogLevel level,String message, Object... args) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[").append(new SimpleDateFormat("yyyy_MM_dd HH:mm:ss").format(date)).append("]")
+                .append("[").append(level.name()).append("] ");
+        sb.append(message);
+        if(args.length > 0){
+            sb.append(" : ").append(args[0].toString());
+            for(int i = 1 ;i < args.length ;i++){
+                sb.append(" , ").append(args[i].toString());
+            }
+        }
+        return sb.toString();
     }
 
     @Override
     public String setLogFileName(Date date) {
-        return "log_"+ new SimpleDateFormat("yyyy_MM_dd HH:mm:ss").format(date);
+        return "log_"+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(date);
     }
 
     @Override

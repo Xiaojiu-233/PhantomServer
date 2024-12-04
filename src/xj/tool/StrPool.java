@@ -5,7 +5,9 @@ public interface StrPool {
 
     //符号
     public static final String POINT = ".";
-    public static final String SLASH = "/";
+    public static final String SLASH = "\\";
+    public static final String SPACE = " ";
+    public static final String UNDERLINE = "_";
 
     //后缀
     public static final String LOG_POINT = ".log";
