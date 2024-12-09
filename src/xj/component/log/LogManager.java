@@ -1,8 +1,9 @@
 package xj.component.log;
 
 import xj.component.conf.ConfigureManager;
-import xj.interfaces.LogLevel;
-import xj.interfaces.LogService;
+import xj.implement.log.DefaultLogServiceImpl;
+import xj.interfaces.log.LogLevel;
+import xj.interfaces.log.LogService;
 import xj.tool.StrPool;
 
 import java.io.*;

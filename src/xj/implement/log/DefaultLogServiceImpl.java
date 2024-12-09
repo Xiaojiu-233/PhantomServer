@@ -1,7 +1,7 @@
-package xj.component.log;
+package xj.implement.log;
 
-import xj.interfaces.LogLevel;
-import xj.interfaces.LogService;
+import xj.interfaces.log.LogLevel;
+import xj.interfaces.log.LogService;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

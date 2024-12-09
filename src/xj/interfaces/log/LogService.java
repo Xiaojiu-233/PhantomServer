@@ -1,4 +1,4 @@
-package xj.interfaces;
+package xj.interfaces.log;
 
 import java.io.IOException;
 import java.io.Writer;
