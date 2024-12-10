@@ -2,7 +2,7 @@ package xj.component.log;
 
 import xj.component.conf.ConfigureManager;
 import xj.implement.log.DefaultLogServiceImpl;
-import xj.interfaces.log.LogLevel;
+import xj.enums.log.LogLevel;
 import xj.interfaces.log.LogService;
 import xj.tool.StrPool;
 

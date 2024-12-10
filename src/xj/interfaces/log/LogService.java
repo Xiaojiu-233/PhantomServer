@@ -1,5 +1,7 @@
 package xj.interfaces.log;
 
+import xj.enums.log.LogLevel;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Date;
@@ -9,7 +11,7 @@ import java.util.Date;
 public interface LogService {
 
     // 处理接入的消息
-    public String handleMessage(Date date,LogLevel level,String message,Object... args);
+    public String handleMessage(Date date, LogLevel level, String message, Object... args);
 
     // 确定日志输出文件的名字，以日期为参数
     public String setLogFileName(Date date);

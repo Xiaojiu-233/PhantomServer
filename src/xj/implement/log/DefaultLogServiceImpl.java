@@ -1,6 +1,6 @@
 package xj.implement.log;
 
-import xj.interfaces.log.LogLevel;
+import xj.enums.log.LogLevel;
 import xj.interfaces.log.LogService;
 
 import java.io.BufferedWriter;

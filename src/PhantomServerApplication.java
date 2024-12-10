@@ -1,6 +1,7 @@
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.server.ServerManager;
+import xj.core.threadPool.ThreadPoolManager;
 
 //用于启动整个系统的应用类，项目的基础
 public class PhantomServerApplication {
@@ -13,6 +14,7 @@ public class PhantomServerApplication {
             LogManager.info("-----服务器进入准备阶段！-----");
             ConfigureManager.getInstance();
             ServerManager.getInstance();
+            ThreadPoolManager.getInstance();
             //2.拓展jar包的读取与调用初始化方法
             LogManager.info("-----服务器进入拓展程序调用阶段！-----");
             //3.IOC容器反射读取拓展程序

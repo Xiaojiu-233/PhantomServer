@@ -6,7 +6,12 @@ server:
 thread-pool:
   max-thread: 20 # 最大线程数
   core-thread: 10 # 核心线程数
-  queue-capacity: 5 # 工作队列大小
+  queue-capacity: 10 # 任务队列大小
+  thread-name: thread # 工作线程名称
+  # 拒绝策略，可提供的选择：THROW_EXCEPTION(抛出异常)
+  # THROW_TASK(不执行该任务) THROW_QUEUE_TASK(将线程池里最早进入队列的任务)
+  refuse-strategy: THROW_TASK
+
 
 # MVC配置
 mvc:
