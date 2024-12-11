@@ -4,6 +4,7 @@ import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.implement.observer.ServerSocketObserver;
 import xj.implement.observer.SocketObserverContainer;
+import xj.tool.ConfigPool;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,7 +17,7 @@ public class ServerManager {
     // 成员属性
     private static ServerManager instance; // 单例模式实现
 
-    private int port;//监听端口
+    private int port;// 监听端口
 
     private SocketObserverContainer<Socket> observerContainer;// 观察者容器
 
@@ -25,7 +26,7 @@ public class ServerManager {
     public ServerManager(){
         LogManager.info("【服务器模块】开始初始化");
         // 获取配置
-        port = (int) ConfigureManager.getInstance().getConfig("server.port");
+        port = (int) ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.PORT);
         LogManager.info("服务器使用的端口为",port);
         // 设置观察者容器用于监听
         observerContainer = new SocketObserverContainer<>();

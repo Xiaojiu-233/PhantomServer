@@ -8,6 +8,7 @@ public interface StrPool {
     public static final String SLASH = "\\";
     public static final String SPACE = " ";
     public static final String UNDERLINE = "_";
+    public static final String HYPHEN = "-";
 
     //后缀
     public static final String LOG_POINT = ".log";

@@ -5,4 +5,10 @@ public interface ThreadTask {
 
     // 执行任务
     public void doTask();
+
+    // 任务被抛弃时执行程序
+    public void doDestroy();
+
+    // 任务说明（用于在日志中表达）
+    public String getLogDescribe();
 }

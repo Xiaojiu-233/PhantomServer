@@ -11,7 +11,7 @@ public class WorkingThread extends Thread {
 
     private boolean enable = true;// 当前线程是否为运行状态
 
-    private Object lock = new Object();// 线程锁
+    private final Object lock = new Object();// 线程锁
 
     // 成员行为
     // 初始化
@@ -23,16 +23,21 @@ public class WorkingThread extends Thread {
     // 工作线程执行内容
     @Override
     public void run() {
-        LogManager.info("工作线程正式启动，线程名",getName());
-        while(enable){
+        LogManager.info("[{}] 正在启动",getName());
+        while(true){
             synchronized (lock){
+                // 当前线程是否可运作
+                if(!enable)break;
+                // 当前线程执行线程任务
                 if(workingTask != null){
+                    LogManager.info("[{}] 收到任务：{}",getName(),workingTask.getLogDescribe());
                     workingTask.doTask();
+                    LogManager.info("[{}] 完成任务：{}",getName(),workingTask.getLogDescribe());
                     workingTask = null;
                 }
             }
         }
-        LogManager.info("工作线程结束，线程名",getName());
+        LogManager.info("[{}] 结束运行",getName());
     }
 
     // 设置线程任务
@@ -49,5 +54,8 @@ public class WorkingThread extends Thread {
         }
     }
 
-    //
+    // 该线程是否空闲
+    public boolean isFreeThread(){
+        return workingTask == null;
+    }
 }

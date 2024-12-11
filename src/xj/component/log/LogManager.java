@@ -4,6 +4,7 @@ import xj.component.conf.ConfigureManager;
 import xj.implement.log.DefaultLogServiceImpl;
 import xj.enums.log.LogLevel;
 import xj.interfaces.log.LogService;
+import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
 import java.io.*;
@@ -49,7 +50,7 @@ public class LogManager {
     public void initLogManager() {
         info("【日志模块】开始自定义初始化");
         // 读取配置并执行相应策略
-        String chooseLogService = (String) ConfigureManager.getInstance().getConfig("log.choose-class");
+        String chooseLogService = (String) ConfigureManager.getInstance().getConfig(ConfigPool.LOG.CHOOSE_CLASS);
         // 通过IOC容器找到对应的logService对象，如果没找到则继续使用默认的
         logService = new DefaultLogServiceImpl();
 
