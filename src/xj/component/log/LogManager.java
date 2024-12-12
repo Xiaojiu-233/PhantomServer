@@ -36,14 +36,14 @@ public class LogManager {
         // 读取配置并执行相应策略
         String outputFile = outputFilePath + StrPool.SLASH + prepareFileName
                 + StrPool.LOG_POINT;
-        // 开启日志线程
-        startLog();
         // 初始化输出流等资源
         try {
             outputWriter = logService.setOutputWriter(outputFile);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        // 开启日志线程
+        startLog();
     }
 
     //初始化（服务器开机阶段，可以执行用户的自定义日志模块）

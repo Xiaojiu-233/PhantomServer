@@ -5,12 +5,13 @@ public interface ConfigPool {
 
     // 线程池
     public interface THREAD_POOL {
-        public static final String MAX_THREAD = "thread-pool.max-thread";
-        public static final String CORE_THREAD = "thread-pool.core-thread";
-        public static final String QUEUE_CAPACITY = "thread-pool.queue-capacity";
-        public static final String LONG_CONNECT_MAX_THREAD = "thread-pool.long-connect-max-thread";
-        public static final String THREAD_NAME = "thread-pool.thread-name";
-        public static final String REJECT_STRATEGY = "thread-pool.reject-strategy";
+        public static final String MAX_THREAD = "thread-pool.pool.max-thread";
+        public static final String CORE_THREAD = "thread-pool.pool.core-thread";
+        public static final String QUEUE_CAPACITY = "thread-pool.pool.queue-capacity";
+        public static final String LONG_CONNECT_MAX_THREAD = "thread-pool.pool.long-connect-max-thread";
+        public static final String THREAD_NAME = "thread-pool.thread.thread-name";
+        public static final String MAX_FREE_TIME = "thread-pool.thread.max-free-time";
+        public static final String REJECT_STRATEGY = "thread-pool.pool.reject-strategy";
     }
 
     // 服务器

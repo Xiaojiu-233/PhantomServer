@@ -7,6 +7,7 @@ public class WorkingThreadFactory {
 
     // 成员属性
     private String threadName = "";// 工作线程名称
+
     private int threadCounter = 0;// 线程计数器，用于线程命名
 
     // 成员行为
@@ -15,8 +16,13 @@ public class WorkingThreadFactory {
         this.threadName = threadName;
     }
 
-    // 生产线程对象
-    public WorkingThread productThread(){
-        return new WorkingThread(threadName + StrPool.HYPHEN + threadCounter++);
+    // 生产核心线程对象
+    public WorkingThread productCoreThread(){
+        return new WorkingThread(threadName + StrPool.HYPHEN + threadCounter++,false);
+    }
+
+    // 生产普通线程对象
+    public WorkingThread productCommonThread(){
+        return new WorkingThread(threadName + StrPool.HYPHEN + threadCounter++,true);
     }
 }

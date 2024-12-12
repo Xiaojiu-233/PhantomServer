@@ -25,6 +25,9 @@ public class PhantomServerApplication {
             LogManager.info("-----服务器完成启动！开始运行-----");
             ServerManager.getInstance().openServer();
         }catch (Exception e){
+            if(LogManager.getInstance() != null){
+                LogManager.error("出现未知异常",e);
+            }
             e.printStackTrace();
         }
     }
