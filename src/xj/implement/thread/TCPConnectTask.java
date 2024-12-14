@@ -3,9 +3,7 @@ package xj.implement.thread;
 import xj.component.log.LogManager;
 import xj.interfaces.thread.ThreadTask;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
 
 // 处理TCP连接的线程任务
@@ -26,14 +24,10 @@ public class TCPConnectTask implements ThreadTask {
         // 获取当前线程名
         String threadName = Thread.currentThread().getName();
         String inputLine;
-        // 根据第一个连接传入的数据确定获得的连接处理器
-        try(BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()))){
-            while (true) {
-                // 读取到信息后
-                if((inputLine = in.readLine()) != null){
+        // 确定输出输入流，开始处理socket
+        try(BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()))){
 
-                }
-            }
         } catch (IOException e) {
             LogManager.error("[{}] 的TCP连接任务接收socket消息时出现异常：{}",threadName,e);
         }
