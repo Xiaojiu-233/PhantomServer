@@ -10,7 +10,7 @@ import java.util.List;
 // socket连接用观察者容器，用于管理装载socket连接用观察者
 public class SocketObserverContainer<E> implements ObserverContainer<SocketObserver<E>, E> {
 
-    private List<SocketObserver<E>> observers = new ArrayList<>();
+    private final List<SocketObserver<E>> observers = new ArrayList<>();
 
     @Override
     public void addObserver(SocketObserver<E> observer) {

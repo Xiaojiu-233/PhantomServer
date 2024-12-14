@@ -17,9 +17,9 @@ public class ServerManager {
     // 成员属性
     private static ServerManager instance; // 单例模式实现
 
-    private int port;// 监听端口
+    private final int port;// 监听端口
 
-    private SocketObserverContainer<Socket> observerContainer;// 观察者容器
+    private SocketObserverContainer observerContainer;// 观察者容器
 
     // 成员方法
     // 初始化

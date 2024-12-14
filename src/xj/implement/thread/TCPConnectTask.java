@@ -1,6 +1,7 @@
 package xj.implement.thread;
 
 import xj.component.log.LogManager;
+import xj.interfaces.connect.ConnectHandler;
 import xj.interfaces.thread.ThreadTask;
 
 import java.io.*;
@@ -11,6 +12,8 @@ public class TCPConnectTask implements ThreadTask {
 
     // 成员属性
     private Socket client;// 客户端连接socket
+
+    private ConnectHandler handler;// 消息处理器
 
     // 成员方法
     // 初始化
@@ -27,7 +30,12 @@ public class TCPConnectTask implements ThreadTask {
         // 确定输出输入流，开始处理socket
         try(BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()))){
-
+            while(true){
+                // 存在消息时读取消息并打包成数据包
+                // 如果消息处理器为空则使用处理器工厂创建消息对应的消息处理器
+                // 将数据包消息传递给处理器进行处理
+                // 处理器处理完成后返回消息并打包成响应数据包发送给客户端
+            }
         } catch (IOException e) {
             LogManager.error("[{}] 的TCP连接任务接收socket消息时出现异常：{}",threadName,e);
         }
