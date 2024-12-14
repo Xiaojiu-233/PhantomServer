@@ -21,7 +21,7 @@ public class ServerManager {
 
     private SocketObserverContainer<Socket> observerContainer;// 观察者容器
 
-    // 成员行为
+    // 成员方法
     // 初始化
     public ServerManager(){
         LogManager.info("【服务器模块】开始初始化");

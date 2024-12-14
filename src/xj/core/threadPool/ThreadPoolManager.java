@@ -2,6 +2,9 @@ package xj.core.threadPool;
 
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
+import xj.core.threadPool.factory.ConnectHandlerFactory;
+import xj.core.threadPool.factory.ThreadTaskFactory;
+import xj.core.threadPool.factory.WorkingThreadFactory;
 import xj.enums.thread.RejectStrategy;
 import xj.interfaces.thread.ThreadTask;
 import xj.tool.ConfigPool;
@@ -31,12 +34,13 @@ public class ThreadPoolManager {
     private final Object commonPoolLock = new Object();// 普通线程池锁
 
 
-    // 成员行为
+    // 成员方法
     // 初始化
     public ThreadPoolManager() {
         LogManager.info("【线程池模块】开始初始化");
         initConfig();
         initContainer();
+        initFactory();
         LogManager.info("【线程池模块】初始化完毕");
     }
 
@@ -75,6 +79,13 @@ public class ThreadPoolManager {
         }catch (Exception e){
             LogManager.error("线程池创建容器时出现异常",e);
         }
+    }
+
+    // 初始化线程使用的相关工厂
+    public void initFactory(){
+        LogManager.info("【线程池模块】正在初始化线程池相关工厂...");
+        ThreadTaskFactory.getInstance();
+        ConnectHandlerFactory.getInstance();
     }
 
     // 获取单例（防止高并发导致资源访问问题进行双判空保护）

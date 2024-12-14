@@ -28,7 +28,7 @@ public class LogManager {
 
     private Queue<String> messageQueue = new LinkedList<>();// 消息队列
 
-    // 成员行为
+    // 成员方法
     // 初始化（服务器准备阶段，由默认配置进行日志记录）
     public LogManager() {
         // 默认对象初始化

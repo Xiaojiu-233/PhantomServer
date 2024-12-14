@@ -21,7 +21,7 @@ public class WorkingThread extends Thread {
 
     private LocalTime timer;// 超时计时器
 
-    // 成员行为
+    // 成员方法
     // 初始化
     public WorkingThread(String name,boolean commonThread){
         super(name);
@@ -33,7 +33,7 @@ public class WorkingThread extends Thread {
     // 工作线程执行内容
     @Override
     public void run() {
-        LogManager.info("[{}] 正在启动",getName());
+        LogManager.info("[{}] 正在启动...",getName());
         while(true){
             synchronized (lock){
                 if(workingTask != null){
@@ -60,7 +60,7 @@ public class WorkingThread extends Thread {
                 if(!enable)break;
             }
         }
-        LogManager.info("[{}] 结束运行",getName());
+        LogManager.info("[{}] 结束运行...",getName());
     }
 
     // 设置线程任务

@@ -21,7 +21,7 @@ public class ConfigureManager {
 
     private Map<String,Object> configList = new HashMap<>();// 配置列表
 
-    // 成员行为
+    // 成员方法
     // 初始化
     public ConfigureManager() {
         LogManager.info("【配置模块】开始初始化");
