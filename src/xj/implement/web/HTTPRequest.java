@@ -1,0 +1,65 @@
+package xj.implement.web;
+
+import xj.abstracts.web.Request;
+import xj.tool.StrPool;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+// HTTP协议请求对象，用于处理HTTP协议
+public class HTTPRequest extends Request {
+
+    // 成员属性
+    private RequestMethod method;// 请求方法
+
+    private String url;// 请求路径
+
+    private String httpVersion;// HTTP协议版本
+
+    private Map<String, String> headers = new HashMap<>();// 请求头
+
+    private String body;// 请求体
+
+    private byte[] bodyBytes;// 请求体二进制版本
+
+    // 成员方法
+    // 构造函数
+    public HTTPRequest(Request request) {
+        super(request.getData());
+        selfAnalysis();
+    }
+
+    // 自解析
+    // TODO:做好这个的单元测试！
+    private void selfAnalysis(){
+        // 拆解数据
+        String[] lines = encodeToString();
+        int rowRead = 0;
+        int byteRead = 0;
+        // 确定请求方法，请求路径url，版本
+        String[] headArgs = lines[0].split(StrPool.SPACE );
+        method = RequestMethod.valueOf(headArgs[0]);
+        url = headArgs[1];
+        httpVersion = headArgs[2].split(StrPool.BACK_SLASH)[1];
+        byteRead += lines[rowRead++].getBytes().length;
+        // 确定请求头
+        while(!lines[rowRead].isEmpty()){
+            String[] args = lines[rowRead].split(StrPool.COLON + StrPool.SPACE);
+            headers.put(args[0], args[1]);
+            byteRead += lines[rowRead++].getBytes().length;
+        }
+        rowRead++;
+        // 根据上述数据划分请求体，得到二进制数据
+        byteRead += rowRead * lineBreak.length();
+        bodyBytes = Arrays.copyOfRange(data,byteRead,data.length);
+        // 根据得到的Content-Type，处理请求体
+        // TODO:先处理好Content-Type代码！
+    }
+
+    // 内部自定义成员
+    // 请求方法枚举
+    public enum RequestMethod {
+        GET, POST, PUT, DELETE
+    }
+}

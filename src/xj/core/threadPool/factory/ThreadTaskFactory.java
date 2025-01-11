@@ -1,7 +1,6 @@
 package xj.core.threadPool.factory;
 
 import xj.component.log.LogManager;
-import xj.core.threadPool.ThreadPoolManager;
 import xj.implement.thread.TCPConnectTask;
 import xj.interfaces.thread.ThreadTask;
 
@@ -11,7 +10,7 @@ import java.net.Socket;
 public class ThreadTaskFactory {
 
     // 成员属性
-    private static ThreadTaskFactory instance;// 单例模式实现
+    private static volatile ThreadTaskFactory instance;// 单例模式实现
 
     // 成员方法
     // 获取单例（防止高并发导致资源访问问题进行双判空保护）
@@ -27,7 +26,6 @@ public class ThreadTaskFactory {
     // 初始化
     public ThreadTaskFactory(){
         LogManager.info("线程任务工厂正在构建...");
-        LogManager.info("线程任务工厂构建完毕...");
     }
 
     // 创建TCP连接任务

@@ -2,9 +2,7 @@ package xj.core.threadPool;
 
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
-import xj.core.threadPool.factory.ConnectHandlerFactory;
-import xj.core.threadPool.factory.ThreadTaskFactory;
-import xj.core.threadPool.factory.WorkingThreadFactory;
+import xj.core.threadPool.factory.*;
 import xj.enums.thread.RejectStrategy;
 import xj.interfaces.thread.ThreadTask;
 import xj.tool.ConfigPool;
@@ -16,7 +14,7 @@ import java.util.*;
 public class ThreadPoolManager {
 
     // 成员属性
-    private static ThreadPoolManager instance;// 单例模式实现
+    private static volatile ThreadPoolManager instance;// 单例模式实现
 
     private int maxThread = 0;// 最大线程数
     private int coreThread = 0;// 最大线程数

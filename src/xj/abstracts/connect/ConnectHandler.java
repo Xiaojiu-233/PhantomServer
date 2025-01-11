@@ -1,11 +1,10 @@
-package xj.implement.connect;
+package xj.abstracts.connect;
 
+import xj.abstracts.web.Request;
+import xj.abstracts.web.Response;
 import xj.component.log.LogManager;
-import xj.interfaces.connect.Request;
-import xj.interfaces.connect.Response;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 // 连接处理器，为连接用动态线程池处理TCP连接的解决方案接口
 // 实现该接口的类都能作为服务器处理TCP连接的解决方案程序
@@ -20,12 +19,17 @@ public abstract class ConnectHandler {
     // 返回对应的Response
     abstract public Response returnResponse();
 
+    // 断开连接的时机确认(默认情况为直接关闭)
+    public boolean needEndConnection() {
+        return true;
+    }
+
     // 复制自身对象
-    public ConnectHandler clone(){
+    public ConnectHandler cloneSelf(){
         try {
-            Constructor con =  getClass().getDeclaredConstructor();
+            Constructor<? extends ConnectHandler> con =  getClass().getDeclaredConstructor();
             con.setAccessible(true);
-            return (ConnectHandler) con.newInstance();
+            return con.newInstance();
         } catch (Exception e){
             LogManager.error("连接处理器复制时出现异常",e);
             return null;

@@ -15,7 +15,7 @@ import java.util.Observer;
 public class ServerManager {
 
     // 成员属性
-    private static ServerManager instance; // 单例模式实现
+    private static volatile ServerManager instance; // 单例模式实现
 
     private final int port;// 监听端口
 

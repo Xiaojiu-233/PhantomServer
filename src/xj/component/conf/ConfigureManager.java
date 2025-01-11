@@ -15,7 +15,7 @@ import java.util.Map;
 public class ConfigureManager {
 
     // 成员属性
-    private static ConfigureManager instance;// 单例模式实现
+    private static volatile ConfigureManager instance;// 单例模式实现
 
     private final String configPath = "resource/config.yml";// 配置读取路径
 
@@ -65,6 +65,13 @@ public class ConfigureManager {
         String workpath = System.getProperty("user.dir");
         configList.put("workpath",workpath);
         LogManager.info("当前的工作路径为",workpath);
+        // 读取操作系统名称
+        String osName = System.getProperty("os.name");
+        configList.put("osName",osName);
+        LogManager.info("当前的操作系统为",osName);
+        // 读取换行符
+        String lineBreak = System.getProperty("line.separator","\n");
+        configList.put("lineBreak",lineBreak);
     }
 
     // dfs遍历读取map容器数据并存入配置列表

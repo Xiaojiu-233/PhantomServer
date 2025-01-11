@@ -2,10 +2,11 @@ package xj.implement.thread;
 
 import xj.component.log.LogManager;
 import xj.core.threadPool.factory.ConnectHandlerFactory;
-import xj.implement.connect.ConnectHandler;
-import xj.interfaces.connect.Request;
-import xj.interfaces.connect.Response;
+import xj.abstracts.connect.ConnectHandler;
+import xj.abstracts.web.Request;
+import xj.abstracts.web.Response;
 import xj.interfaces.thread.ThreadTask;
+import xj.tool.ProtocolUtils;
 
 import java.io.*;
 import java.net.Socket;
@@ -31,11 +32,12 @@ public class TCPConnectTask implements ThreadTask {
         String threadName = Thread.currentThread().getName();
         String inputLine;
         // 确定输出输入流，开始处理socket
-        try(BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()))){
+        try(InputStream in = client.getInputStream();
+            OutputStream out = client.getOutputStream()){
             while(true){
                 // 存在消息时读取消息并打包成数据包
-                Request request = null;
+                Request request = ProtocolUtils.getProtocolRequest(in);
+                if(request.isEmptyData()) continue;
                 // 如果消息处理器为空则使用处理器工厂创建消息对应的消息处理器
                 if(handler == null)
                     handler = ConnectHandlerFactory.getInstance().getMatchConnectHandler(request);
@@ -43,9 +45,18 @@ public class TCPConnectTask implements ThreadTask {
                 handler.handle(request);
                 // 处理器处理完成后返回消息并打包成响应数据包发送给客户端
                 Response response = handler.returnResponse();
+                response.writeMessage(out);
+                // 判断是否可以结束连接
+                if(handler.needEndConnection()) break;
             }
         } catch (IOException e) {
             LogManager.error("[{}] 的TCP连接任务接收socket消息时出现异常：{}",threadName,e);
+        }
+        // 连接结束
+        try {
+            client.close();
+        } catch (IOException e) {
+            LogManager.error("[{}] 的TCP连接任务结束socket连接时出现异常：{}",threadName,e);
         }
     }
 

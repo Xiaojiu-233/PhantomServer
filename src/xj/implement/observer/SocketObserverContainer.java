@@ -3,7 +3,6 @@ package xj.implement.observer;
 import xj.interfaces.observer.ObserverContainer;
 import xj.interfaces.observer.SocketObserver;
 
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 

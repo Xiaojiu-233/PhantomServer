@@ -1,7 +1,8 @@
 package xj.implement.connect;
 
-import xj.interfaces.connect.Request;
-import xj.interfaces.connect.Response;
+import xj.abstracts.connect.ConnectHandler;
+import xj.abstracts.web.Request;
+import xj.abstracts.web.Response;
 
 // TCP协议短连接处理器
 public class TCPShortConnectHandler extends ConnectHandler {

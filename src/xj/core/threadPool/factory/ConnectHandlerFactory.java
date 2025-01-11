@@ -1,11 +1,11 @@
 package xj.core.threadPool.factory;
 
 import xj.component.log.LogManager;
-import xj.implement.connect.ConnectHandler;
+import xj.abstracts.connect.ConnectHandler;
 import xj.implement.connect.HTTPConnectHandler;
 import xj.implement.connect.TCPLongConnectHandler;
 import xj.implement.connect.TCPShortConnectHandler;
-import xj.interfaces.connect.Request;
+import xj.abstracts.web.Request;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
 public class ConnectHandlerFactory {
 
     // 成员属性
-    private static ConnectHandlerFactory instance;// 单例模式实现
+    private static volatile ConnectHandlerFactory instance;// 单例模式实现
 
     private List<ConnectHandler> handlerList;// 连接处理器列表
 
@@ -32,14 +32,14 @@ public class ConnectHandlerFactory {
     // 初始化
     public ConnectHandlerFactory(){
         LogManager.info("连接处理器工厂正在构建...");
-        // 初始化连接处理器列表并导入默认的连接处理器
+        // 初始化连接处理器列表
         handlerList = new ArrayList<ConnectHandler>();
+        // 通过IOC容器导入拓展连接处理器对象
+
+        // 导入默认的连接处理器
         handlerList.add(new HTTPConnectHandler());
         handlerList.add(new TCPLongConnectHandler());
         handlerList.add(new TCPShortConnectHandler());
-        // 通过IOC容器导入拓展连接处理器对象
-
-        LogManager.info("连接处理器工厂构建完毕...");
     }
 
     // 根据提供的请求，返回合适的连接处理器对象
@@ -48,12 +48,11 @@ public class ConnectHandlerFactory {
         for(ConnectHandler handler : handlerList){
             // 判定是否匹配，匹配成功则复制并返回指定对象
             if(handler.isMatchedRequest(request)){
-                return handler.clone();
+                return handler.cloneSelf();
             }
         }
         // 如果没有合适的处理器对象，将抛出错误并返回null
         LogManager.error("没有找到合适的处理器对象",request);
         return null;
     }
-
 }

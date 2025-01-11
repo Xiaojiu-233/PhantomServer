@@ -16,7 +16,7 @@ import java.util.Queue;
 public class LogManager {
 
     // 成员属性
-    private static LogManager instance;// 单例模式实现
+    private static volatile LogManager instance;// 单例模式实现
 
     private final String outputFilePath = "log";// 输出文件路径
     private final String prepareFileName = "preparePeriodLog";// 准备阶段日志文件名
@@ -34,7 +34,7 @@ public class LogManager {
         // 默认对象初始化
         logService = new DefaultLogServiceImpl();
         // 读取配置并执行相应策略
-        String outputFile = outputFilePath + StrPool.SLASH + prepareFileName
+        String outputFile = outputFilePath + StrPool.BACK_SLASH + prepareFileName
                 + StrPool.LOG_POINT;
         // 初始化输出流等资源
         try {
@@ -55,8 +55,8 @@ public class LogManager {
         logService = new DefaultLogServiceImpl();
 
         // 读取输出文件名
-        String outputFile = ConfigureManager.getInstance().getConfig("workpath") + StrPool.SLASH + outputFilePath
-                + StrPool.SLASH + logService.setLogFileName(new Date()) + StrPool.LOG_POINT;
+        String outputFile = ConfigureManager.getInstance().getConfig("workpath") + StrPool.BACK_SLASH + outputFilePath
+                + StrPool.BACK_SLASH + logService.setLogFileName(new Date()) + StrPool.LOG_POINT;
         try {
             // 没有文件时创建文件
             File file = new File(outputFile);
