@@ -1,6 +1,7 @@
 package xj.implement.web;
 
 import xj.abstracts.web.Request;
+import xj.enums.web.RequestMethod;
 import xj.tool.StrPool;
 
 import java.util.Arrays;
@@ -19,9 +20,7 @@ public class HTTPRequest extends Request {
 
     private Map<String, String> headers = new HashMap<>();// 请求头
 
-    private String body;// 请求体
-
-    private byte[] bodyBytes;// 请求体二进制版本
+    private byte[] bodyBytes = new byte[0];// 请求体二进制版本
 
     // 成员方法
     // 构造函数
@@ -31,7 +30,6 @@ public class HTTPRequest extends Request {
     }
 
     // 自解析
-    // TODO:做好这个的单元测试！
     private void selfAnalysis(){
         // 拆解数据
         String[] lines = encodeToString();
@@ -41,25 +39,18 @@ public class HTTPRequest extends Request {
         String[] headArgs = lines[0].split(StrPool.SPACE );
         method = RequestMethod.valueOf(headArgs[0]);
         url = headArgs[1];
-        httpVersion = headArgs[2].split(StrPool.BACK_SLASH)[1];
+        httpVersion = headArgs[2].split(StrPool.SLASH)[1];
         byteRead += lines[rowRead++].getBytes().length;
         // 确定请求头
-        while(!lines[rowRead].isEmpty()){
+        while(rowRead < lines.length && !lines[rowRead].isEmpty()){
             String[] args = lines[rowRead].split(StrPool.COLON + StrPool.SPACE);
             headers.put(args[0], args[1]);
             byteRead += lines[rowRead++].getBytes().length;
         }
-        rowRead++;
-        // 根据上述数据划分请求体，得到二进制数据
-        byteRead += rowRead * lineBreak.length();
-        bodyBytes = Arrays.copyOfRange(data,byteRead,data.length);
-        // 根据得到的Content-Type，处理请求体
-        // TODO:先处理好Content-Type代码！
-    }
-
-    // 内部自定义成员
-    // 请求方法枚举
-    public enum RequestMethod {
-        GET, POST, PUT, DELETE
+        // 如果是POST请求方法，则根据上述数据划分请求体，得到二进制数据
+        if(method.equals(RequestMethod.POST)){
+            byteRead += ++rowRead * 2;
+            bodyBytes = Arrays.copyOfRange(data,byteRead,data.length);
+        }
     }
 }

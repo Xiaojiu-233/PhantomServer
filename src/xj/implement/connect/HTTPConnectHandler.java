@@ -3,12 +3,24 @@ package xj.implement.connect;
 import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
+import xj.component.conf.ConfigureManager;
+import xj.component.log.LogManager;
+import xj.enums.web.CharacterEncoding;
+import xj.enums.web.StatuCode;
 import xj.implement.web.HTTPRequest;
+import xj.implement.web.HTTPResponse;
+import xj.tool.ConfigPool;
 import xj.tool.StrPool;
+
+import java.io.UnsupportedEncodingException;
 
 // HTTP协议连接处理器
 public class HTTPConnectHandler extends ConnectHandler {
 
+    // 成员属性
+    private HTTPResponse httpResponse;// HTTP协议响应对象
+
+    // 成员行为
     @Override
     public boolean isMatchedRequest(Request request) {
         String[] firstLineArgs = request.encodeToString()[0].split(StrPool.SPACE );
@@ -19,10 +31,21 @@ public class HTTPConnectHandler extends ConnectHandler {
     public void handle(Request request) {
         // 将协议请求转化为HTTP请求
         HTTPRequest httpRequest = new HTTPRequest(request);
+        // 转交给MVC模块进行处理
     }
 
     @Override
     public Response returnResponse() {
-        return null;
+        // 测试用：返回一个默认HTTP响应
+        try {
+            String resp = "hello world!";
+            httpResponse = new HTTPResponse(StatuCode.OK, CharacterEncoding.UTF_8,resp.getBytes(CharacterEncoding.UTF_8.getShowStyle()));
+            httpResponse.setHeaders("Content-Type", "text/plain");
+        } catch (UnsupportedEncodingException e) {
+            LogManager.error("在创建响应对象时发生错误",e);
+        }
+
+        // 将从MVC模块得到的响应返回
+        return httpResponse;
     }
 }

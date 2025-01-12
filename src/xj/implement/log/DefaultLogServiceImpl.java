@@ -28,7 +28,7 @@ public class DefaultLogServiceImpl implements LogService {
                 sb.append(i-1 < args.length ? args[i-1].toString() : "null").append(msg[i]);
             }
             if(message.endsWith("{}")){
-                sb.append(args.length > msg.length ? args[msgLen-1].toString() : "null");
+                sb.append(args.length >= msg.length ? args[msgLen-1].toString() : "null");
             }
         }else{
             sb.append(message);

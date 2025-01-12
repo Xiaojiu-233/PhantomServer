@@ -55,7 +55,7 @@ public class ServerManager {
                 if(clientSocket != null){
                     // 监听到客户端连接的socket之后，交给观察者们处理
                     LogManager.info("接收到客户端的连接请求 -> 互联网地址：{} 本地地址：{} 端口：{}"
-                            ,clientSocket.getInetAddress(),clientSocket.getLocalAddress(),clientSocket.getLocalPort());
+                            ,clientSocket.getInetAddress(),clientSocket.getLocalAddress(),clientSocket.getPort());
                     observerContainer.notifyObservers(clientSocket);
                 }
             }

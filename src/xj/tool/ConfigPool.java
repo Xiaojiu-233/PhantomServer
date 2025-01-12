@@ -17,6 +17,7 @@ public interface ConfigPool {
     // 服务器
     public interface SERVER {
         public static final String PORT = "server.port";
+        public static final String NAME = "server.name";
     }
 
     // 日志

@@ -44,15 +44,17 @@ public class ConnectHandlerFactory {
 
     // 根据提供的请求，返回合适的连接处理器对象
     public ConnectHandler getMatchConnectHandler(Request request){
-        // 遍历列表，寻找合适的处理器
-        for(ConnectHandler handler : handlerList){
-            // 判定是否匹配，匹配成功则复制并返回指定对象
-            if(handler.isMatchedRequest(request)){
-                return handler.cloneSelf();
+        synchronized(ConnectHandlerFactory.class){
+            // 遍历列表，寻找合适的处理器
+            for(ConnectHandler handler : handlerList){
+                // 判定是否匹配，匹配成功则复制并返回指定对象
+                if(handler.isMatchedRequest(request)){
+                    return handler.cloneSelf();
+                }
             }
+            // 如果没有合适的处理器对象，将抛出错误并返回null
+            LogManager.error("没有找到合适的处理器对象",request.getClass().getName());
+            return null;
         }
-        // 如果没有合适的处理器对象，将抛出错误并返回null
-        LogManager.error("没有找到合适的处理器对象",request);
-        return null;
     }
 }

@@ -15,11 +15,10 @@ public class ProtocolUtils {
         byte[] buffer = new byte[Constant.BYTES_UNIT_CAPACITY];
         int bytesRead = 0;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        while ((bytesRead = in.read(buffer)) != -1) {
+        while (in.available() > 0) {
+            bytesRead = in.read(buffer);
             bos.write(buffer, 0, bytesRead);
         }
-        Request req = new ProtocolRequest(bos.toByteArray());
-        bos.close();
-        return req;
+        return new ProtocolRequest(bos.toByteArray());
     }
 }
