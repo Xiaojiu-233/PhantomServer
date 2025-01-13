@@ -33,14 +33,14 @@ public class WorkingThread extends Thread {
     // 工作线程执行内容
     @Override
     public void run() {
-        LogManager.info("[{}] 正在启动...",getName());
+        LogManager.info_("[{}] 正在启动...",getName());
         while(true){
             synchronized (lock){
                 if(workingTask != null){
                     // 当前线程有任务时，执行线程任务
-                    LogManager.info("[{}] 收到任务：{}",getName(),workingTask.getLogDescribe());
+                    LogManager.info_("[{}] 收到任务：{}",getName(),workingTask.getLogDescribe());
                     workingTask.doTask();
-                    LogManager.info("[{}] 完成任务：{}",getName(),workingTask.getLogDescribe());
+                    LogManager.info_("[{}] 完成任务：{}",getName(),workingTask.getLogDescribe());
                     workingTask = null;
                 }else if(!ThreadPoolManager.getInstance().queueEmpty()){
                     // 当前线程没有任务但是任务队列有任务存在
@@ -60,7 +60,7 @@ public class WorkingThread extends Thread {
                 if(!enable)break;
             }
         }
-        LogManager.info("[{}] 结束运行...",getName());
+        LogManager.info_("[{}] 结束运行...",getName());
     }
 
     // 设置线程任务

@@ -3,6 +3,7 @@ package xj.component.log;
 import xj.component.conf.ConfigureManager;
 import xj.implement.log.DefaultLogServiceImpl;
 import xj.enums.log.LogLevel;
+import xj.interfaces.component.ILogManager;
 import xj.interfaces.log.LogService;
 import xj.tool.ConfigPool;
 import xj.tool.StrPool;
@@ -13,7 +14,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 // 日志管理器，用于管理与输出服务器产生的各种日志、选择处理日志拓展程序
-public class LogManager {
+public class LogManager implements ILogManager {
 
     // 成员属性
     private static volatile LogManager instance;// 单例模式实现
@@ -71,7 +72,7 @@ public class LogManager {
                 outputWriter = logService.setOutputWriter(outputFile);
             }
         } catch (Exception e) {
-            LogManager.error("服务器开机初始化日志模块时出现异常", e);
+            error_("服务器开机初始化日志模块时出现异常", e);
         }
         info("【日志模块】自定义初始化完成");
     }
@@ -87,19 +88,37 @@ public class LogManager {
     }
 
     // 日志存入队列，交给日志线程处理
-    public static void info(String message,Object... args){
+    @Override
+    public void info(String message,Object... args){
+        info_(message, args);
+    }
+    @Override
+    public void warn(String message,Object... args){
+        warn_(message, args);
+    }
+    @Override
+    public void debug(String message,Object... args){
+        debug_(message, args);
+    }
+    @Override
+    public void error(String message,Object... args){
+        error_(message, args);
+    }
+
+    // 系统内部静态静态调用，日志存入队列，交给日志线程处理
+    public static void info_(String message,Object... args){
         String handledMsg = getInstance().logService.handleMessage(new Date(), LogLevel.INFO,message,args);
         pushIntoQueue(handledMsg);
     }
-    public static void warn(String message,Object... args){
+    public static void warn_(String message,Object... args){
         String handledMsg = getInstance().logService.handleMessage(new Date(), LogLevel.WARNING,message,args);
         pushIntoQueue(handledMsg);
     }
-    public static void debug(String message,Object... args){
+    public static void debug_(String message,Object... args){
         String handledMsg = getInstance().logService.handleMessage(new Date(), LogLevel.DEBUG,message,args);
         pushIntoQueue(handledMsg);
     }
-    public static void error(String message,Object... args){
+    public static void error_(String message,Object... args){
         String handledMsg = getInstance().logService.handleMessage(new Date(), LogLevel.ERROR,message,args);
         pushIntoQueue(handledMsg);
     }
@@ -133,7 +152,7 @@ public class LogManager {
                                 outputWriter.flush();
                             }
                         } catch (IOException e) {
-                            LogManager.error("输出日志记录时出现异常", e);
+                            error_("输出日志记录时出现异常", e);
                         }
                         // 执行service的额外输出任务，诸如命令行显示等其他输出方式
                         logService.exOutputForm(msg);
@@ -154,7 +173,7 @@ public class LogManager {
                 }
             }
         } catch (IOException e) {
-            LogManager.error("关闭日志模块时出现异常", e);
+            error_("关闭日志模块时出现异常", e);
         }
 
     }

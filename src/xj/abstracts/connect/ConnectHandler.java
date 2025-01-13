@@ -31,7 +31,7 @@ public abstract class ConnectHandler {
             con.setAccessible(true);
             return con.newInstance();
         } catch (Exception e){
-            LogManager.error("连接处理器复制时出现异常",e);
+            LogManager.error_("连接处理器复制时出现异常",e);
             return null;
         }
     }

@@ -3,6 +3,7 @@ package xj.component.conf;
 import org.yaml.snakeyaml.Yaml;
 import sun.rmi.runtime.Log;
 import xj.component.log.LogManager;
+import xj.interfaces.component.IConfigureManager;
 import xj.tool.StrPool;
 
 import java.io.FileInputStream;
@@ -12,7 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 // 配置管理器，用于读取与管理与服务器相关的各种配置
-public class ConfigureManager {
+public class ConfigureManager implements IConfigureManager {
 
     // 成员属性
     private static volatile ConfigureManager instance;// 单例模式实现
@@ -24,10 +25,10 @@ public class ConfigureManager {
     // 成员方法
     // 初始化
     public ConfigureManager() {
-        LogManager.info("【配置模块】开始初始化");
+        LogManager.info_("【配置模块】开始初始化");
         initConfig();
         initSystemConfig();
-        LogManager.info("【配置模块】初始化完成");
+        LogManager.info_("【配置模块】初始化完成");
     }
 
     // 获取单例（防止高并发导致资源访问问题进行双判空保护）
@@ -42,7 +43,7 @@ public class ConfigureManager {
 
     // 读取配置文件
     public void initConfig() {
-        LogManager.info("【配置模块】正在读取配置文件...");
+        LogManager.info_("【配置模块】正在读取配置文件...");
         // 创建Yaml对象
         Yaml yaml = new Yaml();
         // 读取配置文件并解析
@@ -51,7 +52,7 @@ public class ConfigureManager {
         try {
             fileInputStream = new FileInputStream(configPath);
         } catch (FileNotFoundException e) {
-            LogManager.error("配置读取时出现异常", e);
+            LogManager.error_("配置读取时出现异常", e);
         }
         map = yaml.load(fileInputStream);
         // 遍历Map对象，处理读取到的数据
@@ -60,15 +61,15 @@ public class ConfigureManager {
 
     // 读取系统配置（如工作路径等）
     public void initSystemConfig(){
-        LogManager.info("【配置模块】正在读取系统配置...");
+        LogManager.info_("【配置模块】正在读取系统配置...");
         // 读取工作路径
         String workpath = System.getProperty("user.dir");
         configList.put("workpath",workpath);
-        LogManager.info("当前的工作路径为",workpath);
+        LogManager.info_("当前的工作路径为",workpath);
         // 读取操作系统名称
         String osName = System.getProperty("os.name");
         configList.put("osName",osName);
-        LogManager.info("当前的操作系统为",osName);
+        LogManager.info_("当前的操作系统为",osName);
         // 读取换行符
         String lineBreak = System.getProperty("line.separator","\n");
         configList.put("lineBreak",lineBreak);
@@ -89,6 +90,7 @@ public class ConfigureManager {
     }
 
     // 返回配置
+    @Override
     public Object getConfig(String key){
         synchronized (ConfigureManager.class){
             return configList.getOrDefault(key,null);

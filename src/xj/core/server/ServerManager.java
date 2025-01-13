@@ -24,15 +24,15 @@ public class ServerManager {
     // 成员方法
     // 初始化
     public ServerManager(){
-        LogManager.info("【服务器模块】开始初始化");
+        LogManager.info_("【服务器模块】开始初始化");
         // 获取配置
         port = (int) ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.PORT);
-        LogManager.info("服务器使用的端口为",port);
+        LogManager.info_("服务器使用的端口为",port);
         // 设置观察者容器用于监听
         observerContainer = new SocketObserverContainer<>();
         observerContainer.addObserver(new ServerSocketObserver());
-        LogManager.info("服务器观察者容器设置完毕");
-        LogManager.info("【服务器模块】开始初始化");
+        LogManager.info_("服务器观察者容器设置完毕");
+        LogManager.info_("【服务器模块】开始初始化");
     }
 
     // 获取单例模式
@@ -47,20 +47,20 @@ public class ServerManager {
 
     // 开机
     public void openServer(){
-        LogManager.info("【服务器】正在开机....");
+        LogManager.info_("【服务器】正在开机....");
         // 开启ServerSocket
         try(ServerSocket serverSocket = new ServerSocket(port)){
             while(true){
                 Socket clientSocket = serverSocket.accept();
                 if(clientSocket != null){
                     // 监听到客户端连接的socket之后，交给观察者们处理
-                    LogManager.info("接收到客户端的连接请求 -> 互联网地址：{} 本地地址：{} 端口：{}"
+                    LogManager.info_("接收到客户端的连接请求 -> 互联网地址：{} 本地地址：{} 端口：{}"
                             ,clientSocket.getInetAddress(),clientSocket.getLocalAddress(),clientSocket.getPort());
                     observerContainer.notifyObservers(clientSocket);
                 }
             }
         } catch (IOException e) {
-            LogManager.error("服务器运行时出现异常", e);
+            LogManager.error_("服务器运行时出现异常", e);
         }
     }
 }

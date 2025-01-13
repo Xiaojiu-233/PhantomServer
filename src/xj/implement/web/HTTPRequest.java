@@ -1,6 +1,7 @@
 package xj.implement.web;
 
 import xj.abstracts.web.Request;
+import xj.component.log.LogManager;
 import xj.enums.web.RequestMethod;
 import xj.tool.StrPool;
 
@@ -17,6 +18,8 @@ public class HTTPRequest extends Request {
     private String url;// 请求路径
 
     private String httpVersion;// HTTP协议版本
+
+    private Map<String, String> urlParams = new HashMap<>();//请求路径参数
 
     private Map<String, String> headers = new HashMap<>();// 请求头
 
@@ -35,10 +38,22 @@ public class HTTPRequest extends Request {
         String[] lines = encodeToString();
         int rowRead = 0;
         int byteRead = 0;
-        // 确定请求方法，请求路径url，版本
+        // 确定请求方法，请求路径url与路径参数，版本
         String[] headArgs = lines[0].split(StrPool.SPACE );
         method = RequestMethod.valueOf(headArgs[0]);
-        url = headArgs[1];
+        String[] urls = headArgs[1].split(StrPool.QUESTION_MARK);
+        url = urls[0];
+        if(urls.length > 1){
+            String[] params = urls[1].split(StrPool.AND);
+            for(String param : params){
+                String[] keyValue = param.split(StrPool.EQUAL);
+                if(keyValue.length != 2){
+                    LogManager.error_("处理HTTP请求的路径参数时出现异常参数",param);
+                    continue;
+                }
+                urlParams.put(keyValue[0], keyValue[1]);
+            }
+        }
         httpVersion = headArgs[2].split(StrPool.SLASH)[1];
         byteRead += lines[rowRead++].getBytes().length;
         // 确定请求头

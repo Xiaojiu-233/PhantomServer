@@ -25,7 +25,7 @@ public class ThreadTaskFactory {
 
     // 初始化
     public ThreadTaskFactory(){
-        LogManager.info("线程任务工厂正在构建...");
+        LogManager.info_("线程任务工厂正在构建...");
     }
 
     // 创建TCP连接任务

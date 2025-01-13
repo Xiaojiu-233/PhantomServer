@@ -35,16 +35,16 @@ public class ThreadPoolManager {
     // 成员方法
     // 初始化
     public ThreadPoolManager() {
-        LogManager.info("【线程池模块】开始初始化");
+        LogManager.info_("【线程池模块】开始初始化");
         initConfig();
         initContainer();
         initFactory();
-        LogManager.info("【线程池模块】初始化完毕");
+        LogManager.info_("【线程池模块】初始化完毕");
     }
 
     // 读取配置文件
     private void initConfig(){
-        LogManager.info("【线程池模块】正在读取配置文件...");
+        LogManager.info_("【线程池模块】正在读取配置文件...");
         // 数据读取
         maxThread = (int) ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.MAX_THREAD);
         coreThread = (int) ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.CORE_THREAD);
@@ -54,34 +54,34 @@ public class ThreadPoolManager {
         threadName = (String) ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.THREAD_NAME);
         strategy = RejectStrategy.getStrategyByString((String)ConfigureManager.getInstance()
                 .getConfig(ConfigPool.THREAD_POOL.REJECT_STRATEGY));
-        LogManager.info("线程池参数 -> 核心线程数：{} 最大线程数：{} 任务队列大小：{} 最大长连接线程数：{}" +
+        LogManager.info_("线程池参数 -> 核心线程数：{} 最大线程数：{} 任务队列大小：{} 最大长连接线程数：{}" +
                         " 线程最大闲置时间：{} 工作线程名：{} 拒绝策略：{}", coreThread,maxThread,queueCapacity,
                 longConnectMaxThread,threadMaxFreeTime,threadName,strategy);
         // 数据检查
-        if(coreThread == 0) LogManager.warn("核心线程数为0，这将导致线程池只存在普通线程");
+        if(coreThread == 0) LogManager.warn_("核心线程数为0，这将导致线程池只存在普通线程");
         if(threadMaxFreeTime < Constant.RECOMMEND_FREE_TIME)
-            LogManager.warn("线程最大闲置时间过短，推荐时长为{}秒",Constant.RECOMMEND_FREE_TIME);
-        if(longConnectMaxThread > maxThread / 2) LogManager.warn("最大长连接线程数超过最大线程数的一半，推荐数量为小于等于最大线程数一半");
-        if(maxThread < 0) LogManager.warn("最大线程数不应为0！");
-        if(maxThread - coreThread <= 0) LogManager.warn("最大线程数不应小于核心线程数！");
+            LogManager.warn_("线程最大闲置时间过短，推荐时长为{}秒",Constant.RECOMMEND_FREE_TIME);
+        if(longConnectMaxThread > maxThread / 2) LogManager.warn_("最大长连接线程数超过最大线程数的一半，推荐数量为小于等于最大线程数一半");
+        if(maxThread < 0) LogManager.warn_("最大线程数不应为0！");
+        if(maxThread - coreThread <= 0) LogManager.warn_("最大线程数不应小于核心线程数！");
     }
 
     // 初始化工作线程、任务队列等容器
     private void initContainer(){
-        LogManager.info("【线程池模块】正在初始化相关容器...");
+        LogManager.info_("【线程池模块】正在初始化相关容器...");
         try{
             threadFactory = new WorkingThreadFactory(threadName);
             coreThreadPool = new ArrayList<>(coreThread);
             commonThreadPool = new LinkedList<>();
             threadTaskQueue = new PriorityQueue<>(queueCapacity);
         }catch (Exception e){
-            LogManager.error("线程池创建容器时出现异常",e);
+            LogManager.error_("线程池创建容器时出现异常",e);
         }
     }
 
     // 初始化线程使用的相关工厂
     public void initFactory(){
-        LogManager.info("【线程池模块】正在初始化线程池相关工厂...");
+        LogManager.info_("【线程池模块】正在初始化线程池相关工厂...");
         ThreadTaskFactory.getInstance();
         ConnectHandlerFactory.getInstance();
     }
@@ -154,7 +154,7 @@ public class ThreadPoolManager {
         }
         if(strategy == RejectStrategy.THROW_EXCEPTION){
             // 抛出异常
-            LogManager.error("线程任务：{} 已被抛弃！",task.getLogDescribe());
+            LogManager.error_("线程任务：{} 已被抛弃！",task.getLogDescribe());
             task.doDestroy();
             return;
         }

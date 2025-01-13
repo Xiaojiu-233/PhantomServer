@@ -1,5 +1,6 @@
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
+import xj.core.ioc.IOCManager;
 import xj.core.server.ServerManager;
 import xj.core.threadPool.ThreadPoolManager;
 
@@ -11,22 +12,23 @@ public class PhantomServerApplication {
         try{
             //1.初始化核心组件
             LogManager.getInstance();
-            LogManager.info("-----服务器进入准备阶段！-----");
+            LogManager.info_("-----服务器进入准备阶段！-----");
             ConfigureManager.getInstance();
             ServerManager.getInstance();
             ThreadPoolManager.getInstance();
             //2.拓展jar包的读取与调用初始化方法
-            LogManager.info("-----服务器进入拓展程序调用阶段！-----");
+            LogManager.info_("-----服务器进入拓展程序调用阶段！-----");
             //3.IOC容器反射读取拓展程序
-            LogManager.info("-----服务器进入IOC容器注入阶段！-----");
+            LogManager.info_("-----服务器进入IOC容器注入阶段！-----");
+            IOCManager.getInstance();
             //4.服务器开机
-            LogManager.info("-----服务器进入启动阶段！-----");
+            LogManager.info_("-----服务器进入启动阶段！-----");
             LogManager.getInstance().initLogManager();
-            LogManager.info("-----服务器完成启动！开始运行-----");
+            LogManager.info_("-----服务器完成启动！开始运行-----");
             ServerManager.getInstance().openServer();
         }catch (Exception e){
             if(LogManager.getInstance() != null){
-                LogManager.error("出现未知异常",e);
+                LogManager.error_("出现未知异常",e);
             }
             e.printStackTrace();
         }

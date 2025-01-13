@@ -12,6 +12,9 @@ public interface StrPool {
     public static final String SPACE = " ";
     public static final String UNDERLINE = "_";
     public static final String HYPHEN = "-";
+    public static final String QUESTION_MARK = "?";
+    public static final String AND = "&";
+    public static final String EQUAL = "=";
 
     // 后缀
     public static final String LOG_POINT = ".log";

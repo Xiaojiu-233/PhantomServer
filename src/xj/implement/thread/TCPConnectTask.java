@@ -50,13 +50,13 @@ public class TCPConnectTask implements ThreadTask {
                 if(handler.needEndConnection()) break;
             }
         } catch (IOException e) {
-            LogManager.error("[{}] 的TCP连接任务接收socket消息时出现异常：{}",threadName,e);
+            LogManager.error_("[{}] 的TCP连接任务接收socket消息时出现异常：{}",threadName,e);
         }
         // 连接结束
         try {
             client.close();
         } catch (IOException e) {
-            LogManager.error("[{}] 的TCP连接任务结束socket连接时出现异常：{}",threadName,e);
+            LogManager.error_("[{}] 的TCP连接任务结束socket连接时出现异常：{}",threadName,e);
         }
     }
 
@@ -68,7 +68,7 @@ public class TCPConnectTask implements ThreadTask {
             // 断开连接
             client.close();
         } catch (IOException e) {
-            LogManager.error("TCP连接任务在运行socket时出现问题: {}",e);
+            LogManager.error_("TCP连接任务在运行socket时出现问题: {}",e);
         }
     }
 

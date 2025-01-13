@@ -29,6 +29,8 @@ public class HTTPConnectHandler extends ConnectHandler {
 
     @Override
     public void handle(Request request) {
+        // 清除之前的HTTP响应
+        httpResponse = null;
         // 将协议请求转化为HTTP请求
         HTTPRequest httpRequest = new HTTPRequest(request);
         // 转交给MVC模块进行处理
@@ -42,7 +44,7 @@ public class HTTPConnectHandler extends ConnectHandler {
             httpResponse = new HTTPResponse(StatuCode.OK, CharacterEncoding.UTF_8,resp.getBytes(CharacterEncoding.UTF_8.getShowStyle()));
             httpResponse.setHeaders("Content-Type", "text/plain");
         } catch (UnsupportedEncodingException e) {
-            LogManager.error("在创建响应对象时发生错误",e);
+            LogManager.error_("在创建响应对象时发生错误",e);
         }
 
         // 将从MVC模块得到的响应返回

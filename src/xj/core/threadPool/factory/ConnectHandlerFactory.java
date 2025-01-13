@@ -31,7 +31,7 @@ public class ConnectHandlerFactory {
 
     // 初始化
     public ConnectHandlerFactory(){
-        LogManager.info("连接处理器工厂正在构建...");
+        LogManager.info_("连接处理器工厂正在构建...");
         // 初始化连接处理器列表
         handlerList = new ArrayList<ConnectHandler>();
         // 通过IOC容器导入拓展连接处理器对象
@@ -53,7 +53,7 @@ public class ConnectHandlerFactory {
                 }
             }
             // 如果没有合适的处理器对象，将抛出错误并返回null
-            LogManager.error("没有找到合适的处理器对象",request.getClass().getName());
+            LogManager.error_("没有找到合适的处理器对象",request.getClass().getName());
             return null;
         }
     }
