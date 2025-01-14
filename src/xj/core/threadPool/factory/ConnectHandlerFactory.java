@@ -34,12 +34,18 @@ public class ConnectHandlerFactory {
         LogManager.info_("连接处理器工厂正在构建...");
         // 初始化连接处理器列表
         handlerList = new ArrayList<ConnectHandler>();
-        // 通过IOC容器导入拓展连接处理器对象
-
         // 导入默认的连接处理器
         handlerList.add(new HTTPConnectHandler());
         handlerList.add(new TCPLongConnectHandler());
         handlerList.add(new TCPShortConnectHandler());
+    }
+
+    // 通过IOC容器导入拓展连接处理器对象
+    public void importHandlerByIOC(){
+        LogManager.info_("连接处理器工厂开始导入拓展处理器对象");
+        // 将拓展连接处理器导入到列表头部
+        handlerList.add(0,null);
+        LogManager.info_("连接处理器工厂导入拓展处理器对象完成");
     }
 
     // 根据提供的请求，返回合适的连接处理器对象
@@ -57,4 +63,5 @@ public class ConnectHandlerFactory {
             return null;
         }
     }
+
 }

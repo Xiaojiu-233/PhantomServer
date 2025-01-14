@@ -25,4 +25,16 @@ public interface ConfigPool {
         public static final String CHOOSE_CLASS = "log.choose-class";
     }
 
+    // MVC模块
+    public interface MVC {
+        public static final String WEB_PROGRAM_PATH = "mvc.web-program-path";
+        public static final String RESOURCE_PATH = "mvc.resource-path";
+        public static final String WEBPAGE_PATH = "mvc.webpage-path";
+    }
+
+    // IOC容器
+    public interface IOC {
+        public static final String EXT_PROGRAM_PATH = "ioc.ext-program-path";
+    }
+
 }
