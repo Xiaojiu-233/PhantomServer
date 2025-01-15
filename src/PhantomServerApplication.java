@@ -1,6 +1,7 @@
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
-import xj.core.ioc.IOCManager;
+import xj.core.extern.IOCManager;
+import xj.core.extern.JarManager;
 import xj.core.server.ServerManager;
 import xj.core.threadPool.ThreadPoolManager;
 import xj.core.threadPool.factory.ConnectHandlerFactory;
@@ -17,8 +18,9 @@ public class PhantomServerApplication {
             ConfigureManager.getInstance();
             ServerManager.getInstance();
             ThreadPoolManager.getInstance();
-            // 2.拓展jar包的读取与调用初始化方法
-            LogManager.info_("-----服务器进入拓展程序调用阶段！-----");
+            // 2.拓展jar包的读取
+            LogManager.info_("-----服务器进入拓展程序读取阶段！-----");
+            JarManager.getInstance();
             // 3.IOC容器反射读取拓展程序
             LogManager.info_("-----服务器进入IOC容器注入阶段！-----");
             IOCManager.getInstance();
