@@ -2,6 +2,7 @@ package xj.core.threadPool.factory;
 
 import xj.component.log.LogManager;
 import xj.abstracts.connect.ConnectHandler;
+import xj.core.extern.IOCManager;
 import xj.implement.connect.HTTPConnectHandler;
 import xj.implement.connect.TCPLongConnectHandler;
 import xj.implement.connect.TCPShortConnectHandler;
@@ -44,7 +45,10 @@ public class ConnectHandlerFactory {
     public void importHandlerByIOC(){
         LogManager.info_("连接处理器工厂开始导入拓展处理器对象");
         // 将拓展连接处理器导入到列表头部
-        handlerList.add(0,null);
+        List<Object> handlers = IOCManager.getInstance().returnInstancesByClass(ConnectHandler.class);
+        for(Object handler : handlers){
+            handlerList.add(0, (ConnectHandler) handler);
+        }
         LogManager.info_("连接处理器工厂导入拓展处理器对象完成");
     }
 

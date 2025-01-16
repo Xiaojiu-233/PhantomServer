@@ -6,16 +6,8 @@ import xj.component.log.LogManager;
 import xj.interfaces.component.IConfigureManager;
 import xj.interfaces.component.ILogManager;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 // IOC管理器，为IOC模块的核心部分，用于对拓展程序进行反射注入
 public class IOCManager {
@@ -84,5 +76,22 @@ public class IOCManager {
                 LogManager.error_("对IOC容器内实例依赖注入时出现异常",e);
             }
         }
+    }
+
+    // 返回指定类对象的IOC实例
+    public List<Object> returnInstancesByClass(Class<?> clazz){
+        List<Object> ret = new ArrayList<>();
+        for(Map.Entry<String,Object> entry : iocContainer.entrySet()){
+            Object bean = entry.getValue();
+            if(bean.getClass().equals(clazz)){
+                ret.add(bean);
+            }
+        }
+        return ret;
+    }
+
+    // 返回指定名称的IOC实例
+    public Object returnInstanceByName(String name){
+        return iocContainer.get(name);
     }
 }

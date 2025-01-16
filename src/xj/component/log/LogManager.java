@@ -1,6 +1,7 @@
 package xj.component.log;
 
 import xj.component.conf.ConfigureManager;
+import xj.core.extern.IOCManager;
 import xj.implement.log.DefaultLogServiceImpl;
 import xj.enums.log.LogLevel;
 import xj.interfaces.component.ILogManager;
@@ -23,7 +24,7 @@ public class LogManager implements ILogManager {
     private final String prepareFileName = "preparePeriodLog";// 准备阶段日志文件名
 
     private Writer outputWriter;// 字符输出流
-    private Object writerLock = new Object();// 写锁
+    private final Object writerLock = new Object();// 写锁
 
     private LogService logService;// 日志的服务接口实现类
 
@@ -53,8 +54,9 @@ public class LogManager implements ILogManager {
         // 读取配置并执行相应策略
         String chooseLogService = (String) ConfigureManager.getInstance().getConfig(ConfigPool.LOG.CHOOSE_CLASS);
         // 通过IOC容器找到对应的logService对象，如果没找到则继续使用默认的
-        logService = new DefaultLogServiceImpl();
-
+        Object service = IOCManager.getInstance().returnInstanceByName(chooseLogService);
+        if(service instanceof LogService)
+            logService = (LogService) service;
         // 读取输出文件名
         String outputFile = ConfigureManager.getInstance().getConfig("workpath") + StrPool.BACK_SLASH + outputFilePath
                 + StrPool.BACK_SLASH + logService.setLogFileName(new Date()) + StrPool.LOG_POINT;
