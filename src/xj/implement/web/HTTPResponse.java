@@ -47,8 +47,6 @@ public class HTTPResponse extends Response {
 
     @Override
     public void writeMessage(OutputStream os) throws IOException {
-        // 存储默认响应头
-        headers.put("Server", (String) ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.NAME));
         // 整体响应报文构建
         StringBuilder sb = new StringBuilder();
         // 输出版本信息和状态码

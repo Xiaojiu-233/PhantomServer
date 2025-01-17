@@ -68,4 +68,28 @@ public class HTTPRequest extends Request {
             bodyBytes = Arrays.copyOfRange(data,byteRead,data.length);
         }
     }
+
+    public byte[] getBodyBytes() {
+        return bodyBytes;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public Map<String, String> getUrlParams() {
+        return urlParams;
+    }
+
+    public String getHttpVersion() {
+        return httpVersion;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public RequestMethod getMethod() {
+        return method;
+    }
 }

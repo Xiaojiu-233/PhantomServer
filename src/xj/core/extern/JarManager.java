@@ -78,7 +78,7 @@ public class JarManager {
         }else{
             // 如果对象是文件，则判定是否为jar包文件
             String fileName = root.getName();
-            String extName = fileName.substring(fileName.lastIndexOf(".")+1).toLowerCase();
+            String extName = fileName.substring(fileName.lastIndexOf(StrPool.POINT)+1).toLowerCase();
             if(extName.equals(StrPool.JAR)){
                 jarPaths.add(path + StrPool.SLASH + fileName);
             }

@@ -20,6 +20,7 @@ public interface StrPool {
     public static final String LOG_POINT = ".log";
     public static final String CLASS_POINT = ".class";
     public static final String JAR = "jar";
+    public static final String HTML = "html";
 
     // 协议
     public static final String HTTP = "HTTP";
@@ -27,4 +28,8 @@ public interface StrPool {
     // jar包类型
     public static final String EXT = "ext";
     public static final String WEB = "web";
+
+    // 请求头
+    public static final String SERVER = "Server";
+    public static final String CONTENT_TYPE = "Content-Type";
 }
