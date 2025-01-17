@@ -2,6 +2,7 @@ import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.extern.IOCManager;
 import xj.core.extern.JarManager;
+import xj.core.extern.MVCManager;
 import xj.core.server.ServerManager;
 import xj.core.threadPool.ThreadPoolManager;
 import xj.core.threadPool.factory.ConnectHandlerFactory;
@@ -28,6 +29,7 @@ public class PhantomServerApplication {
             LogManager.info_("-----服务器进入启动阶段！-----");
             LogManager.getInstance().initLogManager();
             ConnectHandlerFactory.getInstance().importHandlerByIOC();
+            MVCManager.getInstance();
             LogManager.info_("-----服务器完成启动！开始运行-----");
             ServerManager.getInstance().openServer();
         }catch (Exception e){

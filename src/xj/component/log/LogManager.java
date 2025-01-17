@@ -10,6 +10,7 @@ import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -50,7 +51,7 @@ public class LogManager implements ILogManager {
 
     //初始化（服务器开机阶段，可以执行用户的自定义日志模块）
     public void initLogManager() {
-        info("【日志模块】开始自定义初始化");
+        info_("【日志模块】开始自定义初始化");
         // 读取配置并执行相应策略
         String chooseLogService = (String) ConfigureManager.getInstance().getConfig(ConfigPool.LOG.CHOOSE_CLASS);
         // 通过IOC容器找到对应的logService对象，如果没找到则继续使用默认的
@@ -76,7 +77,7 @@ public class LogManager implements ILogManager {
         } catch (Exception e) {
             error_("服务器开机初始化日志模块时出现异常", e);
         }
-        info("【日志模块】自定义初始化完成");
+        info_("【日志模块】自定义初始化完成");
     }
 
     // 获取单例（防止高并发导致资源访问问题进行双判空保护）
@@ -122,6 +123,25 @@ public class LogManager implements ILogManager {
     }
     public static void error_(String message,Object... args){
         String handledMsg = getInstance().logService.handleMessage(new Date(), LogLevel.ERROR,message,args);
+        // 寻找异常信息
+        Exception e = (Exception) Arrays.stream(args)
+                .filter(item -> item instanceof Exception).findFirst().orElse(null);
+        // 打印异常信息
+        if (e != null) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            handledMsg += ConfigureManager.getInstance().getConfig("lineBreak") +
+                    stringWriter.toString();
+            try {
+                stringWriter.close();
+                printWriter.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        }
+        // 装入日志队列
         pushIntoQueue(handledMsg);
     }
 

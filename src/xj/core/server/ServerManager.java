@@ -32,7 +32,7 @@ public class ServerManager {
         observerContainer = new SocketObserverContainer<>();
         observerContainer.addObserver(new ServerSocketObserver());
         LogManager.info_("服务器观察者容器设置完毕");
-        LogManager.info_("【服务器模块】开始初始化");
+        LogManager.info_("【服务器模块】初始化完成");
     }
 
     // 获取单例模式

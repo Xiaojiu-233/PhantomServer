@@ -66,6 +66,10 @@ public class JarManager {
             return;
         // 读取文件对象
         File root = new File(path);
+        // 判定文件是否存在
+        if(!root.exists())
+            LogManager.error_("目标文件不存在",root.getName());
+        // 判定文件对象是否为目录
         if(root.isDirectory()){
             // 如果对象是目录，则递归查找
             for(File f : Objects.requireNonNull(root.listFiles())){
@@ -74,7 +78,7 @@ public class JarManager {
         }else{
             // 如果对象是文件，则判定是否为jar包文件
             String fileName = root.getName();
-            String extName = fileName.substring(fileName.lastIndexOf("."));
+            String extName = fileName.substring(fileName.lastIndexOf(".")+1).toLowerCase();
             if(extName.equals(StrPool.JAR)){
                 jarPaths.add(path + StrPool.SLASH + fileName);
             }

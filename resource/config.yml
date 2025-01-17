@@ -19,13 +19,13 @@ thread-pool:
 
 # MVC配置
 mvc:
-  web-program-path: /ext/web #Web程序jar包映射路径
+  web-program-path: ext/web #Web程序jar包映射路径
   resource-path: /resource #资源映射路径（从扫描到的网络程序jar包为根目录）
   webpage-path: /page #网页映射路径（从扫描到的网络程序jar包为根目录）
 
 # IOC配置
 ioc:
-  ext-program-path: /ext/program #拓展程序jar包扫描路径
+  ext-program-path: ext/program #拓展程序jar包扫描路径
 
 
 # 日志配置
