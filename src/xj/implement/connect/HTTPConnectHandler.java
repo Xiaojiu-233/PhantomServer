@@ -4,16 +4,11 @@ import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
 import xj.component.conf.ConfigureManager;
-import xj.component.log.LogManager;
 import xj.core.extern.MVCManager;
-import xj.enums.web.CharacterEncoding;
-import xj.enums.web.StatuCode;
 import xj.implement.web.HTTPRequest;
 import xj.implement.web.HTTPResponse;
 import xj.tool.ConfigPool;
 import xj.tool.StrPool;
-
-import java.io.UnsupportedEncodingException;
 
 // HTTP协议连接处理器
 public class HTTPConnectHandler extends ConnectHandler {
@@ -40,11 +35,6 @@ public class HTTPConnectHandler extends ConnectHandler {
 
     @Override
     public Response returnResponse() {
-        // 返回统一的响应头
-        if(httpResponse != null) {
-            httpResponse.setHeaders(StrPool.SERVER,
-                    (String) ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.NAME));
-        }
         // 将从MVC模块得到的响应返回
         return httpResponse;
     }

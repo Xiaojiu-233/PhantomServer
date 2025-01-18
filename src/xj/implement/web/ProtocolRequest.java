@@ -8,7 +8,7 @@ public class ProtocolRequest extends Request {
     // 成员属性
 
     // 成员方法
-    // 构造函数
+    // 构造方法
     public ProtocolRequest(byte[] data) {
         super(data);
     }

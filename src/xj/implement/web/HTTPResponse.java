@@ -30,7 +30,7 @@ public class HTTPResponse extends Response {
     private byte[] bodyBytes;// 响应体二进制版本
 
     // 成员方法
-    // 构造函数
+    // 构造方法
     public HTTPResponse(StatuCode statuCode, CharacterEncoding encoding, byte[] bodyBytes) {
         this.statuCode = statuCode;
         this.encoding = encoding;
@@ -47,6 +47,9 @@ public class HTTPResponse extends Response {
 
     @Override
     public void writeMessage(OutputStream os) throws IOException {
+        // 添加统一的响应
+        headers.put(StrPool.SERVER,(String)ConfigureManager.getInstance()
+                .getConfig(ConfigPool.SERVER.NAME));
         // 整体响应报文构建
         StringBuilder sb = new StringBuilder();
         // 输出版本信息和状态码

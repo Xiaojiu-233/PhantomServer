@@ -12,7 +12,7 @@ public abstract class Response {
     protected String lineBreak;// 换行符
 
     // 成员方法
-    // 构造函数
+    // 构造方法
     public Response() {
         lineBreak = (String) ConfigureManager.getInstance().getConfig("lineBreak");
     }

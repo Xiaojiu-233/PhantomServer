@@ -7,6 +7,7 @@ import xj.interfaces.component.IConfigureManager;
 import xj.interfaces.component.ILogManager;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 // IOC管理器，为IOC模块的核心部分，用于对拓展程序进行反射注入
@@ -46,7 +47,10 @@ public class IOCManager {
         // 遍历类对象，反射获取实例，存于IOC容器中
         try {
             for(Class<?> classObject : classObjects){
-                iocContainer.put(classObject.getName(),classObject.newInstance());
+                int modifiers = classObject.getModifiers();
+                if(!Modifier.isAbstract(modifiers) && !Modifier.isInterface(modifiers)
+                        && !classObject.isEnum())
+                    iocContainer.put(classObject.getName(),classObject.newInstance());
             }
         } catch (InstantiationException | IllegalAccessException e) {
             LogManager.error_("实例化类对象注入IOC容器时出现异常",e);

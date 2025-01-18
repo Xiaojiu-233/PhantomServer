@@ -20,15 +20,15 @@ thread-pool:
 # MVC配置
 mvc:
   web-program-path: ext/web #Web程序jar包映射路径
-  resource-path: /resource #资源映射路径（从扫描到的网络程序jar包为根目录）
-  webpage-path: /page #网页映射路径（从扫描到的网络程序jar包为根目录）
+  index-path: /index.html #主页路径（从扫描到的网络程序jar包为根目录）
+  resource-path: file #资源映射路径（从扫描到的网络程序jar包为根目录）
+  webpage-path: page #网页映射路径（从扫描到的网络程序jar包为根目录）
 
 # IOC配置
 ioc:
   ext-program-path: ext/program #拓展程序jar包扫描路径
 
-
 # 日志配置
 log:
-  choose-class: default # 拓展程序的类选择，如果没有找到则使用默认程序
+  choose-class: TestLogServiceImpl # 拓展程序的类选择，如果没有找到则使用默认程序
 

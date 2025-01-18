@@ -14,7 +14,7 @@ public abstract class Request {
     protected String lineBreak;// 换行符
 
     // 成员方法
-    // 构造函数
+    // 构造方法
     public Request(byte[] data) {
         this.data = data;
         lineBreak = (String) ConfigureManager.getInstance().getConfig("lineBreak");

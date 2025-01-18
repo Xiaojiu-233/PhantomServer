@@ -1,8 +1,10 @@
 package xj.implement.web;
 
 import xj.abstracts.web.Request;
+import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.enums.web.RequestMethod;
+import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
 import java.util.Arrays;
@@ -26,7 +28,7 @@ public class HTTPRequest extends Request {
     private byte[] bodyBytes = new byte[0];// 请求体二进制版本
 
     // 成员方法
-    // 构造函数
+    // 构造方法
     public HTTPRequest(Request request) {
         super(request.getData());
         selfAnalysis();
@@ -41,8 +43,13 @@ public class HTTPRequest extends Request {
         // 确定请求方法，请求路径url与路径参数，版本
         String[] headArgs = lines[0].split(StrPool.SPACE );
         method = RequestMethod.valueOf(headArgs[0]);
-        String[] urls = headArgs[1].split(StrPool.QUESTION_MARK);
+        String[] urls = headArgs[1].contains(StrPool.QUESTION_MARK) ?
+                headArgs[1].split(StrPool.QUESTION_MARK) : new String[]{headArgs[1]};
         url = urls[0];
+        // url特判，如果只是 / 的话，改为主页位置
+        if(url.equals(StrPool.SLASH)) url =
+                (String) ConfigureManager.getInstance().getConfig(ConfigPool.MVC.INDEX_PATH);
+        // 如果url有参数的话，读取路径参数
         if(urls.length > 1){
             String[] params = urls[1].split(StrPool.AND);
             for(String param : params){

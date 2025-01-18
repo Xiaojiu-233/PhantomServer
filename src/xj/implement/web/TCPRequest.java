@@ -8,7 +8,7 @@ public class TCPRequest extends Request {
     // 成员属性
 
     // 成员方法
-    // 构造函数
+    // 构造方法
     public TCPRequest(byte[] data) {
         super(data);
     }

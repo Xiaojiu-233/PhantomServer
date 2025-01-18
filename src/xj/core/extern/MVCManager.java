@@ -9,8 +9,11 @@ import xj.implement.web.HTTPRequest;
 import xj.implement.web.HTTPResponse;
 import xj.interfaces.component.IConfigureManager;
 import xj.interfaces.component.ILogManager;
+import xj.tool.ConfigPool;
+import xj.tool.FileIOUtil;
 import xj.tool.StrPool;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -68,19 +71,25 @@ public class MVCManager {
         HTTPResponse response = null;
         // 对路径进行解析，获取扩展名
         String url = req.getUrl();
-        String extName = url.substring(url.lastIndexOf(StrPool.POINT) + 1).toLowerCase();
+        String extName = url.substring(url.lastIndexOf(StrPool.POINT)).toLowerCase();
         // 根据扩展名选择使用网页还是其他资源映射
-        InputStream in = extName.equals(StrPool.HTML) ?
+        InputStream in = extName.equals(StrPool.HTML_POINT) ?
                 JarManager.getInstance().getWebpage(url) : JarManager.getInstance().getResource(url);
         if(in == null){
             // 如果没有找到资源，返回404响应
-            // TODO: 准备404网页资源映射地址
-            response = new HTTPResponse(StatuCode.NOT_FOUND,CharacterEncoding.UTF_8,null);
-            response.setHeaders(StrPool.CONTENT_TYPE, "text/html");
+            response = new HTTPResponse(StatuCode.NOT_FOUND,CharacterEncoding.UTF_8,
+                    getWebpageByStatuCode(StatuCode.NOT_FOUND));
+            response.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
         }else{
             // 寻找到资源则根据扩展名类型确定对应的Content-Type
-            // TODO: 在config.yml里写好映射map配置，使用完InputStream记得回收
-            response = new HTTPResponse(StatuCode.OK,CharacterEncoding.UTF_8,null);
+            byte[] data = null;
+            try {
+                data = FileIOUtil.getByteByInputStream(in);
+            } catch (IOException e) {
+                LogManager.error_("读取文件资源时出现异常", e);
+            }
+            response = new HTTPResponse(StatuCode.OK,CharacterEncoding.UTF_8,data);
+            response.setHeaders(StrPool.CONTENT_TYPE,ContentType.getContentTypeByExtName(extName));
         }
         // 返回HTTP响应
         return response;
@@ -90,6 +99,70 @@ public class MVCManager {
     private HTTPResponse apiHandle(HTTPRequest req){
         // 返回HTTP响应
         return null;
+    }
+
+    // 根据响应码返回对应的服务器网页，如果没找到则使用unknown
+    private byte[] getWebpageByStatuCode(StatuCode status){
+        byte[] bytes = null;
+        // 确定要寻找的网页的路径
+        String webpagePath = ConfigPool.SYSTEM_PATH.SYSTEM_WEBPAGE_PATH + status.getCode()
+                + StrPool.HTML_POINT;
+        // 在服务器资源目录中搜索
+        bytes = FileIOUtil.getFileContent(webpagePath);
+        // 如果没找到则搜索unknown网页并返回
+        if(bytes == null)
+            bytes = FileIOUtil.getFileContent(ConfigPool.SYSTEM_PATH.SYSTEM_WEBPAGE_PATH
+                    + ConfigPool.SYSTEM_PATH.UNKNOWN_WEBPAGE + StrPool.HTML_POINT);
+        // 返回对应数据
+        return bytes;
+    }
+
+    // HTTP协议使用的主要ContentType枚举，用于实现Content-Type相关的处理功能
+    public enum ContentType {
+
+        // 主要的ContentType
+        TEXT_HTML("text/html","text",".html"),
+        TEXT_PLAIN("text/plain","text",null),
+        APPLICATION_JAVASCRIPT("application/javascript","application",".js"),
+        APPLICATION_JSON("application/json","application",".json"),
+        APPLICATION_XML("application/xml","application",".xml"),
+        APPLICATION_PDF("application/pdf","application",".pdf"),
+        APPLICATION_MSWORD("application/msword","application",".docx"),
+        IMAGE_GIF("image/gif","image",".gif"),
+        IMAGE_JPEG("image/jpeg","image",".jpeg"),
+        IMAGE_JPG("image/jpg","image",".jpg"),
+        IMAGE_PNG("image/png","image",".png"),
+        AUDIO_MPEG("audio/mpeg","audio",".mpeg"),
+        AUDIO_MP3("audio/mp3","audio",".mp3"),
+        AUDIO_OGG("audio/ogg","audio",".ogg"),
+        VIDEO_MP4("video/mp4","video",".mp4"),
+        // 次要的重复ContentType
+        TEXT_JAVASCRIPT("text/javascript","text",".js"),
+        TEXT_CSS("text/css","text",".css"),
+        TEXT_XML("text/xml","text",".xml"),
+        VIDEO_MPEG("video/mpeg","video",".mpeg"),
+        VIDEO_OGG("video/ogg","video",".ogg");
+
+        // 成员属性
+        final String contentType; // ContentType名称
+        final String category; // ContentType类型
+        final String extName; // 文件拓展名
+
+        // 成员方法
+        // 构造方法
+        ContentType(String contentType, String category, String extName) {
+            this.contentType = contentType;
+            this.category = category;
+            this.extName = extName;
+        }
+
+        // 通过扩展名找到Content-Type，没找到则返回text/plain
+        public static String getContentTypeByExtName(String extName) {
+            for(ContentType contentType : ContentType.values())
+                if(contentType.extName.equals(extName))
+                    return contentType.contentType;
+            return TEXT_PLAIN.contentType;
+        }
     }
 
 }

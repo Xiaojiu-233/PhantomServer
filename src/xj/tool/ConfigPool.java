@@ -28,6 +28,7 @@ public interface ConfigPool {
     // MVC模块
     public interface MVC {
         public static final String WEB_PROGRAM_PATH = "mvc.web-program-path";
+        public static final String INDEX_PATH = "mvc.index-path";
         public static final String RESOURCE_PATH = "mvc.resource-path";
         public static final String WEBPAGE_PATH = "mvc.webpage-path";
     }
@@ -35,6 +36,13 @@ public interface ConfigPool {
     // IOC容器
     public interface IOC {
         public static final String EXT_PROGRAM_PATH = "ioc.ext-program-path";
+    }
+
+    // 系统路径
+    public interface SYSTEM_PATH {
+        public static final String CONFIG_FILE_PATH = "resource/config.yml";
+        public static final String SYSTEM_WEBPAGE_PATH = "resource/webpage/";
+        public static final String UNKNOWN_WEBPAGE = "unknown.html";
     }
 
 }

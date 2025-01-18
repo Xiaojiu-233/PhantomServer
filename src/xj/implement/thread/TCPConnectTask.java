@@ -5,8 +5,9 @@ import xj.core.threadPool.factory.ConnectHandlerFactory;
 import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
+import xj.implement.web.ProtocolRequest;
 import xj.interfaces.thread.ThreadTask;
-import xj.tool.ProtocolUtils;
+import xj.tool.FileIOUtil;
 
 import java.io.*;
 import java.net.Socket;
@@ -36,7 +37,7 @@ public class TCPConnectTask implements ThreadTask {
             OutputStream out = client.getOutputStream()){
             while(true){
                 // 存在消息时读取消息并打包成数据包
-                Request request = ProtocolUtils.getProtocolRequest(in);
+                Request request = new ProtocolRequest(FileIOUtil.getByteByInputStream(in));
                 if(request.isEmptyData()) continue;
                 // 如果消息处理器为空则使用处理器工厂创建消息对应的消息处理器
                 if(handler == null)
@@ -51,6 +52,8 @@ public class TCPConnectTask implements ThreadTask {
             }
         } catch (IOException e) {
             LogManager.error_("[{}] 的TCP连接任务接收socket消息时出现异常：{}",threadName,e);
+        } catch (Exception e) {
+            LogManager.error_("[{}] 的TCP连接任务在执行时出现异常：{}",threadName,e);
         }
         // 连接结束
         try {

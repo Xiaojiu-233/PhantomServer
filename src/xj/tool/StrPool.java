@@ -21,6 +21,7 @@ public interface StrPool {
     public static final String CLASS_POINT = ".class";
     public static final String JAR = "jar";
     public static final String HTML = "html";
+    public static final String HTML_POINT = ".html";
 
     // 协议
     public static final String HTTP = "HTTP";

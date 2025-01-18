@@ -4,6 +4,7 @@ import org.yaml.snakeyaml.Yaml;
 import sun.rmi.runtime.Log;
 import xj.component.log.LogManager;
 import xj.interfaces.component.IConfigureManager;
+import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
 import java.io.FileInputStream;
@@ -18,7 +19,7 @@ public class ConfigureManager implements IConfigureManager {
     // 成员属性
     private static volatile ConfigureManager instance;// 单例模式实现
 
-    private final String configPath = "resource/config.yml";// 配置读取路径
+    private final String configPath = ConfigPool.SYSTEM_PATH.CONFIG_FILE_PATH;// 配置读取路径
 
     private Map<String,Object> configList = new HashMap<>();// 配置列表
 

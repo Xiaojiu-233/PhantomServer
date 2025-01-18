@@ -80,7 +80,7 @@ public class JarManager {
             String fileName = root.getName();
             String extName = fileName.substring(fileName.lastIndexOf(StrPool.POINT)+1).toLowerCase();
             if(extName.equals(StrPool.JAR)){
-                jarPaths.add(path + StrPool.SLASH + fileName);
+                jarPaths.add(path);
             }
         }
     }

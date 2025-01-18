@@ -56,8 +56,12 @@ public class LogManager implements ILogManager {
         String chooseLogService = (String) ConfigureManager.getInstance().getConfig(ConfigPool.LOG.CHOOSE_CLASS);
         // 通过IOC容器找到对应的logService对象，如果没找到则继续使用默认的
         Object service = IOCManager.getInstance().returnInstanceByName(chooseLogService);
-        if(service instanceof LogService)
+        if(service instanceof LogService){
+            info_("日志模块寻找到拓展程序包中的日志服务对象",chooseLogService);
             logService = (LogService) service;
+        }else{
+            info_("日志模块未能寻找到拓展程序包中的日志服务对象，使用默认日志服务对象");
+        }
         // 读取输出文件名
         String outputFile = ConfigureManager.getInstance().getConfig("workpath") + StrPool.BACK_SLASH + outputFilePath
                 + StrPool.BACK_SLASH + logService.setLogFileName(new Date()) + StrPool.LOG_POINT;
