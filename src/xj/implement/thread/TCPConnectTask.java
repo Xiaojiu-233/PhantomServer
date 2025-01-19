@@ -36,9 +36,11 @@ public class TCPConnectTask implements ThreadTask {
         try(InputStream in = client.getInputStream();
             OutputStream out = client.getOutputStream()){
             while(true){
-                // 存在消息时读取消息并打包成数据包
-                Request request = new ProtocolRequest(FileIOUtil.getByteByInputStream(in));
-                if(request.isEmptyData()) continue;
+                // 存在消息时读取消息，不存在时跳过
+                byte[] data = FileIOUtil.getByteByInputStream(in);
+                if(data.length == 0) continue;
+                // 将消息打包成数据包
+                Request request = new ProtocolRequest(data);
                 // 如果消息处理器为空则使用处理器工厂创建消息对应的消息处理器
                 if(handler == null)
                     handler = ConnectHandlerFactory.getInstance().getMatchConnectHandler(request);

@@ -46,8 +46,8 @@ public class HTTPRequest extends Request {
         String[] urls = headArgs[1].contains(StrPool.QUESTION_MARK) ?
                 headArgs[1].split(StrPool.QUESTION_MARK) : new String[]{headArgs[1]};
         url = urls[0];
-        // url特判，如果只是 / 的话，改为主页位置
-        if(url.equals(StrPool.SLASH)) url =
+        // url特判，如果只是 / 且为GET请求的话，改为主页位置
+        if(url.equals(StrPool.SLASH) && method.equals(RequestMethod.GET)) url =
                 (String) ConfigureManager.getInstance().getConfig(ConfigPool.MVC.INDEX_PATH);
         // 如果url有参数的话，读取路径参数
         if(urls.length > 1){

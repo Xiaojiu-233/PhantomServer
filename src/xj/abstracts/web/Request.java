@@ -25,11 +25,6 @@ public abstract class Request {
         return new String(data).split(lineBreak);
     }
 
-    // 判定数据是否为空
-    public boolean isEmptyData() {
-        return data.length == 0;
-    }
-
     // 返回数据
     public byte[] getData() {
         return data;

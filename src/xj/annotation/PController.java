@@ -6,10 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 导入服务器组件的注解，只能注解在类上，可以让系统为该类对象注入服务器组件<br>
- * 服务器组件：如LogManager、ConfigureManager……
+ * 服务器MVC框架使用的控制器注解，用于标注该类为控制器层
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ComponentImport {
+public @interface PController {
 }

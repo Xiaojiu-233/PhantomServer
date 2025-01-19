@@ -2,7 +2,9 @@ package xj.enums.web;
 
 import sun.nio.cs.ext.GBK;
 
-// 对文字的编码形式
+/**
+ * 对文字的编码形式
+ */
 public enum CharacterEncoding {
 
     UTF_8("UTF-8"), // UTF-8

@@ -4,6 +4,7 @@ import xj.annotation.ComponentImport;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.enums.web.CharacterEncoding;
+import xj.enums.web.RequestMethod;
 import xj.enums.web.StatuCode;
 import xj.implement.web.HTTPRequest;
 import xj.implement.web.HTTPResponse;
@@ -69,6 +70,13 @@ public class MVCManager {
     private HTTPResponse resourceHandle(HTTPRequest req){
         // 初始化响应对象
         HTTPResponse response = null;
+        // 判定是否为GET请求
+        if(req.getMethod().equals(RequestMethod.GET)){
+            // 如果不是，则返回405响应
+            response = new HTTPResponse(StatuCode.METHOD_NOT_ALLOWED,CharacterEncoding.UTF_8,
+                    getWebpageByStatuCode(StatuCode.METHOD_NOT_ALLOWED));
+            response.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
+        }
         // 对路径进行解析，获取扩展名
         String url = req.getUrl();
         String extName = url.substring(url.lastIndexOf(StrPool.POINT)).toLowerCase();
@@ -97,8 +105,31 @@ public class MVCManager {
 
     // 后端API请求的处理
     private HTTPResponse apiHandle(HTTPRequest req){
+        // 初始化响应对象
+        HTTPResponse response = null;
+        // 对路径进行解析，获取扩展名
+        String url = req.getUrl();
+        // 通过HandlerMapping将url映射到对应处理方法
+        Method m = handlerMapping.get(url);
+        // 判定方法是否存在
+        if(m == null){
+            // 如果没有找到资源，返回404响应
+            response = new HTTPResponse(StatuCode.NOT_FOUND,CharacterEncoding.UTF_8,
+                    getWebpageByStatuCode(StatuCode.NOT_FOUND));
+            response.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
+        }else{
+            // 判定方法是否符合请求对象的请求类型
+            // 根据请求头的ContentType，处理请求对象数据封装为参数Map
+            // 将获取的各种参数通过注解来注入到方法中，处理方法得到返回结果
+            // 根据得到的结果数据情况，封装为byte数组
+            byte[] data = null;
+            // 数据装入到响应对象中
+            response = new HTTPResponse(StatuCode.OK,CharacterEncoding.UTF_8,null);
+            response.setHeaders(StrPool.CONTENT_TYPE,ContentType
+                    .getContentTypeByExtName(response.getHeaderArg(StrPool.CONTENT_TYPE)));
+        }
         // 返回HTTP响应
-        return null;
+        return response;
     }
 
     // 根据响应码返回对应的服务器网页，如果没找到则使用unknown

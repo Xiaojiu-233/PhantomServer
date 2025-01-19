@@ -66,7 +66,7 @@ public class IOCManager {
             try {
                 // 对于系统组件的依赖注入
                 if(clazz.isAnnotationPresent(ComponentImport.class)){
-                    Field[] fields = clazz.getFields();
+                    Field[] fields = clazz.getDeclaredFields();
                     for(Field field : fields){
                         field.setAccessible(true);
                         if(field.getType().equals(ILogManager.class))

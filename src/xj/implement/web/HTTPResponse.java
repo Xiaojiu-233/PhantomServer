@@ -68,4 +68,9 @@ public class HTTPResponse extends Response {
         // 刷新输出流
         os.flush();
     }
+
+    // 获取响应头参数
+    public String getHeaderArg(String key) {
+        return headers.get(key);
+    }
 }
