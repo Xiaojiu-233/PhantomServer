@@ -6,6 +6,7 @@ import xj.component.log.LogManager;
 import xj.interfaces.component.IConfigureManager;
 import xj.interfaces.component.ILogManager;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -88,6 +89,18 @@ public class IOCManager {
         for(Map.Entry<String,Object> entry : iocContainer.entrySet()){
             Object bean = entry.getValue();
             if(bean.getClass().equals(clazz)){
+                ret.add(bean);
+            }
+        }
+        return ret;
+    }
+
+    // 返回拥有指定注解的IOC实例
+    public List<Object> returnInstancesByAnnotation(Class<? extends Annotation> annotation){
+        List<Object> ret = new ArrayList<>();
+        for(Map.Entry<String,Object> entry : iocContainer.entrySet()){
+            Object bean = entry.getValue();
+            if(bean.getClass().isAnnotationPresent(annotation)){
                 ret.add(bean);
             }
         }

@@ -1,6 +1,8 @@
 package xj.core.extern;
 
 import xj.annotation.ComponentImport;
+import xj.annotation.PController;
+import xj.annotation.PRequestMapping;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.enums.web.CharacterEncoding;
@@ -54,6 +56,18 @@ public class MVCManager {
     // 通过IOC容器的实例制定映射处理
     private void setHandlerMapping(){
         LogManager.info_("【MVC模块】正在读取IOC容器实例以实现映射处理...");
+        // 读取所有控制器注解类
+        List<Object> annotationObjects = IOCManager.getInstance()
+                .returnInstancesByAnnotation(PController.class);
+        // 遍历处理
+        for(Object annotationObject : annotationObjects){
+            // 如果类存在RequestMapping，通过RequestMapping获取基础路径
+            String baseUrl = "";
+            if(annotationObject.getClass().isAnnotationPresent(PRequestMapping.class)){
+                baseUrl = annotationObject.getClass().getAnnotation(PRequestMapping.class).value();
+            }
+            //
+        }
     }
 
     // 通过传入的HTTP请求进行处理，返回HTTP响应
