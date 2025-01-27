@@ -1,27 +1,24 @@
-package xj.core.extern;
+package xj.core.extern.mvc;
 
-import xj.annotation.ComponentImport;
-import xj.annotation.PController;
-import xj.annotation.PRequestMapping;
-import xj.component.conf.ConfigureManager;
+import xj.annotation.*;
 import xj.component.log.LogManager;
+import xj.core.extern.IOCManager;
+import xj.core.extern.JarManager;
 import xj.enums.web.CharacterEncoding;
+import xj.enums.web.ContentType;
 import xj.enums.web.RequestMethod;
 import xj.enums.web.StatuCode;
 import xj.implement.web.HTTPRequest;
 import xj.implement.web.HTTPResponse;
-import xj.interfaces.component.IConfigureManager;
-import xj.interfaces.component.ILogManager;
 import xj.tool.ConfigPool;
 import xj.tool.FileIOUtil;
 import xj.tool.StrPool;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +29,14 @@ public class MVCManager {
     // 成员属性
     private static volatile MVCManager instance;// 单例模式实现
 
-    private Map<String, Method> handlerMapping = new HashMap<>();// 请求拦截处理器，用于将指定url的请求交给特定方法处理
+    private final Map<String, HandlerMapper> handlerMappers = new HashMap<>();// 请求拦截处理器，用于将指定url的请求交给特定方法处理
 
     // 成员方法
     // 初始化
     public MVCManager() {
         LogManager.info_("【MVC模块】开始初始化");
+        // 初始化其他主要组件
+        ContentTypeConverter.getInstance();
         // 实现映射处理器
         setHandlerMapping();
         LogManager.info_("【MVC模块】初始化完成");
@@ -66,7 +65,22 @@ public class MVCManager {
             if(annotationObject.getClass().isAnnotationPresent(PRequestMapping.class)){
                 baseUrl = annotationObject.getClass().getAnnotation(PRequestMapping.class).value();
             }
-            //
+            // 获取类的所有方法，将被RequestMapping注释的方法装入到容器中
+            Method[] methods = annotationObject.getClass().getDeclaredMethods();
+            for(Method method : methods){
+                if(method.isAnnotationPresent(PRequestMapping.class)){
+                    // 获取路径作处理器的key，如果存在多个键，则直接报错
+                    PRequestMapping mapping = method.getAnnotation(PRequestMapping.class);
+                    String urlKey = mapping.method() + StrPool.SPACE
+                            + baseUrl + mapping.value();
+                    if(handlerMappers.containsKey(urlKey)){
+                        LogManager.error_("MVC映射处理器读取映射方法时出现异常:" +
+                                "路径[{}]存在映射多个方法的情况，方法[{}]将被舍弃！",urlKey,method.getName());
+                        continue;
+                    }
+                    handlerMappers.put(method.getName(), new HandlerMapper(mapping.method(),method));
+                }
+            }
         }
     }
 
@@ -89,7 +103,7 @@ public class MVCManager {
             // 如果不是，则返回405响应
             response = new HTTPResponse(StatuCode.METHOD_NOT_ALLOWED,CharacterEncoding.UTF_8,
                     getWebpageByStatuCode(StatuCode.METHOD_NOT_ALLOWED));
-            response.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
+            response.setHeaders(StrPool.CONTENT_TYPE, ContentType.TEXT_HTML.contentType);
         }
         // 对路径进行解析，获取扩展名
         String url = req.getUrl();
@@ -124,7 +138,7 @@ public class MVCManager {
         // 对路径进行解析，获取扩展名
         String url = req.getUrl();
         // 通过HandlerMapping将url映射到对应处理方法
-        Method m = handlerMapping.get(url);
+        HandlerMapper m = handlerMappers.get(url);
         // 判定方法是否存在
         if(m == null){
             // 如果没有找到资源，返回404响应
@@ -133,8 +147,42 @@ public class MVCManager {
             response.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
         }else{
             // 判定方法是否符合请求对象的请求类型
+            if(!m.getMethod().equals(req.getMethod())){
+                response = new HTTPResponse(StatuCode.METHOD_NOT_ALLOWED,CharacterEncoding.UTF_8,
+                        getWebpageByStatuCode(StatuCode.METHOD_NOT_ALLOWED));
+                response.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
+            }
             // 根据请求头的ContentType，处理请求对象数据封装为参数Map
+            ContentType contentType = ContentType.valueOf(req.getHeaders().get(StrPool.CONTENT_TYPE));
+            Map<String,Object> requestBody = ContentTypeConverter.getInstance()
+                    .handleData(contentType,req.getData());
             // 将获取的各种参数通过注解来注入到方法中，处理方法得到返回结果
+            Method handleMethod = m.getHandleMethod();
+            handleMethod.setAccessible(true);
+            Parameter[] params = handleMethod.getParameters();
+            Object[] pars = new Object[params.length];
+            for(int i=0;i<params.length;i++){
+                Object par = null;
+                if(params[i].isAnnotationPresent(PRequestBody.class)){
+                    par = requestBody;
+                }else if(params[i].isAnnotationPresent(PRequestParam.class)){
+                    par = req.getUrlParams();
+                }else if(params[i].isAnnotationPresent(PMultipartFile.class)){
+                    par = requestBody.get("file");
+                }
+                pars[i] = par;
+            }
+            // 执行方法
+            Object clazzObj = IOCManager.getInstance().returnInstanceByName(
+                    handleMethod.getDeclaringClass().getName());
+            // TODO:你需要处理文件传入到响应的问题
+            Object ret = null;
+            try {
+                ret = handleMethod.invoke(clazzObj,pars);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                LogManager.error_("MVC模块在调用HTTP请求映射方法的时候出现错误",e);
+                throw new RuntimeException(e);
+            }
             // 根据得到的结果数据情况，封装为byte数组
             byte[] data = null;
             // 数据装入到响应对象中
@@ -162,52 +210,6 @@ public class MVCManager {
         return bytes;
     }
 
-    // HTTP协议使用的主要ContentType枚举，用于实现Content-Type相关的处理功能
-    public enum ContentType {
 
-        // 主要的ContentType
-        TEXT_HTML("text/html","text",".html"),
-        TEXT_PLAIN("text/plain","text",null),
-        APPLICATION_JAVASCRIPT("application/javascript","application",".js"),
-        APPLICATION_JSON("application/json","application",".json"),
-        APPLICATION_XML("application/xml","application",".xml"),
-        APPLICATION_PDF("application/pdf","application",".pdf"),
-        APPLICATION_MSWORD("application/msword","application",".docx"),
-        IMAGE_GIF("image/gif","image",".gif"),
-        IMAGE_JPEG("image/jpeg","image",".jpeg"),
-        IMAGE_JPG("image/jpg","image",".jpg"),
-        IMAGE_PNG("image/png","image",".png"),
-        AUDIO_MPEG("audio/mpeg","audio",".mpeg"),
-        AUDIO_MP3("audio/mp3","audio",".mp3"),
-        AUDIO_OGG("audio/ogg","audio",".ogg"),
-        VIDEO_MP4("video/mp4","video",".mp4"),
-        // 次要的重复ContentType
-        TEXT_JAVASCRIPT("text/javascript","text",".js"),
-        TEXT_CSS("text/css","text",".css"),
-        TEXT_XML("text/xml","text",".xml"),
-        VIDEO_MPEG("video/mpeg","video",".mpeg"),
-        VIDEO_OGG("video/ogg","video",".ogg");
-
-        // 成员属性
-        final String contentType; // ContentType名称
-        final String category; // ContentType类型
-        final String extName; // 文件拓展名
-
-        // 成员方法
-        // 构造方法
-        ContentType(String contentType, String category, String extName) {
-            this.contentType = contentType;
-            this.category = category;
-            this.extName = extName;
-        }
-
-        // 通过扩展名找到Content-Type，没找到则返回text/plain
-        public static String getContentTypeByExtName(String extName) {
-            for(ContentType contentType : ContentType.values())
-                if(contentType.extName.equals(extName))
-                    return contentType.contentType;
-            return TEXT_PLAIN.contentType;
-        }
-    }
 
 }

@@ -3,11 +3,9 @@ package xj.implement.connect;
 import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
-import xj.component.conf.ConfigureManager;
-import xj.core.extern.MVCManager;
+import xj.core.extern.mvc.MVCManager;
 import xj.implement.web.HTTPRequest;
 import xj.implement.web.HTTPResponse;
-import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
 // HTTP协议连接处理器

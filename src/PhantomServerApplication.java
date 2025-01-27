@@ -2,7 +2,7 @@ import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.extern.IOCManager;
 import xj.core.extern.JarManager;
-import xj.core.extern.MVCManager;
+import xj.core.extern.mvc.MVCManager;
 import xj.core.server.ServerManager;
 import xj.core.threadPool.ThreadPoolManager;
 import xj.core.threadPool.factory.ConnectHandlerFactory;

@@ -5,6 +5,7 @@ import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.interfaces.component.IConfigureManager;
 import xj.interfaces.component.ILogManager;
+import xj.tool.StrPool;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
