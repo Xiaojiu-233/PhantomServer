@@ -6,6 +6,7 @@ import xj.abstracts.web.Response;
 import xj.component.conf.ConfigureManager;
 import xj.enums.web.CharacterEncoding;
 import xj.enums.web.StatuCode;
+import xj.interfaces.web.IHttpResponse;
 import xj.tool.ConfigPool;
 import xj.tool.Constant;
 import xj.tool.StrPool;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 // HTTP协议响应对象，用于响应HTTP协议
-public class HTTPResponse extends Response {
+public class HTTPResponse extends Response implements IHttpResponse {
 
     // 成员属性
     private StatuCode statuCode;// 状态码
@@ -37,12 +38,24 @@ public class HTTPResponse extends Response {
         this.bodyBytes = bodyBytes;
     }
 
+    // 设置响应体
     public HTTPResponse setHeaders(String key, String value) {
-        if(key.equals("Content-Type")) {
+        if(key.equals(StrPool.CONTENT_TYPE)) {
             value += "; charset=" + encoding.getShowStyle();
         }
         headers.put(key, value);
         return this;
+    }
+
+    @Override
+    public void setRespHeaders(String key, String value) {
+        headers.put(key, value);
+    }
+
+    // 设置数据信息
+    @Override
+    public void setBodyBytes(byte[] bodyBytes) {
+        this.bodyBytes = bodyBytes;
     }
 
     @Override
@@ -70,6 +83,7 @@ public class HTTPResponse extends Response {
     }
 
     // 获取响应头参数
+    @Override
     public String getHeaderArg(String key) {
         return headers.get(key);
     }

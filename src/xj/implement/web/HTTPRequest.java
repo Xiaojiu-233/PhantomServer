@@ -4,6 +4,7 @@ import xj.abstracts.web.Request;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.enums.web.RequestMethod;
+import xj.interfaces.web.IHttpRequest;
 import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 // HTTP协议请求对象，用于处理HTTP协议
-public class HTTPRequest extends Request {
+public class HTTPRequest extends Request implements IHttpRequest {
 
     // 成员属性
     private RequestMethod method;// 请求方法
@@ -80,6 +81,7 @@ public class HTTPRequest extends Request {
         return bodyBytes;
     }
 
+    @Override
     public Map<String, String> getHeaders() {
         return headers;
     }
@@ -92,10 +94,12 @@ public class HTTPRequest extends Request {
         return httpVersion;
     }
 
+    @Override
     public String getUrl() {
         return url;
     }
 
+    @Override
     public RequestMethod getMethod() {
         return method;
     }

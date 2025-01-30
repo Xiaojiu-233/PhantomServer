@@ -10,5 +10,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="snakeyaml-1.23" level="project" />
     <orderEntry type="library" name="snakeyaml-2.3" level="project" />
+    <orderEntry type="library" name="jackson-core-2.0.0" level="project" />
+    <orderEntry type="library" name="jackson-databind-2.0.0" level="project" />
   </component>
 </module>

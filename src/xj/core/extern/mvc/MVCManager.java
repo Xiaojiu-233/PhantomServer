@@ -1,5 +1,6 @@
 package xj.core.extern.mvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import xj.annotation.*;
 import xj.component.log.LogManager;
 import xj.core.extern.IOCManager;
@@ -134,7 +135,7 @@ public class MVCManager {
     // 后端API请求的处理
     private HTTPResponse apiHandle(HTTPRequest req){
         // 初始化响应对象
-        HTTPResponse response = null;
+        HTTPResponse resp = null;
         // 对路径进行解析，获取扩展名
         String url = req.getUrl();
         // 通过HandlerMapping将url映射到对应处理方法
@@ -142,20 +143,29 @@ public class MVCManager {
         // 判定方法是否存在
         if(m == null){
             // 如果没有找到资源，返回404响应
-            response = new HTTPResponse(StatuCode.NOT_FOUND,CharacterEncoding.UTF_8,
+            resp = new HTTPResponse(StatuCode.NOT_FOUND,CharacterEncoding.UTF_8,
                     getWebpageByStatuCode(StatuCode.NOT_FOUND));
-            response.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
+            resp.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
         }else{
             // 判定方法是否符合请求对象的请求类型
             if(!m.getMethod().equals(req.getMethod())){
-                response = new HTTPResponse(StatuCode.METHOD_NOT_ALLOWED,CharacterEncoding.UTF_8,
+                resp = new HTTPResponse(StatuCode.METHOD_NOT_ALLOWED,CharacterEncoding.UTF_8,
                         getWebpageByStatuCode(StatuCode.METHOD_NOT_ALLOWED));
-                response.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
+                resp.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
             }
             // 根据请求头的ContentType，处理请求对象数据封装为参数Map
-            ContentType contentType = ContentType.valueOf(req.getHeaders().get(StrPool.CONTENT_TYPE));
+            String[] contentTypeDatas = req.getHeaders().get(StrPool.CONTENT_TYPE)
+                    .split(StrPool.SEMICOLON);
+            ContentType contentType = ContentType.valueOf(contentTypeDatas[0]);
+            Map<String, String> contentTypeArgs = new HashMap<>();
+            for(int i = 1; i < contentTypeDatas.length; i++){
+                String[] arg = contentTypeDatas[i].trim().split(StrPool.EQUAL);
+                contentTypeArgs.put(arg[0], arg[1]);
+            }
             Map<String,Object> requestBody = ContentTypeConverter.getInstance()
-                    .handleData(contentType,req.getData());
+                    .handleData(contentType,contentTypeArgs,req.getData());
+            // 设置响应体初始数据
+            resp = new HTTPResponse(StatuCode.OK,CharacterEncoding.UTF_8,null);
             // 将获取的各种参数通过注解来注入到方法中，处理方法得到返回结果
             Method handleMethod = m.getHandleMethod();
             handleMethod.setAccessible(true);
@@ -167,31 +177,38 @@ public class MVCManager {
                     par = requestBody;
                 }else if(params[i].isAnnotationPresent(PRequestParam.class)){
                     par = req.getUrlParams();
-                }else if(params[i].isAnnotationPresent(PMultipartFile.class)){
-                    par = requestBody.get("file");
+                }else if(params[i].isAnnotationPresent(PUploadFile.class)){
+                    par = requestBody.get(StrPool.FILE);
+                }else if(params[i].getType().equals(HTTPRequest.class)){
+                    par = req;
+                }else if(params[i].getType().equals(HTTPResponse.class)){
+                    par = resp;
                 }
                 pars[i] = par;
             }
             // 执行方法
             Object clazzObj = IOCManager.getInstance().returnInstanceByName(
                     handleMethod.getDeclaringClass().getName());
-            // TODO:你需要处理文件传入到响应的问题
-            Object ret = null;
-            try {
-                ret = handleMethod.invoke(clazzObj,pars);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                LogManager.error_("MVC模块在调用HTTP请求映射方法的时候出现错误",e);
-                throw new RuntimeException(e);
-            }
             // 根据得到的结果数据情况，封装为byte数组
             byte[] data = null;
-            // 数据装入到响应对象中
-            response = new HTTPResponse(StatuCode.OK,CharacterEncoding.UTF_8,null);
-            response.setHeaders(StrPool.CONTENT_TYPE,ContentType
-                    .getContentTypeByExtName(response.getHeaderArg(StrPool.CONTENT_TYPE)));
+            try {
+                Object ret = handleMethod.invoke(clazzObj,pars);
+                data = new ObjectMapper().writeValueAsBytes(ret);
+                resp.setBodyBytes(data);
+            } catch (IllegalAccessException | InvocationTargetException | IOException e) {
+                LogManager.error_("MVC模块在调用HTTP请求映射方法的时候出现错误",e);
+            }
+            // 如果没有指定ContentType，则使用json
+            String respContentType = resp.getHeaderArg(StrPool.CONTENT_TYPE);
+            if(respContentType == null){
+                resp.setHeaders(StrPool.CONTENT_TYPE,ContentType.APPLICATION_JSON.contentType);
+            }else{
+                resp.setHeaders(StrPool.CONTENT_TYPE,ContentType
+                        .getContentTypeByExtName(resp.getHeaderArg(StrPool.CONTENT_TYPE)));
+            }
         }
         // 返回HTTP响应
-        return response;
+        return resp;
     }
 
     // 根据响应码返回对应的服务器网页，如果没找到则使用unknown

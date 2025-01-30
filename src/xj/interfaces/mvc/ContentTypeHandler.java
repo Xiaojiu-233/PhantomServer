@@ -12,6 +12,6 @@ public interface ContentTypeHandler {
     boolean isMatchContentType(ContentType contentType);
 
     // 对接收到的数据进行处，返回Map对象
-    Map<String,Object> handle(byte[] bytes);
+    Map<String,Object> handle(byte[] bytes,Map<String, String> contentTypeArgs);
 
 }

@@ -9,6 +9,7 @@ public interface StrPool {
     public static final String BACK_SLASH = "\\";
     public static final String SLASH = "/";
     public static final String COLON = ":";
+    public static final String SEMICOLON = ";";
     public static final String SPACE = " ";
     public static final String UNDERLINE = "_";
     public static final String HYPHEN = "-";
@@ -33,4 +34,8 @@ public interface StrPool {
     // 请求头
     public static final String SERVER = "Server";
     public static final String CONTENT_TYPE = "Content-Type";
+
+    // 特殊名词
+    public static final String FILE = "file";
+    public static final String BOUNDARY = "boundary";
 }
