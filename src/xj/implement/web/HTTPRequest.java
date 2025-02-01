@@ -75,6 +75,8 @@ public class HTTPRequest extends Request implements IHttpRequest {
             byteRead += ++rowRead * 2;
             bodyBytes = Arrays.copyOfRange(data,byteRead,data.length);
         }
+        // 回收data数据
+        data = null;
     }
 
     public byte[] getBodyBytes() {

@@ -194,13 +194,13 @@ public class MVCManager {
             try {
                 Object ret = handleMethod.invoke(clazzObj,pars);
                 data = new ObjectMapper().writeValueAsBytes(ret);
-                resp.setBodyBytes(data);
             } catch (IllegalAccessException | InvocationTargetException | IOException e) {
                 LogManager.error_("MVC模块在调用HTTP请求映射方法的时候出现错误",e);
             }
             // 如果没有指定ContentType，则使用json
             String respContentType = resp.getHeaderArg(StrPool.CONTENT_TYPE);
             if(respContentType == null){
+                resp.setBodyBytes(data);
                 resp.setHeaders(StrPool.CONTENT_TYPE,ContentType.APPLICATION_JSON.contentType);
             }else{
                 resp.setHeaders(StrPool.CONTENT_TYPE,ContentType

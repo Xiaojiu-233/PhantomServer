@@ -7,6 +7,7 @@ public interface StrPool {
     public static final String POINT = ".";
     public static final String EMPTY = "";
     public static final String BACK_SLASH = "\\";
+    public static final String QUOTATION_MARK = "\"";
     public static final String SLASH = "/";
     public static final String COLON = ":";
     public static final String SEMICOLON = ";";
@@ -16,6 +17,7 @@ public interface StrPool {
     public static final String QUESTION_MARK = "?";
     public static final String AND = "&";
     public static final String EQUAL = "=";
+    public static final String ENTER = "\n";
 
     // 后缀
     public static final String LOG_POINT = ".log";
@@ -37,5 +39,6 @@ public interface StrPool {
 
     // 特殊名词
     public static final String FILE = "file";
+    public static final String NAME = "name";
     public static final String BOUNDARY = "boundary";
 }

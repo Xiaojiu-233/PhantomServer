@@ -18,6 +18,11 @@ public interface MultipartFile {
     public String getFileName();
 
     /**
+     * 获取ContentType
+     */
+    public String getContentType();
+
+    /**
      * 获取文件数据
      */
     public byte[] getDataBytes();

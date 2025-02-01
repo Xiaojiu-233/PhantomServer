@@ -17,7 +17,7 @@ public class HTTPConnectHandler extends ConnectHandler {
     // 成员行为
     @Override
     public boolean isMatchedRequest(Request request) {
-        String[] firstLineArgs = request.encodeToString()[0].split(StrPool.SPACE );
+        String[] firstLineArgs = request.getHeadMsg().split(StrPool.SPACE );
         return firstLineArgs.length == 3 && firstLineArgs[2].contains(StrPool.HTTP);
     }
 
