@@ -1,6 +1,8 @@
 package xj.core.extern;
 
 import xj.annotation.ComponentImport;
+import xj.annotation.DontInject;
+import xj.annotation.PAutowired;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.interfaces.component.IConfigureManager;
@@ -19,6 +21,8 @@ public class IOCManager {
     private static volatile IOCManager instance;// 单例模式实现
 
     private Map<String,Object> iocContainer = new HashMap<>();// IOC容器
+
+    private Map<Class<?>,Object> instanceBuffer = new HashMap<>();// IOC实例缓存（通过类对象映射）
 
     // 成员方法
     // 初始化
@@ -51,7 +55,7 @@ public class IOCManager {
             for(Class<?> classObject : classObjects){
                 int modifiers = classObject.getModifiers();
                 if(!Modifier.isAbstract(modifiers) && !Modifier.isInterface(modifiers)
-                        && !classObject.isEnum())
+                        && !classObject.isEnum() && !classObject.isAnnotationPresent(DontInject.class))
                     iocContainer.put(classObject.getName(),classObject.newInstance());
             }
         } catch (InstantiationException | IllegalAccessException e) {
@@ -66,18 +70,21 @@ public class IOCManager {
             Object bean = entry.getValue();
             Class<?> clazz = bean.getClass();
             try {
-                // 对于系统组件的依赖注入
-                if(clazz.isAnnotationPresent(ComponentImport.class)){
-                    Field[] fields = clazz.getDeclaredFields();
-                    for(Field field : fields){
-                        field.setAccessible(true);
+                Field[] fields = clazz.getDeclaredFields();
+                for(Field field : fields){
+                    field.setAccessible(true);
+                    // 对于系统组件的依赖注入
+                    if(clazz.isAnnotationPresent(ComponentImport.class)){
                         if(field.getType().equals(ILogManager.class))
                             field.set(bean,LogManager.getInstance());
                         else if(field.getType().equals(IConfigureManager.class))
                             field.set(bean, ConfigureManager.getInstance());
                     }
+                    // 对于其他自定义对象的依赖注入
+                    if(field.isAnnotationPresent(PAutowired.class)){
+                        field.set(bean,returnImplInstanceByClass(field.getType()));
+                    }
                 }
-                // 对于其他自定义对象的依赖注入
             } catch (Exception e) {
                 LogManager.error_("对IOC容器内实例依赖注入时出现异常",e);
             }
@@ -91,6 +98,31 @@ public class IOCManager {
             Object bean = entry.getValue();
             if(bean.getClass().equals(clazz)){
                 ret.add(bean);
+            }
+        }
+        return ret;
+    }
+
+    // 返回指定单个 由接口类对象实现/指定类对象 的IOC实例
+    public Object returnImplInstanceByClass(Class<?> clazz){
+        // 读取缓存
+        Object ret = instanceBuffer.get(clazz);
+        // 缓存没有则查看IOC容器
+        boolean notNormalClass = clazz.isInterface() || clazz.getModifiers() == Modifier.ABSTRACT;
+        if(ret == null){
+            List<Object> retList = new ArrayList<>();
+            for(Map.Entry<String,Object> entry : iocContainer.entrySet()){
+                Object bean = entry.getValue();
+                if(notNormalClass ? clazz.isInstance(bean) : bean.getClass().equals(clazz))
+                    retList.add(bean);
+            }
+            if(retList.size() > 1){
+                LogManager.error_("通过类对象[{}]读取单个IOC实例时获得了[{}]个实例，无法确定该使用哪一个实例"
+                        ,clazz.getName(),retList.size());
+                return null;
+            }else{
+                ret = retList.get(0);
+                instanceBuffer.put(clazz,ret);
             }
         }
         return ret;

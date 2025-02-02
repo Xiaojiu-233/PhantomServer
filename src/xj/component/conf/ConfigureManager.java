@@ -2,6 +2,7 @@ package xj.component.conf;
 
 import org.yaml.snakeyaml.Yaml;
 import sun.rmi.runtime.Log;
+import xj.annotation.PRequestBody;
 import xj.component.log.LogManager;
 import xj.interfaces.component.IConfigureManager;
 import xj.tool.ConfigPool;
@@ -77,7 +78,7 @@ public class ConfigureManager implements IConfigureManager {
     }
 
     // dfs遍历读取map容器数据并存入配置列表
-    private void readConfigFromMap(Map<String, Object> map,String prefix){
+    private void readConfigFromMap(Map<String, Object> map, String prefix){
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();

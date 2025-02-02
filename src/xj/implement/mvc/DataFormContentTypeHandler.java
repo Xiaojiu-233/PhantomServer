@@ -7,6 +7,7 @@ import xj.tool.StrPool;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 // 表单数据的ContentType数据处理器
 public class DataFormContentTypeHandler implements ContentTypeHandler {
@@ -98,7 +99,12 @@ public class DataFormContentTypeHandler implements ContentTypeHandler {
         } catch (IOException e) {
             LogManager.error_("表单ContentType数据解析数据时出现了异常",e);
         }
-        // TODO:处理结果数据，将值由列表转化为数组
+        // 处理结果数据，将值由列表转化为数组
+        ret = ret.entrySet().stream()
+                .peek(obj -> obj.setValue(
+                        obj.getValue() instanceof List ? ((List<?>)(obj.getValue())).toArray()
+                                : obj.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue));
         // 返回结果
         return ret;
     }

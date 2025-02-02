@@ -24,8 +24,9 @@ public abstract class Request {
         // 获取头数据（读到换行符之前的数据）
         int pos = 0;
         for(int i= 0;i<data.length;i++)
-            if(data[i] == '\n')
-                pos = i;
+            if(data[i] == '\n'){
+                pos = i;break;
+            }
         byte[] headDataBytes = Arrays.copyOfRange(data,0,pos);
         headMsg = new String(headDataBytes);
     }

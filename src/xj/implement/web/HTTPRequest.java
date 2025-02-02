@@ -45,7 +45,7 @@ public class HTTPRequest extends Request implements IHttpRequest {
         String[] headArgs = lines[0].split(StrPool.SPACE );
         method = RequestMethod.valueOf(headArgs[0]);
         String[] urls = headArgs[1].contains(StrPool.QUESTION_MARK) ?
-                headArgs[1].split(StrPool.QUESTION_MARK) : new String[]{headArgs[1]};
+                headArgs[1].split(StrPool.BACK_SLASH + StrPool.QUESTION_MARK) : new String[]{headArgs[1]};
         url = urls[0];
         // url特判，如果只是 / 且为GET请求的话，改为主页位置
         if(url.equals(StrPool.SLASH) && method.equals(RequestMethod.GET)) url =

@@ -72,14 +72,13 @@ public class MVCManager {
                 if(method.isAnnotationPresent(PRequestMapping.class)){
                     // 获取路径作处理器的key，如果存在多个键，则直接报错
                     PRequestMapping mapping = method.getAnnotation(PRequestMapping.class);
-                    String urlKey = mapping.method() + StrPool.SPACE
-                            + baseUrl + mapping.value();
+                    String urlKey = baseUrl + mapping.value();
                     if(handlerMappers.containsKey(urlKey)){
                         LogManager.error_("MVC映射处理器读取映射方法时出现异常:" +
                                 "路径[{}]存在映射多个方法的情况，方法[{}]将被舍弃！",urlKey,method.getName());
                         continue;
                     }
-                    handlerMappers.put(method.getName(), new HandlerMapper(mapping.method(),method));
+                    handlerMappers.put(urlKey, new HandlerMapper(mapping.method(),method));
                 }
             }
         }
