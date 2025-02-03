@@ -19,19 +19,21 @@ public class FileIOUtil {
         // 开始读取文件内容
         try (InputStream in = Files.newInputStream(file.toPath())){
             return getByteByInputStream(in);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LogManager.error_("读取文件资源 [{}] 时出现异常: {}", filePath, e);
         }
         return null;
     }
 
     // 从InputStream中获取byte数组
-    public static byte[] getByteByInputStream(InputStream in) throws IOException {
+    public static byte[] getByteByInputStream(InputStream in) throws IOException, InterruptedException {
         byte[] buffer = new byte[Constant.BYTES_UNIT_CAPACITY];
         int bytesRead = 0;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         while (in.available() > 0) {
+            Thread.sleep(100);
             bytesRead = in.read(buffer);
+            LogManager.debug_("线程:[{}]读取到消息字节数:[{}]",Thread.currentThread().getName(), bytesRead);
             bos.write(buffer, 0, bytesRead);
         }
         return bos.toByteArray();

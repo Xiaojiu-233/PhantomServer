@@ -122,7 +122,7 @@ public class MVCManager {
             byte[] data = null;
             try {
                 data = FileIOUtil.getByteByInputStream(in);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LogManager.error_("读取文件资源时出现异常", e);
             }
             response = new HTTPResponse(StatuCode.OK,CharacterEncoding.UTF_8,data);
