@@ -11,6 +11,7 @@ public interface ConfigPool {
         public static final String LONG_CONNECT_MAX_THREAD = "thread-pool.pool.long-connect-max-thread";
         public static final String THREAD_NAME = "thread-pool.thread.thread-name";
         public static final String MAX_FREE_TIME = "thread-pool.thread.max-free-time";
+        public static final String MAX_WAIT_TIME = "thread-pool.thread.max-wait-time";
         public static final String REJECT_STRATEGY = "thread-pool.pool.reject-strategy";
     }
 

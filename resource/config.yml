@@ -15,7 +15,8 @@ thread-pool:
     reject-strategy: THROW_TASK
   thread:
     thread-name: thread # 工作线程名称
-    max-free-time: 180 # 普通线程池线程最大闲置时间，超时后会被线程池回收
+    max-free-time: 180 # 普通线程池线程最大闲置时间(秒)，超时后会被线程池回收
+    max-wait-time: 3000 # 未响应超时时间(毫秒)
 
 # MVC配置
 mvc:

@@ -37,7 +37,7 @@ public class DataFormContentTypeHandler implements ContentTypeHandler {
             while ((line = br.readLine()) != null) {
                 if(!readConfig) {
                     // 数据读取阶段
-                    if(!line.equals(boundaryEnd) && !line.equals(boundary)) {
+                    if(line.length() > boundaryEndLen || (!line.equals(boundaryEnd) && !line.equals(boundary))) {
                         // 将文件或文本数据存至缓冲
                         if(parFileName != null){
                             fileBos.write(line.getBytes());
@@ -98,7 +98,7 @@ public class DataFormContentTypeHandler implements ContentTypeHandler {
                     for(String arg : args) {
                         if(arg.startsWith(StrPool.NAME))
                             parName = arg.split(StrPool.EQUAL)[1];
-                        else if(arg.startsWith(StrPool.FILE + StrPool.NAME))
+                        else if(arg.startsWith(StrPool.FILE + StrPool.NAME + StrPool.EQUAL))
                             parFileName = arg.split(StrPool.EQUAL)[1];
                     }
                 }

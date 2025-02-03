@@ -1,5 +1,6 @@
 package xj.implement.thread;
 
+import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.threadPool.factory.ConnectHandlerFactory;
 import xj.abstracts.connect.ConnectHandler;
@@ -7,6 +8,7 @@ import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
 import xj.implement.web.ProtocolRequest;
 import xj.interfaces.thread.ThreadTask;
+import xj.tool.ConfigPool;
 import xj.tool.FileIOUtil;
 
 import java.io.*;
@@ -20,11 +22,16 @@ public class TCPConnectTask implements ThreadTask {
 
     private ConnectHandler handler;// 消息处理器
 
+    private Long maxWaitTime;// 未响应超时时间（毫秒）
+
     // 成员方法
     // 初始化
     public TCPConnectTask(Socket socket){
         // 获取客户端连接socket
         client = socket;
+        // 获取参数
+        int time = (Integer)ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.MAX_WAIT_TIME) ;
+        maxWaitTime = (long) time;
     }
 
     @Override
@@ -35,7 +42,15 @@ public class TCPConnectTask implements ThreadTask {
         // 确定输出输入流，开始处理socket
         try(InputStream in = client.getInputStream();
             OutputStream out = client.getOutputStream()){
+            // 等待计时器设置
+            long maxWaitTimer = System.currentTimeMillis();
+            // 开始循环
             while(true){
+                // 如果连接等待时间超过最大等待时间，则放弃该任务
+                if(System.currentTimeMillis() - maxWaitTimer > maxWaitTime){
+                    LogManager.info_("[{}] 的TCP连接任务由于超时等待已被回收",threadName);
+                    break;
+                }
                 // 存在消息时读取消息，不存在时跳过
                 byte[] data = FileIOUtil.getByteByInputStream(in);
                 if(data.length == 0) continue;
@@ -51,6 +66,8 @@ public class TCPConnectTask implements ThreadTask {
                 response.writeMessage(out);
                 // 判断是否可以结束连接
                 if(handler.needEndConnection()) break;
+                // 刷新等待时间
+                maxWaitTimer = System.nanoTime();
             }
         } catch (IOException e) {
             LogManager.error_("[{}] 的TCP连接任务接收socket消息时出现异常：{}",threadName,e);
