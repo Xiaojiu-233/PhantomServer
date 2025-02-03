@@ -15,7 +15,7 @@ public class JsonContentTypeHandler implements ContentTypeHandler {
 
     @Override
     public boolean isMatchContentType(ContentType contentType) {
-        return contentType.equals(ContentType.APPLICATION_JSON);
+        return contentType != null && contentType.equals(ContentType.APPLICATION_JSON);
     }
 
     @Override

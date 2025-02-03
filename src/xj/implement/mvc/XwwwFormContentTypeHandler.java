@@ -13,7 +13,7 @@ public class XwwwFormContentTypeHandler implements ContentTypeHandler {
 
     @Override
     public boolean isMatchContentType(ContentType contentType) {
-        return contentType.equals(ContentType.APPLICATION_X_WWW_FORM);
+        return contentType != null && contentType.equals(ContentType.APPLICATION_X_WWW_FORM);
     }
 
     @Override

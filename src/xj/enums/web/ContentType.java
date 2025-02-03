@@ -48,4 +48,12 @@ public enum ContentType {
                 return contentType.contentType;
         return TEXT_PLAIN.contentType;
     }
+
+    // 通过名称找到Content-Type
+    public static ContentType getContentTypeByString(String name) {
+        for(ContentType contentType : ContentType.values())
+            if(contentType.contentType.equals(name))
+                return contentType;
+        return null;
+    }
 }

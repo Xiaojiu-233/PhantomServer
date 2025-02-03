@@ -14,7 +14,7 @@ public class DataFormContentTypeHandler implements ContentTypeHandler {
 
     @Override
     public boolean isMatchContentType(ContentType contentType) {
-        return contentType.equals(ContentType.MULTIPART_FORM_DATA);
+        return contentType != null && contentType.equals(ContentType.MULTIPART_FORM_DATA);
     }
 
     @Override
@@ -23,8 +23,8 @@ public class DataFormContentTypeHandler implements ContentTypeHandler {
         Map<String, Object> ret = new HashMap<String, Object>();
         BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
         String line = null;
-        String boundary = contentTypeArgs.get(StrPool.BOUNDARY);
-        String boundaryEnd = contentTypeArgs.get(StrPool.BOUNDARY) + StrPool.HYPHEN + StrPool.HYPHEN;
+        String boundary = StrPool.HYPHEN + StrPool.HYPHEN + contentTypeArgs.get(StrPool.BOUNDARY);
+        String boundaryEnd = boundary + StrPool.HYPHEN + StrPool.HYPHEN;
         int boundaryEndLen = boundaryEnd.length();
         boolean readConfig = false;
         String parName = null;
@@ -37,7 +37,7 @@ public class DataFormContentTypeHandler implements ContentTypeHandler {
             while ((line = br.readLine()) != null) {
                 if(!readConfig) {
                     // 数据读取阶段
-                    if(line.length() > boundaryEndLen) {
+                    if(!line.equals(boundaryEnd) && !line.equals(boundary)) {
                         // 将文件或文本数据存至缓冲
                         if(parFileName != null){
                             fileBos.write(line.getBytes());
@@ -45,7 +45,11 @@ public class DataFormContentTypeHandler implements ContentTypeHandler {
                         }else{
                             textBuffer = line;
                         }
-                    }else if(parName != null && line.equals(boundaryEnd) || line.equals(boundaryEndLen)) {
+                    }else {
+                        if(parName == null){
+                            readConfig = true;
+                            continue;
+                        }
                         // 将当前数据存至结果
                         Object parValue = null;
                         Object beforeValue = ret.get(parName);
@@ -84,15 +88,18 @@ public class DataFormContentTypeHandler implements ContentTypeHandler {
                     }
                 }else{
                     // 配置读取阶段
-                    if(line.isEmpty()) readConfig = false;
+                    if(line.isEmpty()){
+                        readConfig = false;
+                        continue;
+                    }
                     // 数据不为空则开始解析数据
                     String[] args = line.replace(StrPool.QUOTATION_MARK,StrPool.EMPTY)
                             .replace(StrPool.SEMICOLON,StrPool.EMPTY).split(StrPool.SPACE);
                     for(String arg : args) {
-                        if(arg.equals(StrPool.NAME))
-                            parName = arg.split(StrPool.COLON)[1];
-                        else if(arg.equals(StrPool.FILE + StrPool.NAME))
-                            parFileName = arg.split(StrPool.COLON)[1];
+                        if(arg.startsWith(StrPool.NAME))
+                            parName = arg.split(StrPool.EQUAL)[1];
+                        else if(arg.startsWith(StrPool.FILE + StrPool.NAME))
+                            parFileName = arg.split(StrPool.EQUAL)[1];
                     }
                 }
             }

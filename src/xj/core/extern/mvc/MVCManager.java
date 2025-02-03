@@ -1,5 +1,6 @@
 package xj.core.extern.mvc;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import xj.annotation.*;
 import xj.component.log.LogManager;
@@ -153,16 +154,19 @@ public class MVCManager {
                 resp.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
             }
             // 根据请求头的ContentType，处理请求对象数据封装为参数Map
-            String[] contentTypeDatas = req.getHeaders().get(StrPool.CONTENT_TYPE)
-                    .split(StrPool.SEMICOLON);
-            ContentType contentType = ContentType.valueOf(contentTypeDatas[0]);
+            String contentTypeData = req.getHeaders().get(StrPool.CONTENT_TYPE);
+            ContentType contentType = null;
             Map<String, String> contentTypeArgs = new HashMap<>();
-            for(int i = 1; i < contentTypeDatas.length; i++){
-                String[] arg = contentTypeDatas[i].trim().split(StrPool.EQUAL);
-                contentTypeArgs.put(arg[0], arg[1]);
+            if(contentTypeData != null){
+                String[] contentTypeDatas = contentTypeData.split(StrPool.SEMICOLON);
+                contentType = ContentType.getContentTypeByString(contentTypeDatas[0]);
+                for(int i = 1; i < contentTypeDatas.length; i++){
+                    String[] arg = contentTypeDatas[i].trim().split(StrPool.EQUAL);
+                    contentTypeArgs.put(arg[0], arg[1]);
+                }
             }
             Map<String,Object> requestBody = ContentTypeConverter.getInstance()
-                    .handleData(contentType,contentTypeArgs,req.getData());
+                    .handleData(contentType,contentTypeArgs,req.getBodyBytes());
             // 设置响应体初始数据
             resp = new HTTPResponse(StatuCode.OK,CharacterEncoding.UTF_8,null);
             // 将获取的各种参数通过注解来注入到方法中，处理方法得到返回结果
