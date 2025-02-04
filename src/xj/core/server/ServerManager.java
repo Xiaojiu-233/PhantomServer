@@ -3,6 +3,7 @@ package xj.core.server;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.implement.observer.ServerSocketObserver;
+import xj.implement.observer.SocketConfigObserver;
 import xj.implement.observer.SocketObserverContainer;
 import xj.tool.ConfigPool;
 
@@ -30,6 +31,7 @@ public class ServerManager {
         LogManager.info_("服务器使用的端口为",port);
         // 设置观察者容器用于监听
         observerContainer = new SocketObserverContainer<>();
+        observerContainer.addObserver(new SocketConfigObserver());
         observerContainer.addObserver(new ServerSocketObserver());
         LogManager.info_("服务器观察者容器设置完毕");
         LogManager.info_("【服务器模块】初始化完成");

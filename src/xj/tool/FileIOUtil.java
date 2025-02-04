@@ -6,6 +6,7 @@ import xj.implement.web.ProtocolRequest;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // 文件资源IO工具包，用于对服务器的文件资源、IO需求进行处理
 public class FileIOUtil {
@@ -26,15 +27,16 @@ public class FileIOUtil {
     }
 
     // 从InputStream中获取byte数组
-    public static byte[] getByteByInputStream(InputStream in) throws IOException, InterruptedException {
+    public static byte[] getByteByInputStream(InputStream in) throws IOException {
         byte[] buffer = new byte[Constant.BYTES_UNIT_CAPACITY];
         int bytesRead = 0;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        while (in.available() > 0) {
-            Thread.sleep(100);
+        while (in.available() >= 0) {
             bytesRead = in.read(buffer);
-            LogManager.debug_("线程:[{}]读取到消息字节数:[{}]",Thread.currentThread().getName(), bytesRead);
-            bos.write(buffer, 0, bytesRead);
+            if(bytesRead > 0) {
+                LogManager.debug_("线程:[{}]读取到消息字节数:[{}]",Thread.currentThread().getName(), bytesRead);
+                bos.write(buffer, 0, bytesRead);
+            }
         }
         return bos.toByteArray();
     }

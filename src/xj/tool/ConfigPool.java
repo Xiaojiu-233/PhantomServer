@@ -19,6 +19,7 @@ public interface ConfigPool {
     public interface SERVER {
         public static final String PORT = "server.port";
         public static final String NAME = "server.name";
+        public static final String SOCKET_MAX_READ_TIME = "server.socket-max-read-time";
     }
 
     // 日志

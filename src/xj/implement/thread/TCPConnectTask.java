@@ -47,18 +47,26 @@ public class TCPConnectTask implements ThreadTask {
             // 开始循环
             while(true){
                 // 如果连接等待时间超过最大等待时间，则放弃该任务
-                if(System.currentTimeMillis() - maxWaitTimer > maxWaitTime){
-                    LogManager.info_("[{}] 的TCP连接任务由于超时等待已被回收",threadName);
+                if(handler == null && System.currentTimeMillis() - maxWaitTimer > maxWaitTime){
+                    LogManager.info_("[{}] 的TCP连接任务因未接受数据且超时等待已被回收",threadName);
                     break;
                 }
                 // 存在消息时读取消息，不存在时跳过
+                if(in.available() == 0) continue;
                 byte[] data = FileIOUtil.getByteByInputStream(in);
                 if(data.length == 0) continue;
                 // 将消息打包成数据包
                 Request request = new ProtocolRequest(data);
+                LogManager.debug_("线程:[{}]目前还有要读到的数据吗？[{}]",Thread.currentThread().getName(), in.available());
                 // 如果消息处理器为空则使用处理器工厂创建消息对应的消息处理器
-                if(handler == null)
+                if(handler == null){
                     handler = ConnectHandlerFactory.getInstance().getMatchConnectHandler(request);
+                    // 没有找到对应消息处理器则放弃该次任务
+                    if(handler == null){
+                        LogManager.error_("[{}] 的TCP连接任务因未寻找到对应处理器，已被放弃",threadName);
+                        break;
+                    }
+                }
                 // 将数据包消息传递给处理器进行处理
                 handler.handle(request);
                 // 处理器处理完成后返回消息并打包成响应数据包发送给客户端

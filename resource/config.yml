@@ -2,6 +2,7 @@
 server:
   port: 50001
   name: XiaojiuServer
+  socket-max-read-time: 3000 # socket最大读取单个消息时间(毫秒)
 
 # 动态线程池配置
 thread-pool:
