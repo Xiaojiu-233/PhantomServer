@@ -27,14 +27,14 @@ public class FileIOUtil {
     }
 
     // 从InputStream中获取byte数组
-    public static byte[] getByteByInputStream(InputStream in) throws IOException {
+    public static byte[] getByteByInputStream(InputStream in) throws IOException, InterruptedException {
         byte[] buffer = new byte[Constant.BYTES_UNIT_CAPACITY];
         int bytesRead = 0;
+        Thread.sleep(50);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        while (in.available() >= 0) {
+        while (in.available() > 0) {
             bytesRead = in.read(buffer);
             if(bytesRead > 0) {
-                LogManager.debug_("线程:[{}]读取到消息字节数:[{}]",Thread.currentThread().getName(), bytesRead);
                 bos.write(buffer, 0, bytesRead);
             }
         }

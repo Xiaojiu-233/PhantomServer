@@ -1,10 +1,13 @@
 package xj.core.threadPool.factory;
 
 import xj.component.log.LogManager;
+import xj.implement.thread.StreamIOTask;
 import xj.implement.thread.TCPConnectTask;
 import xj.interfaces.thread.ThreadTask;
 
+import java.io.InputStream;
 import java.net.Socket;
+import java.nio.channels.SocketChannel;
 
 // 线程任务的工厂，用单例工厂模式便捷生产线程任务对象
 public class ThreadTaskFactory {
@@ -29,11 +32,14 @@ public class ThreadTaskFactory {
     }
 
     // 创建TCP连接任务
-    public ThreadTask createTCPConnectTask(Socket socket){
+    public ThreadTask createTCPConnectTask(SocketChannel socket){
         return new TCPConnectTask(socket);
     }
 
     // 创建UDP连接任务
 
     // 创建文件IO任务
+    public ThreadTask createStreamIOTask(SocketChannel in,boolean once){
+        return new StreamIOTask(in,once);
+    }
 }

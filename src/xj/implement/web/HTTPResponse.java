@@ -13,6 +13,8 @@ import xj.tool.StrPool;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +61,7 @@ public class HTTPResponse extends Response implements IHttpResponse {
     }
 
     @Override
-    public void writeMessage(OutputStream os) throws IOException {
+    public void writeMessage(SocketChannel os) throws IOException {
         // 添加统一的响应
         headers.put(StrPool.SERVER,(String)ConfigureManager.getInstance()
                 .getConfig(ConfigPool.SERVER.NAME));
@@ -75,11 +77,13 @@ public class HTTPResponse extends Response implements IHttpResponse {
         }
         // 输出响应体
         sb.append(lineBreak);
-        os.write(sb.toString().getBytes());
-        os.write(bodyBytes);
-        os.write(lineBreak.getBytes());
-        // 刷新输出流
-        os.flush();
+        byte[] headBytes = sb.toString().getBytes();
+        ByteBuffer buffer = ByteBuffer.allocate(headBytes.length + bodyBytes.length + lineBreak.getBytes().length);
+        buffer.put(headBytes);
+        buffer.put(bodyBytes);
+        buffer.put(lineBreak.getBytes());
+        buffer.flip();
+        os.write(buffer);
     }
 
     // 获取响应头参数
