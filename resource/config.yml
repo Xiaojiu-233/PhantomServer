@@ -17,14 +17,13 @@ thread-pool:
   thread:
     thread-name: thread # 工作线程名称
     max-free-time: 180 # 普通线程池线程最大闲置时间(秒)，超时后会被线程池回收
-    max-wait-time: 3000 # 未响应超时时间(毫秒)
+    max-wait-time: 1500 # 未响应超时时间(毫秒)
 
 # MVC配置
 mvc:
   web-program-path: ext/web #Web程序jar包映射路径
-  index-path: /index.html #主页路径（从扫描到的网络程序jar包为根目录）
-  resource-path: file #资源映射路径（从扫描到的网络程序jar包为根目录）
-  webpage-path: page #网页映射路径（从扫描到的网络程序jar包为根目录）
+  index-path: /webpage/index.html #主页路径（从扫描到的网络程序jar包为根目录）
+  resource-path: [static,webpage] #静态资源映射路径（使用数组，从扫描到的网络程序jar包为根目录）
 
 # IOC配置
 ioc:

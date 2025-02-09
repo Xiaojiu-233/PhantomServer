@@ -109,9 +109,8 @@ public class MVCManager {
         // 对路径进行解析，获取扩展名
         String url = req.getUrl();
         String extName = url.substring(url.lastIndexOf(StrPool.POINT)).toLowerCase();
-        // 根据扩展名选择使用网页还是其他资源映射
-        InputStream in = extName.equals(StrPool.HTML_POINT) ?
-                JarManager.getInstance().getWebpage(url) : JarManager.getInstance().getResource(url);
+        // 使用静态资源映射
+        InputStream in = JarManager.getInstance().getResource(url);
         if(in == null){
             // 如果没有找到资源，返回404响应
             response = new HTTPResponse(StatuCode.NOT_FOUND,CharacterEncoding.UTF_8,

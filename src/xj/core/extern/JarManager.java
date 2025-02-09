@@ -8,7 +8,6 @@ import xj.tool.StrPool;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -26,9 +25,7 @@ public class JarManager {
 
     private URLClassLoader jarUrlClassLoader;// jar包资源类加载器，用于获取类等相关资源
 
-    private String resourcePath;// Web包内资源映射路径
-
-    private String webpagePath;// Web包内网页映射路径
+    private Set<String> resourcePaths;// Web包内静态资源映射路径
 
     // 成员方法
     // 初始化
@@ -37,10 +34,9 @@ public class JarManager {
         // 读取相关配置
         String extProgramPath = (String) ConfigureManager.getInstance().getConfig(ConfigPool.IOC.EXT_PROGRAM_PATH);
         String webProgramPath = (String) ConfigureManager.getInstance().getConfig(ConfigPool.MVC.WEB_PROGRAM_PATH);
-        resourcePath = (String) ConfigureManager.getInstance().getConfig(ConfigPool.MVC.RESOURCE_PATH);
-        webpagePath = (String) ConfigureManager.getInstance().getConfig(ConfigPool.MVC.WEBPAGE_PATH);
-        LogManager.info_("Jar包模块参数 -> 拓展程序jar包扫描路径：{} Web程序jar包扫描路径：{} Web包内资源映射路径：{}" +
-                " Web包内网页映射路径：{}", extProgramPath, webProgramPath,resourcePath,webpagePath);
+        resourcePaths = new HashSet<>((List<String>)ConfigureManager.getInstance().getConfig(ConfigPool.MVC.RESOURCE_PATH));
+        LogManager.info_("Jar包模块参数 -> 拓展程序jar包扫描路径：{} Web程序jar包扫描路径：{} Web包内静态资源映射路径：{}",
+                extProgramPath, webProgramPath, resourcePaths);
         // 递归扫描程序包获取实例
         LogManager.info_("【Jar包模块】正在扫描拓展程序包...");
         scanPackageFromPath(extProgramPath);
@@ -129,13 +125,11 @@ public class JarManager {
         return classObjects;
     }
 
-    // 获取网页资源
-    public InputStream getWebpage(String path){
-        return jarUrlClassLoader.getResourceAsStream(webpagePath + path);
-    }
-
-    // 获取其他资源
+    // 获取静态映射资源
     public InputStream getResource(String path){
-        return jarUrlClassLoader.getResourceAsStream(resourcePath + path);
+        String handledPath = path.substring(1);
+        String pathRoot = handledPath.split(StrPool.SLASH)[0];
+        if(pathRoot == null || pathRoot.isEmpty() || !resourcePaths.contains(pathRoot))return null;
+        return jarUrlClassLoader.getResourceAsStream(handledPath);
     }
 }

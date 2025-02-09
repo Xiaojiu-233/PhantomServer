@@ -32,7 +32,6 @@ public interface ConfigPool {
         public static final String WEB_PROGRAM_PATH = "mvc.web-program-path";
         public static final String INDEX_PATH = "mvc.index-path";
         public static final String RESOURCE_PATH = "mvc.resource-path";
-        public static final String WEBPAGE_PATH = "mvc.webpage-path";
     }
 
     // IOC容器
