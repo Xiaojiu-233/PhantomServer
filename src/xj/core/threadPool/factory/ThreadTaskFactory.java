@@ -1,12 +1,12 @@
 package xj.core.threadPool.factory;
 
+import xj.abstracts.web.Response;
 import xj.component.log.LogManager;
-import xj.implement.thread.StreamIOTask;
-import xj.implement.thread.TCPConnectTask;
+import xj.core.server.selector.ByteReceiver;
+import xj.implement.thread.ChannelReadTask;
+import xj.implement.thread.ChannelWriteTask;
 import xj.interfaces.thread.ThreadTask;
 
-import java.io.InputStream;
-import java.net.Socket;
 import java.nio.channels.SocketChannel;
 
 // 线程任务的工厂，用单例工厂模式便捷生产线程任务对象
@@ -31,15 +31,15 @@ public class ThreadTaskFactory {
         LogManager.info_("线程任务工厂正在构建...");
     }
 
-    // 创建TCP连接任务
-    public ThreadTask createTCPConnectTask(SocketChannel socket){
-        return new TCPConnectTask(socket);
-    }
-
     // 创建UDP连接任务
 
-    // 创建文件IO任务
-    public ThreadTask createStreamIOTask(SocketChannel in,boolean once){
-        return new StreamIOTask(in,once);
+    // 创建TCP通道读IO任务
+    public ThreadTask createChannelReadTask(SocketChannel in, ByteReceiver receiver){
+        return new ChannelReadTask(in,receiver);
+    }
+
+    // 创建TCP通道写IO任务
+    public ThreadTask createChannelWriteTask(SocketChannel out, Response response, ByteReceiver receiver){
+        return new ChannelWriteTask(out,response,receiver);
     }
 }

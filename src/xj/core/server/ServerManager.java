@@ -2,18 +2,15 @@ package xj.core.server;
 
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
-import xj.implement.observer.ServerSocketObserver;
+import xj.implement.observer.SocketSelectorObserver;
 import xj.implement.observer.SocketChannelObserverContainer;
 import xj.implement.observer.SocketConfigObserver;
 import xj.tool.ConfigPool;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Observer;
 
 // 服务器模块，用于管理ServerSocket监听端口请求
 public class ServerManager {
@@ -35,7 +32,7 @@ public class ServerManager {
         // 设置观察者容器用于监听
         observerContainer = new SocketChannelObserverContainer<>();
         observerContainer.addObserver(new SocketConfigObserver());
-        observerContainer.addObserver(new ServerSocketObserver());
+        observerContainer.addObserver(new SocketSelectorObserver());
         LogManager.info_("服务器观察者容器设置完毕");
         LogManager.info_("【服务器模块】初始化完成");
     }
@@ -55,6 +52,7 @@ public class ServerManager {
         LogManager.info_("【服务器】正在开机....");
         // 开启ServerSocket
         try(ServerSocketChannel serverChannel = ServerSocketChannel.open()){
+            serverChannel.configureBlocking(false);
             serverChannel.bind(new InetSocketAddress(port));
             while(true){
                 SocketChannel clientChannel = serverChannel.accept();

@@ -17,8 +17,8 @@ public class PhantomServerApplication {
             LogManager.getInstance();
             LogManager.info_("-----服务器进入准备阶段！-----");
             ConfigureManager.getInstance();
-            ServerManager.getInstance();
             ThreadPoolManager.getInstance();
+            ServerManager.getInstance();
             // 2.拓展jar包的读取
             LogManager.info_("-----服务器进入拓展程序读取阶段！-----");
             JarManager.getInstance();

@@ -41,4 +41,5 @@ public interface StrPool {
     public static final String FILE = "file";
     public static final String NAME = "name";
     public static final String BOUNDARY = "boundary";
+    public static final String SUCCESS = "success";
 }
