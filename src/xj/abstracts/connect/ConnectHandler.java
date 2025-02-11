@@ -13,11 +13,8 @@ public abstract class ConnectHandler {
     // Request的内容是否满足处理条件
     abstract public boolean isMatchedRequest(Request request);
 
-    // 处理相关内容
-    abstract public void handle(Request request);
-
-    // 返回对应的Response
-    abstract public Response returnResponse();
+    // 处理相关内容，返回对应的Response
+    abstract public Response handle(Request request);
 
     // 断开连接的时机确认(默认情况为直接关闭)
     public boolean needEndConnection() {

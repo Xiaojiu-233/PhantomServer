@@ -1,18 +1,14 @@
 package xj.implement.web;
 
-import com.sun.deploy.util.ArrayUtil;
-import org.yaml.snakeyaml.util.ArrayUtils;
 import xj.abstracts.web.Response;
 import xj.component.conf.ConfigureManager;
 import xj.enums.web.CharacterEncoding;
 import xj.enums.web.StatuCode;
 import xj.interfaces.web.IHttpResponse;
 import xj.tool.ConfigPool;
-import xj.tool.Constant;
 import xj.tool.StrPool;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
@@ -50,15 +46,15 @@ public class HTTPResponse extends Response implements IHttpResponse {
     }
 
     @Override
+    public void storeData(byte[] data) {
+        this.bodyBytes = data;
+    }
+
+    @Override
     public void setRespHeaders(String key, String value) {
         headers.put(key, value);
     }
 
-    // 设置数据信息
-    @Override
-    public void setBodyBytes(byte[] bodyBytes) {
-        this.bodyBytes = bodyBytes;
-    }
 
     @Override
     public void writeMessage(SocketChannel os) throws IOException {

@@ -4,10 +4,19 @@ import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
 import xj.component.log.LogManager;
+import xj.core.extern.mvc.MVCManager;
 import xj.core.threadPool.ThreadPoolManager;
 import xj.core.threadPool.factory.ConnectHandlerFactory;
 import xj.core.threadPool.factory.ThreadTaskFactory;
+import xj.enums.web.CharacterEncoding;
+import xj.enums.web.ContentType;
+import xj.enums.web.StatuCode;
+import xj.implement.server.ByteReceiver;
+import xj.implement.web.HTTPResponse;
 import xj.implement.web.ProtocolRequest;
+import xj.interfaces.thread.StreamIOTask;
+import xj.interfaces.thread.ThreadTask;
+import xj.tool.StrPool;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
@@ -19,6 +28,8 @@ public class SelectorChannel {
     private SocketChannel client;// 客户端连接socket
 
     private ConnectHandler handler;// 消息处理器
+
+    private Response response;// 响应体
 
     private ByteReceiver receiver;// 数据接收器
 
@@ -40,21 +51,19 @@ public class SelectorChannel {
         }else if(phase == SelectorPhase.WAIT_READ){
             handleData();
         }else if(phase == SelectorPhase.WAIT_WRITE){
-            handleWriteAndEnding();
+            handleIO();
+        }else if(phase == SelectorPhase.WAIT_RESP){
+            handleWrite();
         }else if(phase == SelectorPhase.ENDING){
-            endingSocket();
+            endSocket();
         }
     }
 
     // 阶段1.准备读取数据
     private void prepareRead(){
-        // 接收器重置
-        receiver.resetData();
-        // 开启IO读线程
-        ThreadPoolManager.getInstance().putThreadTask(
-                ThreadTaskFactory.getInstance().createChannelReadTask(client,receiver));
-        // 进入下一个阶段
-        phase = SelectorPhase.WAIT_READ;
+        // 开始Socket的读IO
+        startIOTask(ThreadTaskFactory.getInstance().createChannelReadTask(client,receiver)
+                ,SelectorPhase.WAIT_READ);
     }
 
     // 阶段2.处理数据
@@ -78,21 +87,38 @@ public class SelectorChannel {
                 return;
             }
         }
-        // 将数据包消息传递给处理器进行处理
-        handler.handle(request);
-        // 处理器处理完成后返回消息并打包成响应数据包发送给客户端
-        Response response = handler.returnResponse();
-        // 接收器重置
-        receiver.resetData();
-        // 开启IO写线程
-        ThreadPoolManager.getInstance().putThreadTask(
-                ThreadTaskFactory.getInstance().createChannelWriteTask(client,response,receiver));
-        // 进入下一个阶段
-        phase = SelectorPhase.WAIT_WRITE;
+        // 将数据包消息传递给处理器进行处理，处理器处理完成后返回消息并打包成响应数据包发送给客户端
+        response = handler.handle(request);
+        // 如果响应体有IO任务，为任务添加接收器
+        StreamIOTask task = response.getStreamIOTask();
+        if(task != null)
+            task.setReceiver(receiver);
+        // 开始数据流的读写IO
+        startIOTask(task != null ? (ThreadTask) task :
+                        ThreadTaskFactory.getInstance().createChannelWriteTask(client,response,receiver)
+                ,task != null ? SelectorPhase.WAIT_WRITE : SelectorPhase.WAIT_RESP);
     }
 
-    // 阶段3.返回数据与后续处理
-    private void handleWriteAndEnding(){
+    // 阶段3.处理服务器内部IO
+    private void handleIO(){
+        // 如果已经执行完读IO则继续执行
+        if(!receiver.dataExist())return;
+        // 获取数据
+        byte[] data = receiver.getData();
+        if(data.length == 0){
+            // 如果数据为空，则报错，并返回500响应
+            response = MVCManager.getHttpRespByStatuCode(StatuCode.INTERNAL_SERVER_ERROR);
+        }else if(data.length > StrPool.SUCCESS.length() != StrPool.SUCCESS.equals(new String(data))){
+            // 如果数据不为成功符号，则储存至响应体
+            response.storeData(data);
+        }
+        // 开始Socket的写IO
+        startIOTask(ThreadTaskFactory.getInstance().createChannelWriteTask(client,response,receiver)
+                ,SelectorPhase.WAIT_RESP);
+    }
+
+    // 阶段4.返回数据与后续处理
+    private void handleWrite(){
         // 如果已经执行完读IO则继续执行
         if(!receiver.dataExist())return;
         // 判断是否可以结束连接，如果不行则进入准备阶段
@@ -102,8 +128,8 @@ public class SelectorChannel {
             phase = SelectorPhase.PREPARE;
     }
 
-    // 阶段4.结束
-    private void endingSocket(){
+    // 阶段5.结束
+    private void endSocket(){
         // 关闭连接，回收资源
         try {
             client.close();
@@ -112,8 +138,18 @@ public class SelectorChannel {
         }
     }
 
+    // 开启IO线程任务
+    private void startIOTask(ThreadTask task,SelectorPhase phase){
+        // 接收器重置
+        receiver.resetData();
+        // 将任务存于线程池开始运作
+        ThreadPoolManager.getInstance().putThreadTask(task);
+        // 进入下一个阶段
+        this.phase = phase;
+    }
+
     // 内部枚举：执行阶段
     private enum SelectorPhase {
-        PREPARE,WAIT_READ,WAIT_WRITE,ENDING
+        PREPARE,WAIT_READ,WAIT_WRITE,WAIT_RESP,ENDING
     }
 }

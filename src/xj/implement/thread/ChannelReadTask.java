@@ -1,7 +1,7 @@
 package xj.implement.thread;
 
 import xj.component.log.LogManager;
-import xj.core.server.selector.ByteReceiver;
+import xj.implement.server.ByteReceiver;
 import xj.interfaces.thread.ThreadTask;
 import xj.tool.Constant;
 

@@ -2,6 +2,7 @@ package xj.interfaces.web;
 
 import xj.enums.web.RequestMethod;
 import xj.implement.web.HTTPResponse;
+import xj.interfaces.thread.StreamIOTask;
 
 import java.util.Map;
 
@@ -16,12 +17,6 @@ public interface IHttpResponse {
      * @param value
      */
     public void setRespHeaders(String key, String value);
-
-    /**
-     * 设置响应数据
-     * @param bodyBytes
-     */
-    public void setBodyBytes(byte[] bodyBytes);
 
     /**
      * 获取响应参数

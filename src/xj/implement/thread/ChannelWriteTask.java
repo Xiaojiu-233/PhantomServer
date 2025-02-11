@@ -2,14 +2,11 @@ package xj.implement.thread;
 
 import xj.abstracts.web.Response;
 import xj.component.log.LogManager;
-import xj.core.server.selector.ByteReceiver;
+import xj.implement.server.ByteReceiver;
 import xj.interfaces.thread.ThreadTask;
-import xj.tool.Constant;
 import xj.tool.StrPool;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 // 处理SocketChannel的写IO线程任务

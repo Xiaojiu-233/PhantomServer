@@ -13,12 +13,7 @@ public class TCPShortConnectHandler extends ConnectHandler {
     }
 
     @Override
-    public void handle(Request request) {
-
-    }
-
-    @Override
-    public Response returnResponse() {
+    public Response handle(Request request) {
         return null;
     }
 }

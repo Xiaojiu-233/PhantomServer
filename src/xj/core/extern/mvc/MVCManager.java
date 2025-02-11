@@ -1,17 +1,20 @@
 package xj.core.extern.mvc;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import xj.abstracts.web.Response;
 import xj.annotation.*;
 import xj.component.log.LogManager;
 import xj.core.extern.IOCManager;
 import xj.core.extern.JarManager;
+import xj.core.threadPool.factory.ThreadTaskFactory;
 import xj.enums.web.CharacterEncoding;
 import xj.enums.web.ContentType;
 import xj.enums.web.RequestMethod;
 import xj.enums.web.StatuCode;
 import xj.implement.web.HTTPRequest;
 import xj.implement.web.HTTPResponse;
+import xj.interfaces.web.IHttpRequest;
+import xj.interfaces.web.IHttpResponse;
 import xj.tool.ConfigPool;
 import xj.tool.FileIOUtil;
 import xj.tool.StrPool;
@@ -102,9 +105,7 @@ public class MVCManager {
         // 判定是否为GET请求
         if(req.getMethod().equals(RequestMethod.GET)){
             // 如果不是，则返回405响应
-            response = new HTTPResponse(StatuCode.METHOD_NOT_ALLOWED,CharacterEncoding.UTF_8,
-                    getWebpageByStatuCode(StatuCode.METHOD_NOT_ALLOWED));
-            response.setHeaders(StrPool.CONTENT_TYPE, ContentType.TEXT_HTML.contentType);
+            response = (HTTPResponse) getHttpRespByStatuCode(StatuCode.METHOD_NOT_ALLOWED);
         }
         // 对路径进行解析，获取扩展名
         String url = req.getUrl();
@@ -113,18 +114,11 @@ public class MVCManager {
         InputStream in = JarManager.getInstance().getResource(url);
         if(in == null){
             // 如果没有找到资源，返回404响应
-            response = new HTTPResponse(StatuCode.NOT_FOUND,CharacterEncoding.UTF_8,
-                    getWebpageByStatuCode(StatuCode.NOT_FOUND));
-            response.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
+            response = (HTTPResponse) getHttpRespByStatuCode(StatuCode.NOT_FOUND);
         }else{
             // 寻找到资源则根据扩展名类型确定对应的Content-Type
-            byte[] data = null;
-            try {
-                data = FileIOUtil.getByteByInputStream(in);
-            } catch (Exception e) {
-                LogManager.error_("读取文件资源时出现异常", e);
-            }
-            response = new HTTPResponse(StatuCode.OK,CharacterEncoding.UTF_8,data);
+            response = new HTTPResponse(StatuCode.OK,CharacterEncoding.UTF_8,null);
+            response.setStreamIOTask(ThreadTaskFactory.getInstance().createStreamInputTask(in));
             response.setHeaders(StrPool.CONTENT_TYPE,ContentType.getContentTypeByExtName(extName));
         }
         // 返回HTTP响应
@@ -142,16 +136,11 @@ public class MVCManager {
         // 判定方法是否存在
         if(m == null){
             // 如果没有找到资源，返回404响应
-            resp = new HTTPResponse(StatuCode.NOT_FOUND,CharacterEncoding.UTF_8,
-                    getWebpageByStatuCode(StatuCode.NOT_FOUND));
-            resp.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
-        }else{
-            // 判定方法是否符合请求对象的请求类型
-            if(!m.getMethod().equals(req.getMethod())){
-                resp = new HTTPResponse(StatuCode.METHOD_NOT_ALLOWED,CharacterEncoding.UTF_8,
-                        getWebpageByStatuCode(StatuCode.METHOD_NOT_ALLOWED));
-                resp.setHeaders(StrPool.CONTENT_TYPE,ContentType.TEXT_HTML.contentType);
-            }
+            resp = (HTTPResponse) getHttpRespByStatuCode(StatuCode.NOT_FOUND);
+        }else if(!m.getMethod().equals(req.getMethod())){
+            // 判定方法是否符合请求对象的请求类型，不符合则返回405响应
+            resp = (HTTPResponse) getHttpRespByStatuCode(StatuCode.METHOD_NOT_ALLOWED);
+        } else{
             // 根据请求头的ContentType，处理请求对象数据封装为参数Map
             String contentTypeData = req.getHeaders().get(StrPool.CONTENT_TYPE);
             ContentType contentType = null;
@@ -181,9 +170,9 @@ public class MVCManager {
                     par = req.getUrlParams();
                 }else if(params[i].isAnnotationPresent(PUploadFile.class)){
                     par = requestBody.get(StrPool.FILE);
-                }else if(params[i].getType().equals(HTTPRequest.class)){
+                }else if(params[i].getType().equals(IHttpRequest.class)){
                     par = req;
-                }else if(params[i].getType().equals(HTTPResponse.class)){
+                }else if(params[i].getType().equals(IHttpResponse.class)){
                     par = resp;
                 }
                 pars[i] = par;
@@ -202,19 +191,16 @@ public class MVCManager {
             // 如果没有指定ContentType，则使用json
             String respContentType = resp.getHeaderArg(StrPool.CONTENT_TYPE);
             if(respContentType == null){
-                resp.setBodyBytes(data);
+                resp.storeData(data);
                 resp.setHeaders(StrPool.CONTENT_TYPE,ContentType.APPLICATION_JSON.contentType);
-            }else{
-                resp.setHeaders(StrPool.CONTENT_TYPE,ContentType
-                        .getContentTypeByExtName(resp.getHeaderArg(StrPool.CONTENT_TYPE)));
             }
         }
         // 返回HTTP响应
         return resp;
     }
 
-    // 根据响应码返回对应的服务器网页，如果没找到则使用unknown
-    private byte[] getWebpageByStatuCode(StatuCode status){
+    // 根据响应码返回对应的响应体
+    public static Response getHttpRespByStatuCode(StatuCode status){
         byte[] bytes = null;
         // 确定要寻找的网页的路径
         String webpagePath = ConfigPool.SYSTEM_PATH.SYSTEM_WEBPAGE_PATH + status.getCode()
@@ -225,10 +211,10 @@ public class MVCManager {
         if(bytes == null)
             bytes = FileIOUtil.getFileContent(ConfigPool.SYSTEM_PATH.SYSTEM_WEBPAGE_PATH
                     + ConfigPool.SYSTEM_PATH.UNKNOWN_WEBPAGE + StrPool.HTML_POINT);
-        // 返回对应数据
-        return bytes;
+        // 准备响应体并返回
+        HTTPResponse resp = new HTTPResponse(status,CharacterEncoding.UTF_8, bytes);
+        resp.setHeaders(StrPool.CONTENT_TYPE, ContentType.TEXT_HTML.contentType);
+        return resp;
     }
-
-
 
 }

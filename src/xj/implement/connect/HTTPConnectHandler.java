@@ -22,18 +22,12 @@ public class HTTPConnectHandler extends ConnectHandler {
     }
 
     @Override
-    public void handle(Request request) {
+    public Response handle(Request request) {
         // 清除之前的HTTP响应
         httpResponse = null;
         // 将协议请求转化为HTTP请求
         HTTPRequest httpRequest = new HTTPRequest(request);
         // 转交给MVC模块进行处理
-        httpResponse = MVCManager.getInstance().handle(httpRequest);
-    }
-
-    @Override
-    public Response returnResponse() {
-        // 将从MVC模块得到的响应返回
-        return httpResponse;
+        return MVCManager.getInstance().handle(httpRequest);
     }
 }

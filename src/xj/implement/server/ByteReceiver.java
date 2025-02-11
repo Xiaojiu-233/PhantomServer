@@ -1,7 +1,9 @@
-package xj.core.server.selector;
+package xj.implement.server;
+
+import xj.interfaces.server.IReceiver;
 
 // 字节数据接收器，用于接收与存储字节数据
-public class ByteReceiver {
+public class ByteReceiver implements IReceiver {
 
     // 成员属性
     private volatile byte[] data;

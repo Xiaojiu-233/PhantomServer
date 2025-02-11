@@ -2,15 +2,21 @@ package xj.core.threadPool.factory;
 
 import xj.abstracts.web.Response;
 import xj.component.log.LogManager;
-import xj.core.server.selector.ByteReceiver;
+import xj.implement.server.ByteReceiver;
 import xj.implement.thread.ChannelReadTask;
 import xj.implement.thread.ChannelWriteTask;
+import xj.implement.thread.StreamInputTask;
+import xj.implement.thread.StreamOutputTask;
+import xj.interfaces.component.IThreadTaskFactory;
+import xj.interfaces.thread.StreamIOTask;
 import xj.interfaces.thread.ThreadTask;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.SocketChannel;
 
 // 线程任务的工厂，用单例工厂模式便捷生产线程任务对象
-public class ThreadTaskFactory {
+public class ThreadTaskFactory implements IThreadTaskFactory {
 
     // 成员属性
     private static volatile ThreadTaskFactory instance;// 单例模式实现
@@ -41,5 +47,15 @@ public class ThreadTaskFactory {
     // 创建TCP通道写IO任务
     public ThreadTask createChannelWriteTask(SocketChannel out, Response response, ByteReceiver receiver){
         return new ChannelWriteTask(out,response,receiver);
+    }
+
+    @Override
+    public StreamIOTask createStreamInputTask(InputStream in) {
+        return new StreamInputTask(in);
+    }
+
+    @Override
+    public StreamIOTask createStreamOutputTask(InputStream out,String targetPath) {
+        return new StreamOutputTask(out,targetPath);
     }
 }
