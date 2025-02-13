@@ -1,9 +1,12 @@
 package xj.interfaces.web;
 
+import xj.entity.web.Cookie;
+import xj.enums.web.ContentType;
 import xj.enums.web.RequestMethod;
 import xj.implement.web.HTTPResponse;
 import xj.interfaces.thread.StreamIOTask;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,4 +26,9 @@ public interface IHttpResponse {
      * @param key
      */
     public String getHeaderArg(String key);
+
+    /**
+     * 设置Cookie
+     */
+    public void setCookie(Cookie cookie);
 }

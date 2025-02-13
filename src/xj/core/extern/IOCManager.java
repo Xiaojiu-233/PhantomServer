@@ -1,7 +1,7 @@
 package xj.core.extern;
 
 import xj.annotation.ComponentImport;
-import xj.annotation.DontInject;
+import xj.annotation.EnableInject;
 import xj.annotation.PAutowired;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
@@ -9,7 +9,6 @@ import xj.core.threadPool.factory.ThreadTaskFactory;
 import xj.interfaces.component.IConfigureManager;
 import xj.interfaces.component.ILogManager;
 import xj.interfaces.component.IThreadTaskFactory;
-import xj.tool.StrPool;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -54,12 +53,8 @@ public class IOCManager {
         List<Class<?>> classObjects = JarManager.getInstance().getClassObjects();
         // 遍历类对象，反射获取实例，存于IOC容器中
         try {
-            for(Class<?> classObject : classObjects){
-                int modifiers = classObject.getModifiers();
-                if(!Modifier.isAbstract(modifiers) && !Modifier.isInterface(modifiers)
-                        && !classObject.isEnum() && !classObject.isAnnotationPresent(DontInject.class))
-                    iocContainer.put(classObject.getName(),classObject.newInstance());
-            }
+            for(Class<?> classObject : classObjects)
+                iocContainer.put(classObject.getSimpleName(),classObject.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
             LogManager.error_("实例化类对象注入IOC容器时出现异常",e);
         }

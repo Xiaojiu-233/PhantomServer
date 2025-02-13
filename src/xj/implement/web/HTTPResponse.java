@@ -2,7 +2,9 @@ package xj.implement.web;
 
 import xj.abstracts.web.Response;
 import xj.component.conf.ConfigureManager;
+import xj.entity.web.Cookie;
 import xj.enums.web.CharacterEncoding;
+import xj.enums.web.ContentType;
 import xj.enums.web.StatuCode;
 import xj.interfaces.web.IHttpResponse;
 import xj.tool.ConfigPool;
@@ -11,8 +13,7 @@ import xj.tool.StrPool;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 // HTTP协议响应对象，用于响应HTTP协议
 public class HTTPResponse extends Response implements IHttpResponse {
@@ -23,6 +24,8 @@ public class HTTPResponse extends Response implements IHttpResponse {
     private CharacterEncoding encoding;// 编码形式
 
     private String httpVersion = "1.1";// HTTP协议版本
+
+    private List<Cookie> cookies = new ArrayList<>();// Cookie列表
 
     private Map<String, String> headers = new HashMap<>();// 响应头
 
@@ -67,10 +70,13 @@ public class HTTPResponse extends Response implements IHttpResponse {
         sb.append(StrPool.HTTP).append(StrPool.SLASH).append(httpVersion).append(StrPool.SPACE)
                 .append(statuCode.getCode()).append(lineBreak);
         // 输出响应头
-        for(Map.Entry<String, String> header : headers.entrySet()) {
+        for(Map.Entry<String, String> header : headers.entrySet())
             sb.append(header.getKey()).append(StrPool.COLON).append(StrPool.SPACE)
                     .append(header.getValue()).append(lineBreak);
-        }
+        // 输出Cookie
+        for(Cookie cookie : cookies)
+            sb.append(StrPool.SET_COOKIE).append(StrPool.COLON).append(StrPool.SPACE)
+                    .append(cookie.toString()).append(lineBreak);
         // 输出响应体
         sb.append(lineBreak);
         byte[] headBytes = sb.toString().getBytes();
@@ -86,5 +92,10 @@ public class HTTPResponse extends Response implements IHttpResponse {
     @Override
     public String getHeaderArg(String key) {
         return headers.get(key);
+    }
+
+    @Override
+    public void setCookie(Cookie cookie) {
+        cookies.add(cookie);
     }
 }

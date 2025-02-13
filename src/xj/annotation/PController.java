@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 /**
  * 服务器MVC框架使用的控制器注解，用于标注该类为控制器层
  */
+@EnableInject
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PController {

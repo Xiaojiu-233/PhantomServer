@@ -1,7 +1,10 @@
 package xj.interfaces.web;
 
+import xj.entity.web.Cookie;
+import xj.enums.web.ContentType;
 import xj.enums.web.RequestMethod;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,4 +26,10 @@ public interface IHttpRequest {
      * 获取请求方法
      */
     public RequestMethod getMethod();
+
+    /**
+     * 获取Cookie
+     */
+    public List<Cookie> getCookies();
+
 }

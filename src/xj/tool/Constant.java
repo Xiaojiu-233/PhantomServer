@@ -10,4 +10,6 @@ public interface Constant {
     public static int BYTES_UNIT_CAPACITY = 2048;// 字节存储运输单元大小
 
     public static int ZERO_COUNT_LIMIT = 25;// 零数据上限，当超过指定次数没有获取数据，则直接读取下一轮数据
+
+    public static int SECOND_PER_MILLINSECOND = 1000;// 一秒多少毫秒
 }

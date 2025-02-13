@@ -11,7 +11,6 @@ public interface ConfigPool {
         public static final String LONG_CONNECT_MAX_THREAD = "thread-pool.pool.long-connect-max-thread";
         public static final String THREAD_NAME = "thread-pool.thread.thread-name";
         public static final String MAX_FREE_TIME = "thread-pool.thread.max-free-time";
-        public static final String MAX_WAIT_TIME = "thread-pool.thread.max-wait-time";
         public static final String REJECT_STRATEGY = "thread-pool.pool.reject-strategy";
     }
 
@@ -19,7 +18,6 @@ public interface ConfigPool {
     public interface SERVER {
         public static final String PORT = "server.port";
         public static final String NAME = "server.name";
-        public static final String SOCKET_MAX_READ_TIME = "server.socket-max-read-time";
     }
 
     // 日志
@@ -29,7 +27,6 @@ public interface ConfigPool {
 
     // MVC模块
     public interface MVC {
-        public static final String WEB_PROGRAM_PATH = "mvc.web-program-path";
         public static final String INDEX_PATH = "mvc.index-path";
         public static final String RESOURCE_PATH = "mvc.resource-path";
     }
@@ -37,6 +34,7 @@ public interface ConfigPool {
     // IOC容器
     public interface IOC {
         public static final String EXT_PROGRAM_PATH = "ioc.ext-program-path";
+        public static final String SCAN_PACKAGE = "ioc.scan-package";
     }
 
     // 系统路径

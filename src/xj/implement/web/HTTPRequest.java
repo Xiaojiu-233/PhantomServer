@@ -3,14 +3,14 @@ package xj.implement.web;
 import xj.abstracts.web.Request;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
+import xj.entity.web.Cookie;
+import xj.enums.web.ContentType;
 import xj.enums.web.RequestMethod;
 import xj.interfaces.web.IHttpRequest;
 import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 // HTTP协议请求对象，用于处理HTTP协议
 public class HTTPRequest extends Request implements IHttpRequest {
@@ -21,6 +21,8 @@ public class HTTPRequest extends Request implements IHttpRequest {
     private String url;// 请求路径
 
     private String httpVersion;// HTTP协议版本
+
+    private List<Cookie> cookies;// Cookie列表
 
     private Map<String, String> urlParams = new HashMap<>();//请求路径参数
 
@@ -70,6 +72,9 @@ public class HTTPRequest extends Request implements IHttpRequest {
             headers.put(args[0], args[1]);
             byteRead += lines[rowRead++].getBytes().length;
         }
+        // 读取Cookie
+        if(headers.containsKey(StrPool.COOKIE))
+            cookies = Cookie.getCookies(headers.get(StrPool.COOKIE));
         // 如果是POST请求方法，则根据上述数据划分请求体，得到二进制数据
         if(method.equals(RequestMethod.POST)){
             byteRead += ++rowRead * 2;
@@ -104,5 +109,10 @@ public class HTTPRequest extends Request implements IHttpRequest {
     @Override
     public RequestMethod getMethod() {
         return method;
+    }
+
+    @Override
+    public List<Cookie> getCookies() {
+        return cookies;
     }
 }
