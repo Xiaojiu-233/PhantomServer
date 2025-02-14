@@ -37,6 +37,11 @@ public class ChannelWriteTask implements ThreadTask {
             response.writeMessage(out);
         } catch (IOException e) {
             LogManager.error_("[{}] 的TCP通道写IO任务在输出数据时出现异常：{}",threadName,e);
+            try {
+                out.close();
+            } catch (IOException ex) {
+                LogManager.error_("[{}] 的TCP通道写IO任务在因异常关闭时出现异常：{}",threadName,e);
+            }
         }
         // 将成功消息传输给接收器
         receiver.storeData(StrPool.SUCCESS.getBytes());
