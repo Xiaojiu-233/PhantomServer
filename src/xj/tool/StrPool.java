@@ -4,39 +4,39 @@ package xj.tool;
 public interface StrPool {
 
     // 符号
-    public static final String POINT = ".";
-    public static final String EMPTY = "";
-    public static final String BACK_SLASH = "\\";
-    public static final String QUOTATION_MARK = "\"";
-    public static final String SLASH = "/";
-    public static final String COLON = ":";
-    public static final String SEMICOLON = ";";
-    public static final String SPACE = " ";
-    public static final String UNDERLINE = "_";
-    public static final String HYPHEN = "-";
-    public static final String QUESTION_MARK = "?";
-    public static final String AND = "&";
-    public static final String EQUAL = "=";
-    public static final String ENTER = "\n";
+    String POINT = ".";
+    String EMPTY = "";
+    String BACK_SLASH = "\\";
+    String QUOTATION_MARK = "\"";
+    String SLASH = "/";
+    String COLON = ":";
+    String SEMICOLON = ";";
+    String SPACE = " ";
+    String UNDERLINE = "_";
+    String HYPHEN = "-";
+    String QUESTION_MARK = "?";
+    String AND = "&";
+    String EQUAL = "=";
+    String ENTER = "\n";
 
     // 后缀
-    public static final String LOG_POINT = ".log";
-    public static final String CLASS_POINT = ".class";
-    public static final String JAR = "jar";
-    public static final String HTML_POINT = ".html";
+    String LOG_POINT = ".log";
+    String CLASS_POINT = ".class";
+    String JAR = "jar";
+    String HTML_POINT = ".html";
 
     // 协议
-    public static final String HTTP = "HTTP";
+    String HTTP = "HTTP";
 
     // 请求头
-    public static final String SERVER = "Server";
-    public static final String CONTENT_TYPE = "Content-Type";
-    public static final String COOKIE = "Cookie";
-    public static final String SET_COOKIE = "Set-Cookie";
+    String SERVER = "Server";
+    String CONTENT_TYPE = "Content-Type";
+    String COOKIE = "Cookie";
+    String SET_COOKIE = "Set-Cookie";
 
     // 特殊名词
-    public static final String FILE = "file";
-    public static final String NAME = "name";
-    public static final String BOUNDARY = "boundary";
-    public static final String SUCCESS = "success";
+    String FILE = "file";
+    String NAME = "name";
+    String BOUNDARY = "boundary";
+    String SUCCESS = "success";
 }

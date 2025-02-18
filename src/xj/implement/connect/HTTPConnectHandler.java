@@ -4,6 +4,7 @@ import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
 import xj.core.extern.mvc.MVCManager;
+import xj.enums.web.StatuCode;
 import xj.implement.web.HTTPRequest;
 import xj.implement.web.HTTPResponse;
 import xj.tool.StrPool;
@@ -29,5 +30,10 @@ public class HTTPConnectHandler extends ConnectHandler {
         HTTPRequest httpRequest = new HTTPRequest(request);
         // 转交给MVC模块进行处理
         return MVCManager.getInstance().handle(httpRequest);
+    }
+
+    @Override
+    public Response whenException() {
+        return MVCManager.getHttpRespByStatuCode(StatuCode.INTERNAL_SERVER_ERROR);
     }
 }

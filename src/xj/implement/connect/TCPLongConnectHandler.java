@@ -21,4 +21,9 @@ public class TCPLongConnectHandler extends ConnectHandler {
     public boolean needEndConnection() {
         return false;
     }
+
+    @Override
+    public Response whenException() {
+        return null;
+    }
 }

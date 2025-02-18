@@ -16,6 +16,9 @@ public abstract class ConnectHandler {
     // 处理相关内容，返回对应的Response
     abstract public Response handle(Request request);
 
+    // 出现异常时触发，进行处理
+    abstract public Response whenException();
+
     // 断开连接的时机确认(默认情况为直接关闭)
     public boolean needEndConnection() {
         return true;

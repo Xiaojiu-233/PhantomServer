@@ -3,19 +3,16 @@ package xj.core.server.selector;
 import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
+import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
-import xj.core.extern.mvc.MVCManager;
 import xj.core.threadPool.ThreadPoolManager;
 import xj.core.threadPool.factory.ConnectHandlerFactory;
 import xj.core.threadPool.factory.ThreadTaskFactory;
-import xj.enums.web.CharacterEncoding;
-import xj.enums.web.ContentType;
-import xj.enums.web.StatuCode;
 import xj.implement.server.ByteReceiver;
-import xj.implement.web.HTTPResponse;
 import xj.implement.web.ProtocolRequest;
 import xj.interfaces.thread.StreamIOTask;
 import xj.interfaces.thread.ThreadTask;
+import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
 import java.io.IOException;
@@ -35,6 +32,10 @@ public class SelectorChannel {
 
     private SelectorPhase phase;// 执行阶段
 
+    private int socketMaxWaitTime;// 最大请求等待时间
+
+    private long socketWaitTime;// 请求等待时间
+
     // 成员方法
     // 初始化
     public SelectorChannel(SocketChannel client) {
@@ -42,6 +43,7 @@ public class SelectorChannel {
         this.client = client;
         this.receiver = new ByteReceiver();
         this.phase = SelectorPhase.PREPARE;
+        socketMaxWaitTime = (int) ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.SOCKET_MAX_WAIT_TIME);
     }
 
     // 分阶段执行
@@ -73,7 +75,15 @@ public class SelectorChannel {
         // 如果数据为空，则直接进入结束阶段
         byte[] data = receiver.getData();
         if(data.length == 0){
-            phase = SelectorPhase.ENDING;
+            // 非长连接或者连接等待请求时间超出阈值时，结束连接，否则继续等待并重新计时
+            long nowTime = System.currentTimeMillis();
+            boolean isEnd = handler.needEndConnection() || nowTime > socketWaitTime + socketMaxWaitTime;
+            if(isEnd){
+                phase = SelectorPhase.ENDING;
+            }else {
+                phase = SelectorPhase.PREPARE;
+                socketWaitTime = nowTime;
+            }
             return;
         }
         // 数据不为空则处理数据
@@ -82,8 +92,9 @@ public class SelectorChannel {
         if(handler == null){
             handler = ConnectHandlerFactory.getInstance().getMatchConnectHandler(request);
             // 没有找到对应消息处理器则放弃该次任务
-            if(handler == null){
+            if(handler == null) {
                 LogManager.error_("TCP通道对象因未寻找到对应处理器，已被放弃");
+                phase = SelectorPhase.ENDING;
                 return;
             }
         }
@@ -106,8 +117,9 @@ public class SelectorChannel {
         // 获取数据
         byte[] data = receiver.getData();
         if(data.length == 0){
-            // 如果数据为空，则报错，并返回500响应
-            response = MVCManager.getHttpRespByStatuCode(StatuCode.INTERNAL_SERVER_ERROR);
+            // 如果数据为空，则报错
+            LogManager.error_("TCP通道对象的服务器内部数据流IO发生异常");
+            response = handler.whenException();
         }else if(data.length > StrPool.SUCCESS.length() != StrPool.SUCCESS.equals(new String(data))){
             // 如果数据不为成功符号，则储存至响应体
             response.storeData(data);

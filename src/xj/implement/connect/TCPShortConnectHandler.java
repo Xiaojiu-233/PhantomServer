@@ -16,4 +16,9 @@ public class TCPShortConnectHandler extends ConnectHandler {
     public Response handle(Request request) {
         return null;
     }
+
+    @Override
+    public Response whenException() {
+        return null;
+    }
 }

@@ -40,7 +40,7 @@ public class ChannelReadTask implements ThreadTask {
             while ((bytesRead = in.read(buffer)) >= 0) {
                 // 判定数据读取，超过一定次数没有读取到数据则直接跳过
                 if(bytesRead == 0)
-                    if(zeroCounter < Constant.BYTES_UNIT_CAPACITY){
+                    if(zeroCounter < Constant.ZERO_COUNT_LIMIT){
                         zeroCounter++;
                         continue;
                     }else
