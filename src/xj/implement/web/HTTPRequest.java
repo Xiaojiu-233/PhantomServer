@@ -77,7 +77,7 @@ public class HTTPRequest extends Request implements IHttpRequest {
             cookies = Cookie.getCookies(headers.get(StrPool.COOKIE));
         // 如果是POST请求方法，则根据上述数据划分请求体，得到二进制数据
         if(method.equals(RequestMethod.POST)){
-            byteRead += ++rowRead * 2;
+            byteRead += ++rowRead * lineBreak.getBytes().length;
             bodyBytes = Arrays.copyOfRange(data,byteRead,data.length);
         }
         // 回收data数据

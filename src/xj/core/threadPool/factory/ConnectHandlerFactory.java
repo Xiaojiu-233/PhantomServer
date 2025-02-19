@@ -4,8 +4,8 @@ import xj.component.log.LogManager;
 import xj.abstracts.connect.ConnectHandler;
 import xj.core.extern.IOCManager;
 import xj.implement.connect.HTTPConnectHandler;
-import xj.implement.connect.TCPLongConnectHandler;
-import xj.implement.connect.TCPShortConnectHandler;
+import xj.implement.connect.TCPChatConnectHandler;
+import xj.implement.connect.TCPCloudConnectHandler;
 import xj.abstracts.web.Request;
 
 import java.util.ArrayList;
@@ -37,8 +37,8 @@ public class ConnectHandlerFactory {
         handlerList = new ArrayList<ConnectHandler>();
         // 导入默认的连接处理器
         handlerList.add(new HTTPConnectHandler());
-        handlerList.add(new TCPLongConnectHandler());
-        handlerList.add(new TCPShortConnectHandler());
+        handlerList.add(new TCPChatConnectHandler());
+        handlerList.add(new TCPCloudConnectHandler());
     }
 
     // 通过IOC容器导入拓展连接处理器对象

@@ -12,9 +12,6 @@ import xj.tool.StrPool;
 // HTTP协议连接处理器
 public class HTTPConnectHandler extends ConnectHandler {
 
-    // 成员属性
-    private HTTPResponse httpResponse;// HTTP协议响应对象
-
     // 成员行为
     @Override
     public boolean isMatchedRequest(Request request) {
@@ -24,8 +21,6 @@ public class HTTPConnectHandler extends ConnectHandler {
 
     @Override
     public Response handle(Request request) {
-        // 清除之前的HTTP响应
-        httpResponse = null;
         // 将协议请求转化为HTTP请求
         HTTPRequest httpRequest = new HTTPRequest(request);
         // 转交给MVC模块进行处理

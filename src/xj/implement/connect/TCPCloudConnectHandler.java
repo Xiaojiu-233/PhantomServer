@@ -4,8 +4,8 @@ import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
 
-// TCP协议短连接处理器
-public class TCPShortConnectHandler extends ConnectHandler {
+// TCP协议短连接处理器（以网盘为业务）
+public class TCPCloudConnectHandler extends ConnectHandler {
 
     @Override
     public boolean isMatchedRequest(Request request) {

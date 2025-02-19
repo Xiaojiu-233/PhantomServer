@@ -45,4 +45,10 @@ public interface ConfigPool {
         String UNKNOWN_WEBPAGE = "unknown.html";
     }
 
+    // TCP聊天室模块
+    interface CHAT {
+        String MESSAGE_CACHE_NUM = "chat.message-cache-num";
+        String CACHE_CAPACITY = "chat.cache-capacity";
+    }
+
 }

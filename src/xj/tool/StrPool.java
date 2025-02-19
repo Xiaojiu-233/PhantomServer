@@ -27,6 +27,11 @@ public interface StrPool {
 
     // 协议
     String HTTP = "HTTP";
+    String TCP = "TCP";
+
+    // 处理类型
+    String CHAT = "CHAT";
+    String CLOUD = "CLOUD";
 
     // 请求头
     String SERVER = "Server";
@@ -39,4 +44,9 @@ public interface StrPool {
     String NAME = "name";
     String BOUNDARY = "boundary";
     String SUCCESS = "success";
+    String FAILURE = "failure";
+
+    // 日期格式
+    String STANDARD_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
 }

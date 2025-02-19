@@ -32,3 +32,8 @@ ioc:
 log:
   choose-class: TestLogServiceImpl # 拓展程序的类选择，如果没有找到则使用默认程序
 
+# TCP聊天室模块
+chat:
+  message-cache-num: 2 # 消息缓存块数量
+  cache-capacity: 500 # 消息缓存块容量
+
