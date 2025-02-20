@@ -1,6 +1,7 @@
 package xj.implement.web;
 
 import xj.abstracts.web.Request;
+import xj.component.log.LogManager;
 import xj.core.extern.chat.ChatObject;
 import xj.enums.web.ChatType;
 import xj.tool.StrPool;
@@ -17,6 +18,8 @@ public class TCPChatRequest extends Request {
 
     private LocalDateTime startTime;// 聊天发起时间
 
+    private int offset;// 请求偏移量
+
     private byte[] bodyBytes = new byte[0];// 请求体二进制版本
 
     // 成员方法
@@ -30,6 +33,11 @@ public class TCPChatRequest extends Request {
     private void selfAnalysis(){
         // 拆解数据
         String[] lines = encodeToString();
+        // 判定数据是否符合规范
+        if(lines.length < 5){
+            LogManager.error_("TCP聊天室请求对象无法解析请求数据");
+            return;
+        }
         // 从中获取发起者名称、时间、消息类型
         String name = lines[1].split(StrPool.COLON + StrPool.SPACE)[1];
         String date = lines[2].split(StrPool.COLON + StrPool.SPACE)[1];
@@ -46,8 +54,10 @@ public class TCPChatRequest extends Request {
         // 根据消息类型进一步处理消息体
         if(type.equals(ChatType.IMAGE))
             bodyBytes = bodyByteData;
-        else if(type.equals(ChatType.MESSAGE) || type.equals(ChatType.OFFSET))
-            message = String.valueOf(bodyByteData);
+        else if(type.equals(ChatType.MESSAGE))
+            message = Arrays.toString(bodyByteData);
+        else if(type.equals(ChatType.OFFSET))
+            offset = Integer.parseInt(Arrays.toString(bodyByteData));
         // 封装成为消息对象
         chatObject = new ChatObject(name,date,type,message);
     }
@@ -62,5 +72,9 @@ public class TCPChatRequest extends Request {
 
     public byte[] getBodyBytes() {
         return bodyBytes;
+    }
+
+    public int getOffset() {
+        return offset;
     }
 }

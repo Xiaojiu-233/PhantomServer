@@ -36,4 +36,5 @@ log:
 chat:
   message-cache-num: 2 # 消息缓存块数量
   cache-capacity: 500 # 消息缓存块容量
+  chat-image-path: D:/Phantom/Images # 消息图片存储路径
 

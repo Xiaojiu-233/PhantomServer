@@ -49,6 +49,7 @@ public interface ConfigPool {
     interface CHAT {
         String MESSAGE_CACHE_NUM = "chat.message-cache-num";
         String CACHE_CAPACITY = "chat.cache-capacity";
+        String CHAT_IMAGE_PATH = "chat.chat-image-path";
     }
 
 }
