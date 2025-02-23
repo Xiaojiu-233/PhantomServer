@@ -45,6 +45,9 @@ public interface StrPool {
     String BOUNDARY = "boundary";
     String SUCCESS = "success";
     String FAILURE = "failure";
+    String RESULT = "result";
+    String MESSAGE = "message";
+    String NEW_OFFSET = "newOffset";
 
     // 日期格式
     String STANDARD_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

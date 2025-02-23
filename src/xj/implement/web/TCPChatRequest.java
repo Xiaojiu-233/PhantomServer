@@ -3,6 +3,7 @@ package xj.implement.web;
 import xj.abstracts.web.Request;
 import xj.component.log.LogManager;
 import xj.core.extern.chat.ChatObject;
+import xj.core.extern.chat.OffsetData;
 import xj.enums.web.ChatType;
 import xj.tool.StrPool;
 
@@ -18,7 +19,7 @@ public class TCPChatRequest extends Request {
 
     private LocalDateTime startTime;// 聊天发起时间
 
-    private int offset;// 请求偏移量
+    private OffsetData offsetData;// 请求偏移量
 
     private byte[] bodyBytes = new byte[0];// 请求体二进制版本
 
@@ -56,8 +57,9 @@ public class TCPChatRequest extends Request {
             bodyBytes = bodyByteData;
         else if(type.equals(ChatType.MESSAGE))
             message = Arrays.toString(bodyByteData);
-        else if(type.equals(ChatType.OFFSET))
-            offset = Integer.parseInt(Arrays.toString(bodyByteData));
+        else if(type.equals(ChatType.OFFSET)){
+            offsetData = OffsetData.analyseOffsetData(Arrays.toString(bodyByteData));
+        }
         // 封装成为消息对象
         chatObject = new ChatObject(name,date,type,message);
     }
@@ -74,7 +76,7 @@ public class TCPChatRequest extends Request {
         return bodyBytes;
     }
 
-    public int getOffset() {
-        return offset;
+    public OffsetData getOffsetData() {
+        return offsetData;
     }
 }

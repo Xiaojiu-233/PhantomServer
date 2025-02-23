@@ -1,23 +1,16 @@
 package xj.core.extern.chat;
 
-import xj.abstracts.web.Response;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.threadPool.factory.ThreadTaskFactory;
 import xj.enums.web.ChatType;
-import xj.implement.thread.StreamInputTask;
-import xj.implement.thread.StreamOutputTask;
 import xj.implement.web.TCPChatRequest;
 import xj.implement.web.TCPChatResponse;
-import xj.interfaces.thread.StreamIOTask;
 import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
-import javax.security.auth.login.Configuration;
 import java.io.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 // 聊天室管理器，用于提供TCP聊天室的解决方案
@@ -28,7 +21,7 @@ public class ChatManager {
 
     private ChatObject[][] messageCache;// 聊天记录缓存块，0为最新缓存块
 
-    private LocalDateTime[] cacheTime;// 缓存块开始记录的时间
+    private String[] cacheIds;// 缓存块标记
 
     private int pointer;// 消息指针，用于指明目前缓存块中最新的消息位置
 
@@ -67,7 +60,8 @@ public class ChatManager {
                 cacheNum, cacheCapacity, chatImagePath);
         // 开辟空间
         messageCache = new ChatObject[cacheNum][cacheCapacity];
-        cacheTime = new LocalDateTime[cacheNum];
+        cacheIds = new String[cacheNum];
+        cacheIds[0] = UUID.randomUUID().toString();
         // 创建图片存储文件夹
         File imagePath = new File(chatImagePath);
         if(!imagePath.exists())
@@ -109,12 +103,12 @@ public class ChatManager {
             if(pointer >= cacheCapacity) {
                 // 容量满了则开始调整缓存区
                 for(int i = cacheNum - 2; i >= 0; i--) {
-                    cacheTime[i] = cacheTime[i+1];
+                    cacheIds[i] = cacheIds[i+1];
                     messageCache[i] = messageCache[i+1];
                 }
                 // 更新最新的缓存区以及缓存开始时间
                 pointer = 0;
-                cacheTime[0] = LocalDateTime.now();
+                cacheIds[0] = UUID.randomUUID().toString();
                 messageCache[0] = new ChatObject[cacheCapacity];
             }
             // 将数据装入缓存区
@@ -145,20 +139,25 @@ public class ChatManager {
     // 拿取消息
     private boolean receiveMessage(TCPChatRequest req,TCPChatResponse resp) {
         try {
-            // 从旧往新找，寻找缓存块范围
-            int index = -1;
-            int pos = req.getOffset() % cacheCapacity;
-            for(int i = cacheNum - 2; i >= 0; i--)
-                if(cacheTime[i] != null && cacheTime[i].isBefore(req.getStartTime())) {
-                    index = i;
-                    break;
-                }
-            if(index == -1)
-                return false;
+            // 寻找缓存块
+            int cachePos = -1;
+            int pos = req.getOffsetData().getOffset() % cacheCapacity;
+            String cacheUid = req.getOffsetData().getUid();
+            if(cacheUid == null || cacheUid.isEmpty()){
+                cachePos = 0;
+            }else{
+                for(int i = 0; i < cacheNum; i++)
+                    if(cacheIds[i] != null && cacheIds[i].equals(req.getOffsetData().getUid())) {
+                        cachePos = i;
+                        break;
+                    }
+                if(cachePos == -1)
+                    return false;
+            }
             // 一直读取，直到读到null或者图片为止
             while(true) {
                 // 数据获取与装填
-                ChatObject ob = messageCache[index][pos];
+                ChatObject ob = messageCache[cachePos][pos];
                 if(ob == null)
                     break;
                 else if(ChatType.IMAGE.equals(ob.getType())) {
@@ -175,9 +174,11 @@ public class ChatManager {
                 pos++;
                 if(pos >= cacheCapacity){
                     pos %= cacheCapacity;
-                    if(--index < 0)break;
+                    if(--cachePos < 0)break;
                 }
             }
+            // 设置偏移量数据并返回结果
+            resp.setOffsetData(new OffsetData(pos,cacheIds[cachePos]));
             return true;
         } catch (FileNotFoundException e) {
             LogManager.error_("聊天室模块在读取图片文件时出现异常",e);
