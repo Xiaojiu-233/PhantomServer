@@ -18,7 +18,7 @@ public abstract class Response {
     // 成员方法
     // 构造方法
     public Response() {
-        lineBreak = (String) ConfigureManager.getInstance().getConfig("lineBreak");
+        lineBreak = (String) ConfigureManager.getInstance().getConfig(ConfigPool.SYSTEM_ARG.LINE_BREAK);
     }
 
     // 获取IO线程任务

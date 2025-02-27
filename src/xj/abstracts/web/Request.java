@@ -20,7 +20,7 @@ public abstract class Request {
     public Request(byte[] data) {
         // 读取数据
         this.data = data;
-        lineBreak = (String) ConfigureManager.getInstance().getConfig("lineBreak");
+        lineBreak = (String) ConfigureManager.getInstance().getConfig(ConfigPool.SYSTEM_ARG.LINE_BREAK);
         // 获取头数据（读到换行符之前的数据）
         int pos = 0;
         for(int i= 0;i<data.length;i++)

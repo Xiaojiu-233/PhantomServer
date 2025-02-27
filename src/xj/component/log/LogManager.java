@@ -135,7 +135,7 @@ public class LogManager implements ILogManager {
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);
             e.printStackTrace(printWriter);
-            handledMsg += ConfigureManager.getInstance().getConfig("lineBreak") +
+            handledMsg += ConfigureManager.getInstance().getConfig(ConfigPool.SYSTEM_ARG.LINE_BREAK) +
                     stringWriter.toString();
             try {
                 stringWriter.close();

@@ -66,15 +66,15 @@ public class ConfigureManager implements IConfigureManager {
         LogManager.info_("【配置模块】正在读取系统配置...");
         // 读取工作路径
         String workpath = System.getProperty("user.dir");
-        configList.put("workpath",workpath);
+        configList.put(ConfigPool.SYSTEM_ARG.WORK_PATH,workpath);
         LogManager.info_("当前的工作路径为",workpath);
         // 读取操作系统名称
         String osName = System.getProperty("os.name");
-        configList.put("osName",osName);
+        configList.put(ConfigPool.SYSTEM_ARG.OS_NAME,osName);
         LogManager.info_("当前的操作系统为",osName);
         // 读取换行符
         String lineBreak = System.getProperty("line.separator","\n");
-        configList.put("lineBreak",lineBreak);
+        configList.put(ConfigPool.SYSTEM_ARG.LINE_BREAK,lineBreak);
     }
 
     // dfs遍历读取map容器数据并存入配置列表

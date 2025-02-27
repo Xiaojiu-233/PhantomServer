@@ -48,17 +48,17 @@ public class TCPChatResponse extends Response {
         StringBuilder sb = new StringBuilder();
         String endStr = null;
         // 填充请求头
-        sb.append(StrPool.TCP).append(StrPool.SPACE).append(StrPool.CHAT).append(StrPool.ENTER);
-        sb.append(StrPool.RESULT).append(StrPool.COLON).append(StrPool.SPACE).append(result).append(StrPool.ENTER);
-        sb.append(StrPool.MESSAGE).append(StrPool.COLON).append(StrPool.SPACE).append(message).append(StrPool.ENTER);
+        sb.append(StrPool.TCP).append(StrPool.SPACE).append(StrPool.CHAT).append(lineBreak);
+        sb.append(StrPool.RESULT).append(StrPool.COLON).append(StrPool.SPACE).append(result).append(lineBreak);
+        sb.append(StrPool.MESSAGE).append(StrPool.COLON).append(StrPool.SPACE).append(message).append(lineBreak);
         sb.append(StrPool.NEW_OFFSET).append(StrPool.COLON).append(StrPool.SPACE)
-                .append(offsetData).append(StrPool.ENTER).append(StrPool.ENTER);
+                .append(offsetData).append(lineBreak).append(lineBreak);
         // 填充请求体
         for(ChatObject obj : obs) {
             String jsonStr = new ObjectMapper().writeValueAsString(obj);
             if(ChatType.MESSAGE.equals(obj.getType())) {
                 // 如果是消息则直接装入数据并换行
-                sb.append(jsonStr).append(StrPool.ENTER);
+                sb.append(jsonStr).append(lineBreak);
             }else if(ChatType.IMAGE.equals(obj.getType())){
                 // 如果是图片则进行拆分再填充，并结束本次读取
                 String uuid = obj.getMessage();
@@ -66,7 +66,7 @@ public class TCPChatResponse extends Response {
                 if(jsonSplit.length != 2)
                     throw new IOException("图片对象json解析不存在uuid数据，解析失败");
                 sb.append(jsonSplit[0]);
-                endStr = jsonSplit[1] + StrPool.ENTER;
+                endStr = jsonSplit[1] + lineBreak;
             }
         }
         // 写入响应

@@ -45,6 +45,13 @@ public interface ConfigPool {
         String UNKNOWN_WEBPAGE = "unknown.html";
     }
 
+    // 系统参数
+    interface SYSTEM_ARG {
+        String WORK_PATH = "workpath";
+        String OS_NAME = "osName";
+        String LINE_BREAK = "lineBreak";
+    }
+
     // TCP聊天室模块
     interface CHAT {
         String MESSAGE_CACHE_NUM = "chat.message-cache-num";

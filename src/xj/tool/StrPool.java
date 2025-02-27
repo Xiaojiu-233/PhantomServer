@@ -17,7 +17,6 @@ public interface StrPool {
     String QUESTION_MARK = "?";
     String AND = "&";
     String EQUAL = "=";
-    String ENTER = "\n";
 
     // 后缀
     String LOG_POINT = ".log";

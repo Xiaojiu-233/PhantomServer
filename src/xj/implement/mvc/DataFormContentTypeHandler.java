@@ -1,8 +1,10 @@
 package xj.implement.mvc;
 
+import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.enums.web.ContentType;
 import xj.interfaces.mvc.ContentTypeHandler;
+import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
 import java.io.*;
@@ -20,6 +22,8 @@ public class DataFormContentTypeHandler implements ContentTypeHandler {
     @Override
     public Map<String, Object> handle(byte[] bytes,Map<String, String> contentTypeArgs) {
         // 数据准备
+        String lineBreak = (String) ConfigureManager.getInstance()
+                .getConfig(ConfigPool.SYSTEM_ARG.LINE_BREAK);
         Map<String, Object> ret = new HashMap<String, Object>();
         BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
         String line = null;
@@ -41,7 +45,7 @@ public class DataFormContentTypeHandler implements ContentTypeHandler {
                         // 将文件或文本数据存至缓冲
                         if(parFileName != null){
                             fileBos.write(line.getBytes());
-                            fileBos.write(StrPool.ENTER.getBytes());
+                            fileBos.write(lineBreak.getBytes());
                         }else{
                             textBuffer = line;
                         }
