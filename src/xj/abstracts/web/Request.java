@@ -1,6 +1,7 @@
 package xj.abstracts.web;
 
 import xj.component.conf.ConfigureManager;
+import xj.tool.ConfigPool;
 import xj.tool.Constant;
 
 import java.util.Arrays;

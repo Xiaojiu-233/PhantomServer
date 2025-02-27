@@ -2,6 +2,7 @@ package xj.abstracts.web;
 
 import xj.component.conf.ConfigureManager;
 import xj.interfaces.thread.StreamIOTask;
+import xj.tool.ConfigPool;
 
 import java.io.IOException;
 import java.io.OutputStream;
