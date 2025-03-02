@@ -47,6 +47,7 @@ public interface StrPool {
     String RESULT = "result";
     String MESSAGE = "message";
     String NEW_OFFSET = "newOffset";
+    String NULL = "null";
 
     // 日期格式
     String STANDARD_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

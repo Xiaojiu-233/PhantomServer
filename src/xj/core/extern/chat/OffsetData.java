@@ -1,5 +1,8 @@
 package xj.core.extern.chat;
 
+import xj.component.conf.ConfigureManager;
+import xj.component.log.LogManager;
+import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
 // TCP聊天室偏移量存储对象，用于存储消息偏移量等信息

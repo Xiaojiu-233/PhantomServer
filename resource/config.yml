@@ -2,6 +2,7 @@
 server:
   port: 50001
   name: XiaojiuServer
+  unit-split-break: <<<END>>> # 请求单元分隔符号
   socket-max-wait-time: 3000 # socket最大等待输入时间（毫秒）
 
 # 动态线程池配置

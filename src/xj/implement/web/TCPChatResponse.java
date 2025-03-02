@@ -47,6 +47,7 @@ public class TCPChatResponse extends Response {
         // 数据准备
         StringBuilder sb = new StringBuilder();
         String endStr = null;
+        String splitStr = unitSplitBreak + lineBreak;
         // 填充请求头
         sb.append(StrPool.TCP).append(StrPool.SPACE).append(StrPool.CHAT).append(lineBreak);
         sb.append(StrPool.RESULT).append(StrPool.COLON).append(StrPool.SPACE).append(result).append(lineBreak);
@@ -74,14 +75,16 @@ public class TCPChatResponse extends Response {
         byte[] headBytes = sb.toString().getBytes();
         if(endStr != null) {
             byte[] endBytes = endStr.getBytes();
-            buffer = ByteBuffer.allocate(headBytes.length + fileData.length + endBytes.length);
+            buffer = ByteBuffer.allocate(headBytes.length + fileData.length + endBytes.length + splitStr.length());
             buffer.put(headBytes);
             buffer.put(fileData);
             buffer.put(endBytes);
         }else{
-            buffer = ByteBuffer.allocate(headBytes.length);
+            buffer = ByteBuffer.allocate(headBytes.length + splitStr.length());
             buffer.put(headBytes);
         }
+        buffer.put(splitStr.getBytes());
+        // 输出
         buffer.flip();
         os.write(buffer);
     }

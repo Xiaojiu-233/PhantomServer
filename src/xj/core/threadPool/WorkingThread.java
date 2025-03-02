@@ -38,9 +38,7 @@ public class WorkingThread extends Thread {
             synchronized (lock){
                 if(workingTask != null){
                     // 当前线程有任务时，执行线程任务
-                    LogManager.info_("[{}] 收到任务：{}",getName(),workingTask.getLogDescribe());
                     workingTask.doTask();
-                    LogManager.info_("[{}] 完成任务：{}",getName(),workingTask.getLogDescribe());
                     workingTask = null;
                 }else if(!ThreadPoolManager.getInstance().queueEmpty()){
                     // 当前线程没有任务但是任务队列有任务存在

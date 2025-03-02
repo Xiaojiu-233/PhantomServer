@@ -26,7 +26,7 @@ public class TCPChatRequest extends Request {
     // 成员方法
     // 初始化
     public TCPChatRequest(Request request) {
-        super(request.getData());
+        super(request.getData(), request.getHeadMsg());
         selfAnalysis();
     }
 
@@ -50,15 +50,15 @@ public class TCPChatRequest extends Request {
         int headerBytes = 0;
         for(int i= 0; i<= 3; i++)
             headerBytes += lines[i].getBytes().length;
-        headerBytes = lineBreak.getBytes().length * 2;
+        headerBytes += lineBreak.getBytes().length * 4;
         byte[] bodyByteData = Arrays.copyOfRange(data,headerBytes,data.length);
         // 根据消息类型进一步处理消息体
         if(type.equals(ChatType.IMAGE))
             bodyBytes = bodyByteData;
-        else if(type.equals(ChatType.MESSAGE))
-            message = Arrays.toString(bodyByteData);
-        else if(type.equals(ChatType.OFFSET)){
-            offsetData = OffsetData.analyseOffsetData(Arrays.toString(bodyByteData));
+        else if(type.equals(ChatType.MESSAGE)){
+            message = new String(bodyByteData).replace(lineBreak,StrPool.EMPTY);
+        }else if(type.equals(ChatType.OFFSET)){
+            offsetData = OffsetData.analyseOffsetData(new String(bodyByteData).replace(lineBreak,StrPool.EMPTY));
         }
         // 封装成为消息对象
         chatObject = new ChatObject(name,date,type,message);

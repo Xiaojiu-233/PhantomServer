@@ -9,7 +9,7 @@ public class TCPRequest extends Request {
 
     // 成员方法
     // 构造方法
-    public TCPRequest(byte[] data) {
-        super(data);
+    public TCPRequest(byte[] data,String headMsg) {
+        super(data,headMsg);
     }
 }

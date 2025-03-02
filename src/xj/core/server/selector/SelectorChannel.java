@@ -1,5 +1,6 @@
 package xj.core.server.selector;
 
+import sun.rmi.runtime.Log;
 import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
@@ -15,8 +16,13 @@ import xj.interfaces.thread.ThreadTask;
 import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.LinkedList;
+import java.util.Queue;
 
 // 被选择器管理的TCP通道处理封装对象
 public class SelectorChannel {
@@ -32,9 +38,19 @@ public class SelectorChannel {
 
     private SelectorPhase phase;// 执行阶段
 
-    private int socketMaxWaitTime;// 最大请求等待时间
+    private Queue<SelectorRequestUnit> requestQueue;// 请求单元队列
+
+    private boolean isReading;// 该通道是否在执行线程任务读取
+
+    private static int socketMaxWaitTime;// 最大请求等待时间
 
     private long socketWaitTime;// 请求等待时间
+
+    private ByteBuffer signBytes;// 读信号
+
+    private static String lineBreak;// 换行符
+
+    private static String unitSplitBreak;// 单元分隔符
 
     // 成员方法
     // 初始化
@@ -42,14 +58,23 @@ public class SelectorChannel {
         // 初始化属性
         this.client = client;
         this.receiver = new ByteReceiver();
+        this.requestQueue = new LinkedList<>();
         this.phase = SelectorPhase.PREPARE;
+        signBytes = ByteBuffer.allocate(1);
+        socketWaitTime = System.currentTimeMillis();
+    }
+
+    // 静态代码块加载
+    static {
         socketMaxWaitTime = (int) ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.SOCKET_MAX_WAIT_TIME);
+        lineBreak = (String) ConfigureManager.getInstance().getConfig(ConfigPool.SYSTEM_ARG.LINE_BREAK);
+        unitSplitBreak = (String) ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.UNIT_SPLIT_BREAK);
     }
 
     // 分阶段执行
-    public void phaseExecute(){
+    public void phaseExecute(boolean readable){
         if(phase == SelectorPhase.PREPARE){
-            prepareRead();
+            prepareRead(readable);
         }else if(phase == SelectorPhase.WAIT_READ){
             handleData();
         }else if(phase == SelectorPhase.WAIT_WRITE){
@@ -62,32 +87,102 @@ public class SelectorChannel {
     }
 
     // 阶段1.准备读取数据
-    private void prepareRead(){
-        // 开始Socket的读IO
-        startIOTask(ThreadTaskFactory.getInstance().createChannelReadTask(client,receiver)
-                ,SelectorPhase.WAIT_READ);
+    private void prepareRead(boolean readable){
+        try {
+            // 判定请求单元队列是否存在队列
+            if(requestQueue.isEmpty()){
+                // 判定是否有数据可读
+                if(client.read(signBytes) > 0){
+                    // 开始Socket的读IO
+                    isReading = true;
+                    signBytes.flip();
+                    byte[] sign = new byte[1];
+                    signBytes.get(sign);
+                    receiver.storeSignData(sign);
+                    signBytes.clear();
+                    socketWaitTime = System.currentTimeMillis();
+                    startIOTask(ThreadTaskFactory.getInstance().createChannelReadTask(client,receiver)
+                            ,SelectorPhase.WAIT_READ);
+                }
+                else{
+                    // 非长连接或者连接等待请求时间超出阈值时，结束连接，否则继续等待并重新计时
+                    long nowTime = System.currentTimeMillis();
+                    boolean isEnd = (handler != null && handler.needEndConnection())
+                            || nowTime > socketWaitTime + socketMaxWaitTime;
+                    // 如果是超时的情况，则说明情况
+                    if(nowTime > socketWaitTime + socketMaxWaitTime)
+                        LogManager.info_("由于连接时长超时，来自 {} 的连接通道关闭",client.getRemoteAddress());
+                    if(isEnd)
+                        phase = SelectorPhase.ENDING;
+                }
+            }
+        } catch (IOException e) {
+            LogManager.error_("TCP通道对象在准备读取数据时出现异常",e);
+        }
     }
 
     // 阶段2.处理数据
     private void handleData(){
-        // 如果已经执行完读IO则继续执行
-        if(!receiver.dataExist())return;
-        // 如果数据为空，则直接进入结束阶段
-        byte[] data = receiver.getData();
-        if(data.length == 0){
-            // 非长连接或者连接等待请求时间超出阈值时，结束连接，否则继续等待并重新计时
-            long nowTime = System.currentTimeMillis();
-            boolean isEnd = handler.needEndConnection() || nowTime > socketWaitTime + socketMaxWaitTime;
-            if(isEnd){
-                phase = SelectorPhase.ENDING;
-            }else {
+        // 判断是否执行可读任务
+        if(isReading){
+            // 如果已经执行完读IO则继续执行
+            if(!receiver.dataExist())return;
+            // 获取数据
+            byte[] data = receiver.getData();
+            isReading = false;
+            // 如果没有数据则直接退回到准备阶段
+            if(data.length == 0){
                 phase = SelectorPhase.PREPARE;
-                socketWaitTime = nowTime;
+                return;
             }
+            // 存在数据时则进行解析处理
+            String[] analysedData = new String(data).split(lineBreak);
+            SelectorRequestUnit unit = new SelectorRequestUnit();
+            String headMessage = null;
+            int splitBreakLen = unitSplitBreak.length();
+            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            try{
+                for(String s : analysedData){
+                    // 判定该行是否为单元分割符
+                    if(s.length() != splitBreakLen || !unitSplitBreak.equals(s)){
+                        // 不满足则装填数据
+                        // 确认头信息
+                        if(headMessage == null)
+                            headMessage = s;
+                        // 装填
+                        byteStream.write(s.getBytes());
+                        byteStream.write(lineBreak.getBytes());
+                    }else{
+                        // 满足则将数据打包
+                        unit.setData(byteStream.toByteArray());
+                        unit.setHeadMessage(headMessage);
+                        headMessage = null;
+                        byteStream.reset();
+                        requestQueue.add(unit);
+                    }
+                }
+            }catch (IOException e) {
+                LogManager.error_("TCP通道对象在解析读取数据时出现异常",e);
+            }
+            // 如果最后没有完成单元打包，则直接打包
+            if(byteStream.size() > 0){
+                unit.setData(byteStream.toByteArray());
+                unit.setHeadMessage(headMessage);
+                byteStream.reset();
+                requestQueue.add(unit);
+            }
+        }
+        SelectorRequestUnit unit = null;
+        // 判定请求单元队列是否存在队列
+        if(!requestQueue.isEmpty())
+            unit = requestQueue.poll();
+        // 如果没有请求单元则直接退回到准备阶段
+        if(unit == null){
+            phase = SelectorPhase.PREPARE;
             return;
         }
         // 数据不为空则处理数据
-        Request request = new ProtocolRequest(data);
+        Request request = new ProtocolRequest(unit.getData(), unit.getHeadMessage());
         // 如果消息处理器为空则使用处理器工厂创建消息对应的消息处理器
         if(handler == null){
             handler = ConnectHandlerFactory.getInstance().getMatchConnectHandler(request);

@@ -98,28 +98,29 @@ public class ChatManager {
 
     // 存储消息
     private boolean storeMessage(ChatObject chatObject) {
-        try{
-            // 查看容量是否满了
-            if(pointer >= cacheCapacity) {
-                // 容量满了则开始调整缓存区
-                for(int i = cacheNum - 2; i >= 0; i--) {
-                    cacheIds[i] = cacheIds[i+1];
-                    messageCache[i] = messageCache[i+1];
+        synchronized (ChatManager.class) {
+            try{
+                // 查看容量是否满了
+                if(pointer >= cacheCapacity) {
+                    // 容量满了则开始调整缓存区
+                    for(int i = cacheNum - 2; i >= 0; i--) {
+                        cacheIds[i] = cacheIds[i+1];
+                        messageCache[i] = messageCache[i+1];
+                    }
+                    // 更新最新的缓存区以及缓存开始时间
+                    pointer = 0;
+                    cacheIds[0] = UUID.randomUUID().toString();
+                    messageCache[0] = new ChatObject[cacheCapacity];
                 }
-                // 更新最新的缓存区以及缓存开始时间
-                pointer = 0;
-                cacheIds[0] = UUID.randomUUID().toString();
-                messageCache[0] = new ChatObject[cacheCapacity];
-            }
-            // 将数据装入缓存区
-            synchronized (ChatManager.class) {
+                // 将数据装入缓存区
                 messageCache[0][pointer++] = chatObject;
+                return true;
+            } catch (Exception e) {
+                LogManager.error_("聊天室模块在存储消息时出现异常",e);
+                return false;
             }
-            return true;
-        } catch (Exception e) {
-            LogManager.error_("聊天室模块在存储消息时出现异常",e);
-            return false;
         }
+
     }
 
     // 存储图片
@@ -143,7 +144,7 @@ public class ChatManager {
             int cachePos = -1;
             int pos = req.getOffsetData().getOffset() % cacheCapacity;
             String cacheUid = req.getOffsetData().getUid();
-            if(cacheUid == null || cacheUid.isEmpty()){
+            if(cacheUid == null || cacheUid.isEmpty() || StrPool.NULL.equals(cacheUid)){
                 cachePos = 0;
             }else{
                 for(int i = 0; i < cacheNum; i++)

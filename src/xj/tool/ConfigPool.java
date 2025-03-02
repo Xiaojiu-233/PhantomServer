@@ -18,6 +18,7 @@ public interface ConfigPool {
     interface SERVER {
         String PORT = "server.port";
         String NAME = "server.name";
+        String UNIT_SPLIT_BREAK = "server.unit-split-break";
         String SOCKET_MAX_WAIT_TIME = "server.socket-max-wait-time";
     }
 

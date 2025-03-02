@@ -33,7 +33,7 @@ public class HTTPRequest extends Request implements IHttpRequest {
     // 成员方法
     // 构造方法
     public HTTPRequest(Request request) {
-        super(request.getData());
+        super(request.getData(), request.getHeadMsg());
         selfAnalysis();
     }
 

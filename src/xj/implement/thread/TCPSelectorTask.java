@@ -44,6 +44,8 @@ public class TCPSelectorTask implements ThreadTask {
                 channelMapping.put(channel, new SelectorChannel(channel));
             } catch (ClosedChannelException e) {
                 LogManager.error_("TCP选择器线程任务在注册事件时出现异常",e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -71,12 +73,12 @@ public class TCPSelectorTask implements ThreadTask {
                     if(key.isReadable() || key.isWritable()) {
                         // 获取channel并进行分阶段工作，如果该channel还在IO阶段则跳入下一channel
                         channel = (SocketChannel) key.channel();
-                        channelMapping.get(channel).phaseExecute();
+                        channelMapping.get(channel).phaseExecute(key.isReadable());
                     }
                     // 删除Key
                     keys.remove();
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LogManager.error_("TCP选择器线程任务在执行时出现异常",e);
             }
         }

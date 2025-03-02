@@ -14,12 +14,15 @@ public abstract class Response {
     // 成员属性
     protected String lineBreak;// 换行符
 
+    protected String unitSplitBreak;// 单元分隔符
+
     protected StreamIOTask ioTask;// 数据流IO线程任务
 
     // 成员方法
     // 构造方法
     public Response() {
         lineBreak = (String) ConfigureManager.getInstance().getConfig(ConfigPool.SYSTEM_ARG.LINE_BREAK);
+        unitSplitBreak = (String) ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.UNIT_SPLIT_BREAK);
     }
 
     // 获取IO线程任务
