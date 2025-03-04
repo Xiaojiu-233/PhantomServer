@@ -45,7 +45,7 @@ public class TCPChatRequest extends Request {
         String message = null;
         ChatType type = ChatType.valueOf(lines[3].split(StrPool.COLON + StrPool.SPACE)[1]);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(StrPool.STANDARD_DATE_FORMAT);
-        startTime = LocalDateTime.parse(date, formatter);
+        startTime = (date == null || date.equals(StrPool.NULL)) ? LocalDateTime.now() : LocalDateTime.parse(date, formatter);
         // 拆除请求头获取消息体
         int headerBytes = 0;
         for(int i= 0; i<= 3; i++)

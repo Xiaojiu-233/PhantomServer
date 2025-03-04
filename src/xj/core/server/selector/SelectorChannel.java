@@ -115,6 +115,8 @@ public class SelectorChannel {
                     if(isEnd)
                         phase = SelectorPhase.ENDING;
                 }
+            }else{
+                phase = SelectorPhase.WAIT_READ;
             }
         } catch (IOException e) {
             LogManager.error_("TCP通道对象在准备读取数据时出现异常",e);

@@ -76,6 +76,7 @@ public class ChatManager {
         ChatType type = ob.getType();
         // 根据请求类型执行策略
         if(ChatType.MESSAGE.equals(type)) {
+            LogManager.debug_("收到消息了！",ob.getMessage());
             if(storeMessage(ob))
                 response.setMessage("文字消息接收成功");
             else{
@@ -83,6 +84,7 @@ public class ChatManager {
                 response.setMessage("文字消息接收失败");
             }
         }else if(ChatType.IMAGE.equals(type)){
+            LogManager.debug_("收到图片了！");
             if(storeImage(ob,req,response))
                 response.setMessage("图片消息接收成功");
             else
@@ -126,7 +128,7 @@ public class ChatManager {
     // 存储图片
     private boolean storeImage(ChatObject ob,TCPChatRequest req,TCPChatResponse resp) {
         // 随机生成UUID作为存储的图片key
-        String key = UUID.randomUUID().toString();
+        String key = UUID.randomUUID().toString() + StrPool.PNG_POINT;
         resp.setFileKey(key);
         // 将图片二进制数据转化为输入流并存储在线程任务中
         ByteArrayInputStream bis = new ByteArrayInputStream(req.getBodyBytes());

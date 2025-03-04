@@ -23,6 +23,7 @@ public interface StrPool {
     String CLASS_POINT = ".class";
     String JAR = "jar";
     String HTML_POINT = ".html";
+    String PNG_POINT = ".png";
 
     // 协议
     String HTTP = "HTTP";

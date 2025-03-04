@@ -3,6 +3,7 @@ package xj.implement.connect;
 import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
+import xj.component.log.LogManager;
 import xj.core.extern.chat.ChatManager;
 import xj.core.extern.mvc.MVCManager;
 import xj.enums.web.ChatType;
@@ -31,10 +32,17 @@ public class TCPChatConnectHandler extends ConnectHandler {
         TCPChatRequest chatRequest = new TCPChatRequest(request);
         // 如果请求内容为请求连接或者断开连接，则返回成功消息并作出处理
         ChatType type = chatRequest.getChatObject().getType();
+
+        if(ChatType.IMAGE.equals(type)){
+            LogManager.debug_("那很舒服了");
+        }
+
         if(ChatType.CONNECT.equals(type)) {
+            LogManager.debug_("收到开始连接了！");
             return new TCPChatResponse(StrPool.SUCCESS,"连接成功");
         }else if(ChatType.FIN.equals(type)){
             endConnect = true;
+            LogManager.debug_("收到结束连接了！");
             return new TCPChatResponse(StrPool.SUCCESS,"断开连接成功");
         }
         // 转交给聊天室模块进行处理

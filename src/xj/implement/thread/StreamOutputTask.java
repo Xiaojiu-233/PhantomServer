@@ -39,18 +39,18 @@ public class StreamOutputTask implements ThreadTask, StreamIOTask {
     public void doTask() {
         // 获取当前线程名
         String threadName = Thread.currentThread().getName();
-        // 打开文件
-        File file = new File(targetPath);
-        if (!file.exists())
-            if(!file.mkdirs()){
-                LogManager.error_("[{}] 的数据流输出IO线程任务无法创建文件: {}",threadName,targetPath);
-                receiver.storeData(new byte[0]);
-                return;
-            }
-        // 数据准备
-        byte[] buffer = new byte[Constant.BYTES_UNIT_CAPACITY];
-        // 开始读取数据
-        try (OutputStream target = Files.newOutputStream(file.toPath())) {
+        try {
+            // 打开文件
+            File file = new File(targetPath);
+            if (!file.exists())
+                if(!file.createNewFile()){
+                    LogManager.error_("[{}] 的数据流输出IO线程任务无法创建文件: {}",threadName,targetPath);
+                    receiver.storeData(new byte[0]);
+                    return;
+                }
+            // 数据准备
+            byte[] buffer = new byte[Constant.BYTES_UNIT_CAPACITY];// 开始读取数据
+            OutputStream target = Files.newOutputStream(file.toPath());
             // 1.读取数据并存入文件中
             int getByte = 0;
             while ((getByte = source.read(buffer))!= -1) {
@@ -61,6 +61,7 @@ public class StreamOutputTask implements ThreadTask, StreamIOTask {
             receiver.storeData(StrPool.SUCCESS.getBytes());
             // 4.读取结束
             source.close();
+            target.close();
         } catch (IOException e) {
             LogManager.error_("[{}] 的数据流输出IO线程任务在读取数据时出现异常：{}",threadName,e);
             receiver.storeData(new byte[0]);
