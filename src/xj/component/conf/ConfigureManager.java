@@ -73,7 +73,7 @@ public class ConfigureManager implements IConfigureManager {
         configList.put(ConfigPool.SYSTEM_ARG.OS_NAME,osName);
         LogManager.info_("当前的操作系统为",osName);
         // 读取换行符
-        String lineBreak = System.getProperty("line.separator","\n");
+        String lineBreak = "\r\n"; //System.getProperty("line.separator","\n");
         configList.put(ConfigPool.SYSTEM_ARG.LINE_BREAK,lineBreak);
     }
 

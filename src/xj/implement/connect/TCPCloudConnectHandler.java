@@ -8,7 +8,7 @@ import xj.abstracts.web.Response;
 public class TCPCloudConnectHandler extends ConnectHandler {
 
     @Override
-    public boolean isMatchedRequest(Request request) {
+    public boolean isMatchedRequest(String headMessage) {
         return false;
     }
 

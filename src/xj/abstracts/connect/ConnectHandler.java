@@ -11,7 +11,7 @@ import java.lang.reflect.Constructor;
 public abstract class ConnectHandler {
 
     // Request的内容是否满足处理条件
-    abstract public boolean isMatchedRequest(Request request);
+    abstract public boolean isMatchedRequest(String headMessage);
 
     // 处理相关内容，返回对应的Response
     abstract public Response handle(Request request);
@@ -21,6 +21,11 @@ public abstract class ConnectHandler {
 
     // 断开连接的时机确认(默认情况为直接关闭)
     public boolean needEndConnection() {
+        return true;
+    }
+
+    // 是否选择单元分隔符的结束连接策略(默认情况为选择)
+    public boolean chooseEndStrategy() {
         return true;
     }
 

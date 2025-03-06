@@ -14,6 +14,7 @@ import xj.implement.web.ProtocolRequest;
 import xj.interfaces.thread.StreamIOTask;
 import xj.interfaces.thread.ThreadTask;
 import xj.tool.ConfigPool;
+import xj.tool.Constant;
 import xj.tool.StrPool;
 
 import java.io.ByteArrayInputStream;
@@ -21,6 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -141,36 +144,35 @@ public class SelectorChannel {
             String[] analysedData = new String(data).split(lineBreak);
             SelectorRequestUnit unit = new SelectorRequestUnit();
             String headMessage = null;
+            int bytePointer = 0;
+            int oldBytePointer = 0;
             int splitBreakLen = unitSplitBreak.length();
-            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-            try{
-                for(String s : analysedData){
-                    // 判定该行是否为单元分割符
-                    if(s.length() != splitBreakLen || !unitSplitBreak.equals(s)){
-                        // 不满足则装填数据
-                        // 确认头信息
-                        if(headMessage == null)
-                            headMessage = s;
-                        // 装填
-                        byteStream.write(s.getBytes());
-                        byteStream.write(lineBreak.getBytes());
-                    }else{
-                        // 满足则将数据打包
-                        unit.setData(byteStream.toByteArray());
-                        unit.setHeadMessage(headMessage);
-                        headMessage = null;
-                        byteStream.reset();
-                        requestQueue.add(unit);
+            for(String s : analysedData){
+                // 判定该行是否为单元分割符
+                if(s.length() != splitBreakLen || !unitSplitBreak.equals(s)){
+                    // 不满足则装填数据
+                    // 确认头信息
+                    if(headMessage == null)
+                        headMessage = s;
+                    // 装填
+                    bytePointer += s.length() + lineBreak.length();
+                }else{
+                    // 满足则将数据打包
+                    if(bytePointer > Constant.BYTES_UNIT_CAPACITY){
+                        LogManager.debug_("这个大家伙的数据量为",bytePointer);
                     }
+                    unit.setData(Arrays.copyOfRange(data,oldBytePointer,bytePointer));
+                    bytePointer += splitBreakLen + lineBreak.length();
+                    oldBytePointer = bytePointer;
+                    unit.setHeadMessage(headMessage);
+                    headMessage = null;
+                    requestQueue.add(unit);
                 }
-            }catch (IOException e) {
-                LogManager.error_("TCP通道对象在解析读取数据时出现异常",e);
             }
             // 如果最后没有完成单元打包，则直接打包
-            if(byteStream.size() > 0){
-                unit.setData(byteStream.toByteArray());
+            if(bytePointer - oldBytePointer > 0){
+                unit.setData(Arrays.copyOfRange(data,oldBytePointer,bytePointer));
                 unit.setHeadMessage(headMessage);
-                byteStream.reset();
                 requestQueue.add(unit);
             }
         }

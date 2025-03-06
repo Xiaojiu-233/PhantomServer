@@ -178,8 +178,9 @@ public class MVCManager {
                 pars[i] = par;
             }
             // 执行方法
-            Object clazzObj = IOCManager.getInstance().returnInstanceByName(
-                    handleMethod.getDeclaringClass().getName());
+            String clazzName = handleMethod.getDeclaringClass().getName();
+            clazzName = clazzName.substring(clazzName.lastIndexOf(StrPool.POINT)+1);
+            Object clazzObj = IOCManager.getInstance().returnInstanceByName(clazzName);
             // 根据得到的结果数据情况，封装为byte数组
             byte[] data = null;
             try {

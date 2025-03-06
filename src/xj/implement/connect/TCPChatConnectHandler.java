@@ -20,8 +20,8 @@ public class TCPChatConnectHandler extends ConnectHandler {
 
     // 成员方法
     @Override
-    public boolean isMatchedRequest(Request request) {
-        String[] firstLineArgs = request.getHeadMsg().split(StrPool.SPACE );
+    public boolean isMatchedRequest(String headMessage) {
+        String[] firstLineArgs = headMessage.split(StrPool.SPACE );
         return firstLineArgs.length == 2 && firstLineArgs[0].contains(StrPool.TCP) &&
                 firstLineArgs[1].contains(StrPool.CHAT);
     }
@@ -32,11 +32,6 @@ public class TCPChatConnectHandler extends ConnectHandler {
         TCPChatRequest chatRequest = new TCPChatRequest(request);
         // 如果请求内容为请求连接或者断开连接，则返回成功消息并作出处理
         ChatType type = chatRequest.getChatObject().getType();
-
-        if(ChatType.IMAGE.equals(type)){
-            LogManager.debug_("那很舒服了");
-        }
-
         if(ChatType.CONNECT.equals(type)) {
             LogManager.debug_("收到开始连接了！");
             return new TCPChatResponse(StrPool.SUCCESS,"连接成功");

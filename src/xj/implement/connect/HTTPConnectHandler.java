@@ -14,8 +14,8 @@ public class HTTPConnectHandler extends ConnectHandler {
 
     // 成员行为
     @Override
-    public boolean isMatchedRequest(Request request) {
-        String[] firstLineArgs = request.getHeadMsg().split(StrPool.SPACE );
+    public boolean isMatchedRequest(String headMessage) {
+        String[] firstLineArgs = headMessage.split(StrPool.SPACE );
         return firstLineArgs.length == 3 && firstLineArgs[2].contains(StrPool.HTTP);
     }
 
@@ -30,5 +30,10 @@ public class HTTPConnectHandler extends ConnectHandler {
     @Override
     public Response whenException() {
         return MVCManager.getHttpRespByStatuCode(StatuCode.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public boolean chooseEndStrategy() {
+        return false;
     }
 }

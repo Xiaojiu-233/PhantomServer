@@ -52,4 +52,9 @@ public class ByteReceiver implements IReceiver {
         }
     }
 
+    // 获取标记数据
+    public byte[] getSign() {
+        return sign;
+    }
+
 }

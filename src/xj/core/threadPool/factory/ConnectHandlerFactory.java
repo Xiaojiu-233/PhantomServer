@@ -58,13 +58,29 @@ public class ConnectHandlerFactory {
             // 遍历列表，寻找合适的处理器
             for(ConnectHandler handler : handlerList){
                 // 判定是否匹配，匹配成功则复制并返回指定对象
-                if(handler.isMatchedRequest(request)){
+                if(handler.isMatchedRequest(request.getHeadMsg())){
                     return handler.cloneSelf();
                 }
             }
             // 如果没有合适的处理器对象，将抛出错误并返回null
             LogManager.error_("没有找到合适的处理器对象",request.getClass().getName());
             return null;
+        }
+    }
+
+    // 根据提供的头信息，确定对应的连接处理器对象是否选择单元分隔符的结束连接策略
+    public boolean isChooseEndBreakStrategy(String headMsg){
+        synchronized(ConnectHandlerFactory.class){
+            // 遍历列表，寻找合适的处理器
+            for(ConnectHandler handler : handlerList){
+                // 判定是否匹配，匹配成功则复制并返回指定对象
+                if(handler.isMatchedRequest(headMsg)){
+                    return handler.chooseEndStrategy();
+                }
+            }
+            // 如果没有合适的处理器对象，将抛出错误并返回null
+            LogManager.error_("没有找到合适的处理器对象");
+            return true;
         }
     }
 
