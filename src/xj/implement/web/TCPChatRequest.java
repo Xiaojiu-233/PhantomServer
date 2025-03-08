@@ -35,7 +35,7 @@ public class TCPChatRequest extends Request {
         // 拆解数据
         String[] lines = encodeToString();
         // 判定数据是否符合规范
-        if(lines.length < 5){
+        if(lines.length < 4){
             LogManager.error_("TCP聊天室请求对象无法解析请求数据");
             return;
         }

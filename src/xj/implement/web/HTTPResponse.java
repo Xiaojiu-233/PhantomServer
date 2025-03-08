@@ -64,6 +64,11 @@ public class HTTPResponse extends Response implements IHttpResponse {
         // 添加统一的响应
         headers.put(StrPool.SERVER,(String)ConfigureManager.getInstance()
                 .getConfig(ConfigPool.SERVER.NAME));
+        // 添加CORS跨域请求头
+        String cors = (String)ConfigureManager.getInstance()
+                .getConfig(ConfigPool.SERVER.ACCESS_CONTROL_ALLOW_ORIGIN);
+        if(cors != null)
+            headers.put(StrPool.ACCESS_CONTROL_ALLOW_ORIGIN,cors);
         // 整体响应报文构建
         StringBuilder sb = new StringBuilder();
         // 输出版本信息和状态码

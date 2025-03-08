@@ -38,6 +38,7 @@ public interface StrPool {
     String CONTENT_TYPE = "Content-Type";
     String COOKIE = "Cookie";
     String SET_COOKIE = "Set-Cookie";
+    String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 
     // 特殊名词
     String FILE = "file";

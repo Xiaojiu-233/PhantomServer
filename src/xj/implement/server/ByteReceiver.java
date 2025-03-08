@@ -1,8 +1,8 @@
 package xj.implement.server;
 
+import xj.component.log.LogManager;
 import xj.interfaces.server.IReceiver;
-
-import java.util.Arrays;
+import xj.tool.Constant;
 
 // 字节数据接收器，用于接收与存储字节数据
 public class ByteReceiver implements IReceiver {
@@ -36,8 +36,10 @@ public class ByteReceiver implements IReceiver {
     }
 
     // 数据是否存在
-    public boolean dataExist(){
-        return data != null;
+    public boolean dataNotExist(){
+        synchronized (this) {
+            return data == null;
+        }
     }
 
     // 获取数据
@@ -47,9 +49,7 @@ public class ByteReceiver implements IReceiver {
 
     // 数据重置
     public void resetData(){
-        synchronized (this) {
-            this.data = null;
-        }
+        this.data = null;
     }
 
     // 获取标记数据

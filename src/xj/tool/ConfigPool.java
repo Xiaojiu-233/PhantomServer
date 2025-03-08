@@ -20,6 +20,7 @@ public interface ConfigPool {
         String NAME = "server.name";
         String UNIT_SPLIT_BREAK = "server.unit-split-break";
         String SOCKET_MAX_WAIT_TIME = "server.socket-max-wait-time";
+        String ACCESS_CONTROL_ALLOW_ORIGIN = "server.access-control-allow-origin";
     }
 
     // 日志

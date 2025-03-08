@@ -17,15 +17,10 @@ import xj.tool.ConfigPool;
 import xj.tool.Constant;
 import xj.tool.StrPool;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 // 被选择器管理的TCP通道处理封装对象
 public class SelectorChannel {
@@ -131,7 +126,7 @@ public class SelectorChannel {
         // 判断是否执行可读任务
         if(isReading){
             // 如果已经执行完读IO则继续执行
-            if(!receiver.dataExist())return;
+            if(receiver.dataNotExist())return;
             // 获取数据
             byte[] data = receiver.getData();
             isReading = false;
@@ -141,37 +136,37 @@ public class SelectorChannel {
                 return;
             }
             // 存在数据时则进行解析处理
-            String[] analysedData = new String(data).split(lineBreak);
+            List<Integer> splitPos = splitByteArrayByLineBreak(data);
             SelectorRequestUnit unit = new SelectorRequestUnit();
             String headMessage = null;
             int bytePointer = 0;
-            int oldBytePointer = 0;
+            byte[] splitBreakBytes = unitSplitBreak.getBytes();
             int splitBreakLen = unitSplitBreak.length();
-            for(String s : analysedData){
+            for(int i = 0;i < splitPos.size();i+=2){
                 // 判定该行是否为单元分割符
-                if(s.length() != splitBreakLen || !unitSplitBreak.equals(s)){
+                if(!isMatchedUnitSplitBreak(data,splitBreakBytes,splitPos.get(i),splitPos.get(i+1))){
                     // 不满足则装填数据
                     // 确认头信息
-                    if(headMessage == null)
-                        headMessage = s;
-                    // 装填
-                    bytePointer += s.length() + lineBreak.length();
-                }else{
-                    // 满足则将数据打包
-                    if(bytePointer > Constant.BYTES_UNIT_CAPACITY){
-                        LogManager.debug_("这个大家伙的数据量为",bytePointer);
+                    if(headMessage == null){
+                        headMessage = new String(data, splitPos.get(i)
+                                , splitPos.get(i+1) - splitPos.get(i) + 1);
                     }
-                    unit.setData(Arrays.copyOfRange(data,oldBytePointer,bytePointer));
-                    bytePointer += splitBreakLen + lineBreak.length();
-                    oldBytePointer = bytePointer;
+                }else{
+                    if(splitPos.get(i) > Constant.BYTES_UNIT_CAPACITY){
+                        LogManager.debug_("读取到了大数据",splitPos.get(i));
+                    }
+                    // 满足则将数据打包
+                    unit.setData(Arrays.copyOfRange(data,bytePointer,splitPos.get(i) - 2));
+                    bytePointer = splitPos.get(i) + splitBreakLen + lineBreak.length();
                     unit.setHeadMessage(headMessage);
                     headMessage = null;
                     requestQueue.add(unit);
+                    unit = new SelectorRequestUnit();
                 }
             }
             // 如果最后没有完成单元打包，则直接打包
-            if(bytePointer - oldBytePointer > 0){
-                unit.setData(Arrays.copyOfRange(data,oldBytePointer,bytePointer));
+            if(bytePointer == 0){
+                unit.setData(data);
                 unit.setHeadMessage(headMessage);
                 requestQueue.add(unit);
             }
@@ -212,7 +207,7 @@ public class SelectorChannel {
     // 阶段3.处理服务器内部IO
     private void handleIO(){
         // 如果已经执行完读IO则继续执行
-        if(!receiver.dataExist())return;
+        if(receiver.dataNotExist())return;
         // 获取数据
         byte[] data = receiver.getData();
         if(data.length == 0){
@@ -231,7 +226,7 @@ public class SelectorChannel {
     // 阶段4.返回数据与后续处理
     private void handleWrite(){
         // 如果已经执行完读IO则继续执行
-        if(!receiver.dataExist())return;
+        if(receiver.dataNotExist())return;
         // 判断是否可以结束连接，如果不行则进入准备阶段
         if(handler.needEndConnection())
             phase = SelectorPhase.ENDING;
@@ -257,6 +252,46 @@ public class SelectorChannel {
         ThreadPoolManager.getInstance().putThreadTask(task);
         // 进入下一个阶段
         this.phase = phase;
+    }
+
+    // 根据换行符分割字符数组(返回值中，奇数为数据段开头，偶数为数据段结尾)
+    private List<Integer> splitByteArrayByLineBreak(byte[] data){
+        byte[] lineBreakBytes = lineBreak.getBytes();
+        int lineBreakLen = lineBreakBytes.length;
+        List<Integer> splitPos = new ArrayList<>();
+        int start = 0;
+        int correctScan = -1;// 扫描换行符计数器
+        for(int i = 0;i < data.length;i++){
+            if(correctScan > -1){
+                if(data[i] != lineBreakBytes[correctScan+1]){
+                    correctScan = -1;
+                }else{
+                    correctScan++;
+                    if(correctScan == lineBreakLen - 1){
+                        int end = i - lineBreakLen;
+                        if(start < end){
+                            splitPos.add(start);
+                            splitPos.add(end);
+                        }
+                        start = i + 1;
+                        correctScan = -1;
+                    }
+                }
+            }else if(data[i] == lineBreakBytes[0]){
+                correctScan = 0;
+            }
+        }
+        return splitPos;
+    }
+
+    // 判定字节数组是否为单元分隔符
+    private boolean isMatchedUnitSplitBreak(byte[] data,byte[] unitBreakdata,int start,int end){
+        if((end - start + 1) != unitBreakdata.length)
+            return false;
+        for(int i = 0;i < unitBreakdata.length;i++)
+            if(unitBreakdata[i] != data[i + start])
+                return false;
+        return true;
     }
 
     // 内部枚举：执行阶段
