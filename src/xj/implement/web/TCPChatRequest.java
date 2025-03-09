@@ -50,7 +50,7 @@ public class TCPChatRequest extends Request {
         int headerBytes = 0;
         for(int i= 0; i<= 3; i++)
             headerBytes += lines[i].getBytes().length;
-        headerBytes += lineBreak.getBytes().length * 4;
+        headerBytes += lineBreak.getBytes().length * 5;
         byte[] bodyByteData = Arrays.copyOfRange(data,headerBytes,data.length);
         // 根据消息类型进一步处理消息体
         if(type.equals(ChatType.IMAGE))

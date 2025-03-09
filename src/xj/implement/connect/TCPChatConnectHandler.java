@@ -33,11 +33,9 @@ public class TCPChatConnectHandler extends ConnectHandler {
         // 如果请求内容为请求连接或者断开连接，则返回成功消息并作出处理
         ChatType type = chatRequest.getChatObject().getType();
         if(ChatType.CONNECT.equals(type)) {
-            LogManager.debug_("收到开始连接了！");
             return new TCPChatResponse(StrPool.SUCCESS,"连接成功");
         }else if(ChatType.FIN.equals(type)){
             endConnect = true;
-            LogManager.debug_("收到结束连接了！");
             return new TCPChatResponse(StrPool.SUCCESS,"断开连接成功");
         }
         // 转交给聊天室模块进行处理

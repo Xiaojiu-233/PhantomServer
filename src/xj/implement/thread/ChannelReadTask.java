@@ -97,7 +97,6 @@ public class ChannelReadTask implements ThreadTask {
     private void chooseEndStatistic(byte[] data){
         // 判定传入数据合法性
         if(data == null || data.length == 0){
-            LogManager.debug_("在解析TCP管道头数据时，传入参数非法");
             return;
         }
         // 确认最终要解析的数据

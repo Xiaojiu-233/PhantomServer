@@ -76,7 +76,6 @@ public class ChatManager {
         ChatType type = ob.getType();
         // 根据请求类型执行策略
         if(ChatType.MESSAGE.equals(type)) {
-            LogManager.debug_("收到消息了！",ob.getMessage());
             if(storeMessage(ob))
                 response.setMessage("文字消息接收成功");
             else{
@@ -84,7 +83,6 @@ public class ChatManager {
                 response.setMessage("文字消息接收失败");
             }
         }else if(ChatType.IMAGE.equals(type)){
-            LogManager.debug_("收到图片了！");
             if(storeImage(ob,req,response))
                 response.setMessage("图片消息接收成功");
             else

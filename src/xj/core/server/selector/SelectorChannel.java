@@ -152,9 +152,6 @@ public class SelectorChannel {
                                 , splitPos.get(i+1) - splitPos.get(i) + 1);
                     }
                 }else{
-                    if(splitPos.get(i) > Constant.BYTES_UNIT_CAPACITY){
-                        LogManager.debug_("读取到了大数据",splitPos.get(i));
-                    }
                     // 满足则将数据打包
                     unit.setData(Arrays.copyOfRange(data,bytePointer,splitPos.get(i) - 2));
                     bytePointer = splitPos.get(i) + splitBreakLen + lineBreak.length();
