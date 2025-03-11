@@ -76,10 +76,23 @@ public class TCPChatResponse extends Response {
         byte[] headBytes = sb.toString().getBytes();
         if(endStr != null) {
             byte[] endBytes = endStr.getBytes();
-            buffer = ByteBuffer.allocate(headBytes.length + fileData.length + endBytes.length + splitStr.length());
+            int fileBeforeBytes = headBytes.length + endBytes.length + lineBreak.length();
+            int fileAfterBytes = fileBeforeBytes + fileData.length;
+            String filePosRange = fileBeforeBytes + StrPool.SPACE + fileAfterBytes
+                    + StrPool.SPACE + StrPool.SPACE;
+            fileBeforeBytes += filePosRange.length();
+            fileAfterBytes += filePosRange.length();
+            String newFilePosRange = fileBeforeBytes + StrPool.SPACE + fileAfterBytes;
+            for(int i = newFilePosRange.length();i < filePosRange.length();i++){
+                newFilePosRange += StrPool.SPACE;
+            }
+            buffer = ByteBuffer.allocate(fileAfterBytes + lineBreak.length() + splitStr.length());
             buffer.put(headBytes);
-            buffer.put(fileData);
+            buffer.put(newFilePosRange.getBytes());
             buffer.put(endBytes);
+            buffer.put(lineBreak.getBytes());
+            buffer.put(fileData);
+            buffer.put(lineBreak.getBytes());
         }else{
             buffer = ByteBuffer.allocate(headBytes.length + splitStr.length());
             buffer.put(headBytes);

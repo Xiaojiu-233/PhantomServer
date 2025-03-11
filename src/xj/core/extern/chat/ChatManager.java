@@ -1,5 +1,6 @@
 package xj.core.extern.chat;
 
+import sun.rmi.runtime.Log;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.threadPool.factory.ThreadTaskFactory;
@@ -104,8 +105,8 @@ public class ChatManager {
                 if(pointer >= cacheCapacity) {
                     // 容量满了则开始调整缓存区
                     for(int i = cacheNum - 2; i >= 0; i--) {
-                        cacheIds[i] = cacheIds[i+1];
-                        messageCache[i] = messageCache[i+1];
+                        cacheIds[i+1] = cacheIds[i];
+                        messageCache[i+1] = messageCache[i];
                     }
                     // 更新最新的缓存区以及缓存开始时间
                     pointer = 0;
@@ -140,46 +141,53 @@ public class ChatManager {
     // 拿取消息
     private boolean receiveMessage(TCPChatRequest req,TCPChatResponse resp) {
         try {
-            // 寻找缓存块
-            int cachePos = -1;
-            int pos = req.getOffsetData().getOffset() % cacheCapacity;
-            String cacheUid = req.getOffsetData().getUid();
-            if(cacheUid == null || cacheUid.isEmpty() || StrPool.NULL.equals(cacheUid)){
-                cachePos = 0;
-            }else{
-                for(int i = 0; i < cacheNum; i++)
-                    if(cacheIds[i] != null && cacheIds[i].equals(req.getOffsetData().getUid())) {
-                        cachePos = i;
+            synchronized (ChatManager.class) {
+                // 寻找缓存块
+                int cachePos = -1;
+                int pos = req.getOffsetData().getOffset();
+                String cacheUid = req.getOffsetData().getUid();
+                if(cacheUid == null || cacheUid.isEmpty() || StrPool.NULL.equals(cacheUid)){
+                    cachePos = 0;
+                }else{
+                    for(int i = 0; i < cacheNum; i++)
+                        if(cacheIds[i] != null && cacheIds[i].equals(req.getOffsetData().getUid())) {
+                            cachePos = i;
+                            break;
+                        }
+                    if(cachePos == -1)
+                        return false;
+                }
+                // 一直读取，直到读到null或者图片为止
+                while(true) {
+                    if(pos >= cacheCapacity){
+                        pos %= cacheCapacity;
+                        if(--cachePos < 0){
+                            cachePos++;
+                            pos = cacheCapacity;
+                            break;
+                        }
+                    }
+                    // 数据获取与装填
+                    ChatObject ob = messageCache[cachePos][pos];
+                    if(ob == null)
+                        break;
+                    else if(ChatType.IMAGE.equals(ob.getType())) {
+                        resp.getObs().add(ob);
+                        pos++;
+                        // 开启线程任务
+                        String filePath = chatImagePath + StrPool.SLASH + ob.getMessage();
+                        FileInputStream fis = new FileInputStream(filePath);
+                        resp.setStreamIOTask(ThreadTaskFactory.getInstance().createStreamInputTask(fis));
                         break;
                     }
-                if(cachePos == -1)
-                    return false;
-            }
-            // 一直读取，直到读到null或者图片为止
-            while(true) {
-                // 数据获取与装填
-                ChatObject ob = messageCache[cachePos][pos];
-                if(ob == null)
-                    break;
-                else if(ChatType.IMAGE.equals(ob.getType())) {
-                    resp.getObs().add(ob);
-                    // 开启线程任务
-                    String filePath = chatImagePath + StrPool.SLASH + ob.getMessage();
-                    FileInputStream fis = new FileInputStream(filePath);
-                    resp.setStreamIOTask(ThreadTaskFactory.getInstance().createStreamInputTask(fis));
-                    break;
+                    else
+                        resp.getObs().add(ob);
+                    // 读取下一个数据
+                    pos++;
                 }
-                else
-                    resp.getObs().add(ob);
-                // 读取下一个数据
-                pos++;
-                if(pos >= cacheCapacity){
-                    pos %= cacheCapacity;
-                    if(--cachePos < 0)break;
-                }
+                // 设置偏移量数据并返回结果
+                resp.setOffsetData(new OffsetData(pos,cacheIds[cachePos]));
             }
-            // 设置偏移量数据并返回结果
-            resp.setOffsetData(new OffsetData(pos,cacheIds[cachePos]));
             return true;
         } catch (FileNotFoundException e) {
             LogManager.error_("聊天室模块在读取图片文件时出现异常",e);
