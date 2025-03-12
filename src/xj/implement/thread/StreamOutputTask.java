@@ -41,13 +41,15 @@ public class StreamOutputTask implements ThreadTask, StreamIOTask {
         String threadName = Thread.currentThread().getName();
         try {
             // 生成路径文件夹
-            String dirPath = targetPath.substring(0, targetPath.lastIndexOf(File.separator));
-            File dir = new File(dirPath);
-            if(!dir.exists()){
-                if(!dir.mkdirs()){
-                    LogManager.error_("[{}] 的数据流输出IO线程任务无法创建文件夹: {}",threadName,dirPath);
-                    receiver.storeData(new byte[0]);
-                    return;
+            if(targetPath.lastIndexOf(File.separator) != -1){
+                String dirPath = targetPath.substring(0, targetPath.lastIndexOf(File.separator));
+                File dir = new File(dirPath);
+                if(!dir.exists()){
+                    if(!dir.mkdirs()){
+                        LogManager.error_("[{}] 的数据流输出IO线程任务无法创建文件夹: {}",threadName,dirPath);
+                        receiver.storeData(new byte[0]);
+                        return;
+                    }
                 }
             }
             // 打开文件
