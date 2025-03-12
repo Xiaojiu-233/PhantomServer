@@ -15,6 +15,7 @@ import xj.interfaces.thread.StreamIOTask;
 import xj.interfaces.thread.ThreadTask;
 import xj.tool.ConfigPool;
 import xj.tool.Constant;
+import xj.tool.FileIOUtil;
 import xj.tool.StrPool;
 
 import java.io.IOException;
@@ -136,7 +137,7 @@ public class SelectorChannel {
                 return;
             }
             // 存在数据时则进行解析处理
-            List<Integer> splitPos = splitByteArrayByLineBreak(data);
+            List<Integer> splitPos = FileIOUtil.splitByteArrayByLineBreak(data,false);
             SelectorRequestUnit unit = new SelectorRequestUnit();
             String headMessage = null;
             int bytePointer = 0;
@@ -153,7 +154,7 @@ public class SelectorChannel {
                     }
                 }else{
                     // 满足则将数据打包
-                    unit.setData(Arrays.copyOfRange(data,bytePointer,splitPos.get(i) - 2));
+                    unit.setData(Arrays.copyOfRange(data,bytePointer,splitPos.get(i) - lineBreak.length()));
                     bytePointer = splitPos.get(i) + splitBreakLen + lineBreak.length();
                     unit.setHeadMessage(headMessage);
                     headMessage = null;
@@ -249,36 +250,6 @@ public class SelectorChannel {
         ThreadPoolManager.getInstance().putThreadTask(task);
         // 进入下一个阶段
         this.phase = phase;
-    }
-
-    // 根据换行符分割字符数组(返回值中，奇数为数据段开头，偶数为数据段结尾)
-    private List<Integer> splitByteArrayByLineBreak(byte[] data){
-        byte[] lineBreakBytes = lineBreak.getBytes();
-        int lineBreakLen = lineBreakBytes.length;
-        List<Integer> splitPos = new ArrayList<>();
-        int start = 0;
-        int correctScan = -1;// 扫描换行符计数器
-        for(int i = 0;i < data.length;i++){
-            if(correctScan > -1){
-                if(data[i] != lineBreakBytes[correctScan+1]){
-                    correctScan = -1;
-                }else{
-                    correctScan++;
-                    if(correctScan == lineBreakLen - 1){
-                        int end = i - lineBreakLen;
-                        if(start < end){
-                            splitPos.add(start);
-                            splitPos.add(end);
-                        }
-                        start = i + 1;
-                        correctScan = -1;
-                    }
-                }
-            }else if(data[i] == lineBreakBytes[0]){
-                correctScan = 0;
-            }
-        }
-        return splitPos;
     }
 
     // 判定字节数组是否为单元分隔符
