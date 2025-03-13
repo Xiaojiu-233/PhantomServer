@@ -20,6 +20,10 @@ thread-pool:
     thread-name: thread # 工作线程名称
     max-free-time: 180 # 普通线程池线程最大闲置时间(秒)，超时后会被线程池回收
 
+# 可视化界面配置
+monitor:
+  enable: true # 是否开启可视化界面
+
 # MVC配置
 mvc:
   index-path: /webpage/index.html # 主页路径（从扫描到的网络程序jar包为根目录）

@@ -19,7 +19,7 @@ public class ContentTypeConverter {
     // 成员属性
     private static volatile ContentTypeConverter instance;// 单例模式实现
 
-    private final List<ContentTypeHandler> handlerList = new ArrayList<>();//ContentType处理器
+    private final List<ContentTypeHandler> handlerList = new ArrayList<>();// ContentType处理器
 
     // 成员方法
     // 获取单例（防止高并发导致资源访问问题进行双判空保护）

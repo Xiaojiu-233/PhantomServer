@@ -1,5 +1,6 @@
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
+import xj.component.monitor.MonitorManager;
 import xj.core.extern.chat.ChatManager;
 import xj.core.extern.IOCManager;
 import xj.core.extern.JarManager;
@@ -32,6 +33,7 @@ public class PhantomServerApplication {
             ConnectHandlerFactory.getInstance().importHandlerByIOC();
             MVCManager.getInstance();
             ChatManager.getInstance();
+            MonitorManager.getInstance();
             LogManager.info_("-----服务器完成启动！开始运行-----");
             ServerManager.getInstance().openServer();
         }catch (Exception e){

@@ -28,6 +28,11 @@ public interface ConfigPool {
         String CHOOSE_CLASS = "log.choose-class";
     }
 
+    // 可视化界面
+    interface MONITOR {
+        String ENABLE = "monitor.enable";
+    }
+
     // MVC模块
     interface MVC {
         String INDEX_PATH = "mvc.index-path";
