@@ -45,7 +45,7 @@ public class ConnectHandlerFactory {
     public void importHandlerByIOC(){
         LogManager.info_("连接处理器工厂开始导入拓展处理器对象");
         // 将拓展连接处理器导入到列表头部
-        List<Object> handlers = IOCManager.getInstance().returnInstancesByClass(ConnectHandler.class);
+        List<Object> handlers = IOCManager.getInstance().returnImplInstancesByClass(ConnectHandler.class);
         for(Object handler : handlers){
             handlerList.add(0, (ConnectHandler) handler);
         }

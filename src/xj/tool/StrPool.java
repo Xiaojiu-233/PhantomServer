@@ -51,6 +51,7 @@ public interface StrPool {
     String NEW_OFFSET = "newOffset";
     String NULL = "null";
     String WINDOWS = "Windows";
+    String LINUX = "Linux";
 
     // 日期格式
     String STANDARD_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

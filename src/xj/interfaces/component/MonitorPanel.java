@@ -1,5 +1,6 @@
 package xj.interfaces.component;
 
+import javax.swing.*;
 import java.awt.*;
 
 /**
@@ -8,9 +9,14 @@ import java.awt.*;
 public interface MonitorPanel {
 
     /**
+     * 返回界面标题
+     * */
+    String returnTitle();
+
+    /**
      * 完成界面渲染
      * */
-    void drawPanel();
+    JPanel drawPanel();
 
     /**
      * 刷新界面

@@ -90,12 +90,12 @@ public class IOCManager {
         }
     }
 
-    // 返回指定类对象的IOC实例
-    public List<Object> returnInstancesByClass(Class<?> clazz){
+    // 返回指定实现类对象的IOC实例
+    public List<Object> returnImplInstancesByClass(Class<?> clazz){
         List<Object> ret = new ArrayList<>();
         for(Map.Entry<String,Object> entry : iocContainer.entrySet()){
             Object bean = entry.getValue();
-            if(bean.getClass().equals(clazz)){
+            if(bean.getClass().isInstance(clazz)){
                 ret.add(bean);
             }
         }
