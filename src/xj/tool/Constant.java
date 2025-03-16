@@ -12,4 +12,12 @@ public interface Constant {
     int ZERO_COUNT_LIMIT = 25;// 零数据上限，当超过指定次数没有获取数据，则直接读取下一轮数据
 
     int SECOND_PER_MILLINSECOND = 1000;// 一秒多少毫秒
+
+    int MONITOR_LOCATION_X = 200, MONITOR_LOCATION_Y = 200;// 可视化界面位置
+
+    int MONITOR_SIZE_X = 1000, MONITOR_SIZE_Y = 800;// 可视化界面窗口大小
+
+    int MONITOR_MERGER_X = 10, MONITOR_MERGER_Y = 70;// 可视化界面边界大小
+
+    int MONITOR_NAVIGATE_HEIGHT = 40;// 可视化界面导航栏高度
 }

@@ -1,5 +1,6 @@
 package xj.component.monitor;
 
+import com.sun.org.apache.bcel.internal.Const;
 import xj.abstracts.connect.ConnectHandler;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
@@ -8,9 +9,11 @@ import xj.implement.monitor.*;
 import xj.interfaces.component.MonitorPanel;
 import xj.interfaces.mvc.ContentTypeHandler;
 import xj.tool.ConfigPool;
+import xj.tool.Constant;
 import xj.tool.StrPool;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,9 +40,12 @@ public class MonitorManager {
     // 初始化
     public MonitorManager() {
         LogManager.info_("【可视化界面模块】开始初始化");
+        // 成员属性设置
         panelMapping = new HashMap<>();
+        // 相关工厂初始化
+        PanelComponentFactory.getInstance();
         // 读取基础配置
-        refreshTime = 10000;
+        refreshTime = (Integer) ConfigureManager.getInstance().getConfig(ConfigPool.MONITOR.REFRESH_TIME);
         // 读取本地界面对象
         panelMapping.put(WebMonitorPanel.class, new WebMonitorPanel());
         panelMapping.put(ThreadPoolMonitorPanel.class, new ThreadPoolMonitorPanel());
@@ -83,25 +89,35 @@ public class MonitorManager {
 
     // 启动可视化界面
     private void openVisualPanel(){
+        LogManager.info_("【可视化界面模块】正在设置与启动界面...");
         // 开启可视化界面配置
         frame = new JFrame();
+        frame.setTitle("PhantomServer可视化操作界面");
+        frame.setLocation(Constant.MONITOR_LOCATION_X,Constant.MONITOR_LOCATION_Y);
+        frame.setSize( Constant.MONITOR_SIZE_X, Constant.MONITOR_SIZE_Y );
+        frame.setResizable(false);
+        frame.setLayout(null);
         // 读取每一个界面，设置其导航栏按钮，设置相关点击属性
         JPanel navigatePanel = new JPanel();
+        navigatePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        navigatePanel.setBounds(0,0,Constant.MONITOR_SIZE_X,Constant.MONITOR_NAVIGATE_HEIGHT);
         List<MonitorPanel> panels = new ArrayList<>(panelMapping.values());
         for(MonitorPanel panel : panels){
             JButton navigateButton = new JButton(panel.returnTitle());
             navigateButton.addActionListener(e -> {
                 synchronized (MonitorManager.class){
-                    frame.remove(mainPanel);
-                    mainPanel = panel.drawPanel();
+                    if(mainPanel != null)
+                        frame.remove(mainPanel);
                     mainMoniterPanel = panel;
+                    mainPanelDraw();
                 }
             });
+            navigatePanel.add(navigateButton);
         }
         frame.add(navigatePanel);
         // 设置默认界面渲染
         mainMoniterPanel = panelMapping.get(WebMonitorPanel.class);
-        mainPanel = mainMoniterPanel.drawPanel();
+        mainPanelDraw();
         frame.add(mainPanel);
         // 启动可视化界面
         frame.setVisible(true);
@@ -109,13 +125,16 @@ public class MonitorManager {
 
     // 启动界面刷新线程
     private void openPanelRefreshThread(){
+        LogManager.info_("【可视化界面模块】正在启动界面渲染线程...");
         new Thread(() -> {
-            synchronized (MonitorManager.class){
-                long nowTime = System.currentTimeMillis();
-                if(nowTime - refreshTimer > refreshTime){
-                    mainMoniterPanel.refreshPanel();
-                    frame.repaint();
-                    refreshTimer = nowTime;
+            while(true){
+                synchronized (MonitorManager.class){
+                    long nowTime = System.currentTimeMillis();
+                    if(nowTime - refreshTimer > refreshTime){
+                        mainMoniterPanel.refreshPanel();
+                        frame.repaint();
+                        refreshTimer = nowTime;
+                    }
                 }
             }
         }).start();
@@ -126,6 +145,21 @@ public class MonitorManager {
         synchronized (MonitorManager.class){
             this.refreshTime = refreshTime;
         }
+    }
+
+    // 让主界面开始渲染
+    private void mainPanelDraw(){
+        if(mainMoniterPanel == null){
+            LogManager.error_("当前主可视化界面对象为空，无法进行渲染");
+            return;
+        }
+        mainPanel = mainMoniterPanel.drawPanel();
+        if(mainPanel == null){
+            LogManager.error_("渲染得到可视化界面为空，无法进行渲染");
+            return;
+        }
+        mainPanel.setBounds(0,Constant.MONITOR_NAVIGATE_HEIGHT,Constant.MONITOR_SIZE_X,
+                Constant.MONITOR_SIZE_Y - Constant.MONITOR_NAVIGATE_HEIGHT);
     }
 
 }

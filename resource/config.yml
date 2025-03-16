@@ -23,6 +23,7 @@ thread-pool:
 # 可视化界面配置
 monitor:
   enable: true # 是否开启可视化界面
+  refresh-time: 3000 # 界面刷新时间(毫秒)
 
 # MVC配置
 mvc:
