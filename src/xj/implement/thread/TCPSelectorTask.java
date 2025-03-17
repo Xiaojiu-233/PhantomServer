@@ -27,7 +27,7 @@ public class TCPSelectorTask implements ThreadTask {
         // 初始化容器
         channelMapping = new HashMap<SocketChannel, SelectorChannel>();
         // 创建选择器
-        synchronized (TCPSelectorTask.class) {
+        synchronized (this) {
             try {
                 selector = Selector.open();
             } catch (IOException e) {
@@ -38,7 +38,7 @@ public class TCPSelectorTask implements ThreadTask {
 
     // 注册读事件
     public void registerReadEvent(SocketChannel channel) {
-        synchronized (TCPSelectorTask.class) {
+        synchronized (this) {
             try {
                 channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                 channelMapping.put(channel, new SelectorChannel(channel));
@@ -58,7 +58,7 @@ public class TCPSelectorTask implements ThreadTask {
         while(true) {
             try {
                 Iterator<SelectionKey> keys = null;
-                synchronized (TCPSelectorTask.class) {
+                synchronized (this) {
                     // 是否读取到事件
                     if(selector.selectNow() == 0)
                         continue;

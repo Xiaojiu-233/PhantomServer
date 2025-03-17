@@ -158,7 +158,7 @@ public class LogManager implements ILogManager {
 
     // 开启日志线程，监听、消耗、输出队列里的日志信息
     public void startLog(){
-        new Thread(new Runnable() {
+        Thread logThread =new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true){
@@ -185,7 +185,9 @@ public class LogManager implements ILogManager {
                     }
                 }
             }
-        }).start();
+        });
+        logThread.setName("thread-log");
+        logThread.start();
     }
 
     // 销毁时

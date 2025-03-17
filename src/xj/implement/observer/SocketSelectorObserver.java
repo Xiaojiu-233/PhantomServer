@@ -14,10 +14,12 @@ public class SocketSelectorObserver implements SocketChannelObserver<SocketChann
     // 成员属性
     private final TCPSelectorTask selectorTask;// 选择器的线程任务
 
+    private int listenPort;// 监听端口
+
     // 成员方法
     // 构造方法
     public SocketSelectorObserver() {
-        // 设置选择器线程任务
+        // 设置选择器线程任务等参数
         selectorTask = new TCPSelectorTask();
         // 存入线程池中
         ThreadPoolManager.getInstance().putThreadTask(selectorTask);

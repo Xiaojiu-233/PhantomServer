@@ -5,6 +5,7 @@ import xj.component.log.LogManager;
 import xj.implement.observer.SocketSelectorObserver;
 import xj.implement.observer.SocketChannelObserverContainer;
 import xj.implement.observer.SocketConfigObserver;
+import xj.interfaces.observer.SocketChannelObserver;
 import xj.tool.ConfigPool;
 
 import java.io.IOException;
