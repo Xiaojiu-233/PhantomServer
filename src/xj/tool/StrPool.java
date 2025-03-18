@@ -31,7 +31,6 @@ public interface StrPool {
 
     // 处理类型
     String CHAT = "CHAT";
-    String CLOUD = "CLOUD";
 
     // 请求头
     String SERVER = "Server";
@@ -43,6 +42,9 @@ public interface StrPool {
     // 特殊名词
     String FILE = "file";
     String NAME = "name";
+    String LIST = "list";
+    String GET_DATA = "getData";
+    String SET_DATA = "setData";
     String BOUNDARY = "boundary";
     String SUCCESS = "success";
     String FAILURE = "failure";
@@ -50,8 +52,8 @@ public interface StrPool {
     String MESSAGE = "message";
     String NEW_OFFSET = "newOffset";
     String NULL = "null";
-    String WINDOWS = "Windows";
-    String LINUX = "Linux";
+    String LOCAL_ADDRESS_IPV4 = "127.0.0.1";// 本地地址IPV4
+    String LOCAL_ADDRESS_IPV6 = "0:0:0:0:0:0:0:1";// 本地地址IPV6
 
     // 日期格式
     String STANDARD_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

@@ -31,7 +31,9 @@ public interface ConfigPool {
     // 可视化界面
     interface MONITOR {
         String ENABLE = "monitor.enable";
-        String REFRESH_TIME = "monitor.refresh-time";
+        String WEB_PATH = "monitor.web-path";
+        String ALLOW_IPS = "monitor.allow-ips";
+        String INDEX_PATH = "monitor.index-path";
     }
 
     // MVC模块

@@ -33,7 +33,7 @@ public class HTTPRequest extends Request implements IHttpRequest {
     // 成员方法
     // 构造方法
     public HTTPRequest(Request request) {
-        super(request.getData(), request.getHeadMsg());
+        super(request.getData(), request.getHeadMsg(), request.getRemoteIp());
         selfAnalysis();
     }
 
@@ -114,5 +114,9 @@ public class HTTPRequest extends Request implements IHttpRequest {
     @Override
     public List<Cookie> getCookies() {
         return cookies;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

@@ -16,6 +16,8 @@ public abstract class Request {
 
     protected String headMsg;// 头数据
 
+    protected String remoteIp;// 请求IP
+
     // 成员方法
     // 构造方法
     public Request(byte[] data,String headMsg) {
@@ -24,6 +26,10 @@ public abstract class Request {
         lineBreak = (String) ConfigureManager.getInstance().getConfig(ConfigPool.SYSTEM_ARG.LINE_BREAK);
         // 获取头数据
         this.headMsg = headMsg;
+    }
+    public Request(byte[] data,String headMsg,String remoteIp) {
+        this(data,headMsg);
+        this.remoteIp = remoteIp;
     }
 
     // 将数据编码为字符串数组
@@ -39,5 +45,10 @@ public abstract class Request {
     // 返回头数据
     public String getHeadMsg() {
         return headMsg;
+    }
+
+    // 获取请求IP
+    public String getRemoteIp() {
+        return remoteIp;
     }
 }

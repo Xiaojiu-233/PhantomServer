@@ -23,7 +23,9 @@ thread-pool:
 # 可视化界面配置
 monitor:
   enable: true # 是否开启可视化界面
-  refresh-time: 3000 # 界面刷新时间(毫秒)
+  web-path: monitor-service # web请求根路径
+  allow-ips: [] # 请求IP白名单（IPV4、IPV6均可）
+  index-path: resource/monitor/index.html # 可视化界面主页主页路径（从扫描到的网络程序jar包为根目录）
 
 # MVC配置
 mvc:

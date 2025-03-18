@@ -179,7 +179,8 @@ public class SelectorChannel {
             return;
         }
         // 数据不为空则处理数据
-        Request request = new ProtocolRequest(unit.getData(), unit.getHeadMessage());
+        Request request = new ProtocolRequest(unit.getData(), unit.getHeadMessage(),
+                client.socket().getInetAddress().getHostAddress());
         // 如果消息处理器为空则使用处理器工厂创建消息对应的消息处理器
         if(handler == null){
             handler = ConnectHandlerFactory.getInstance().getMatchConnectHandler(request);

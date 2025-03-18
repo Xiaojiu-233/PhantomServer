@@ -14,8 +14,6 @@ public class SocketSelectorObserver implements SocketChannelObserver<SocketChann
     // 成员属性
     private final TCPSelectorTask selectorTask;// 选择器的线程任务
 
-    private int listenPort;// 监听端口
-
     // 成员方法
     // 构造方法
     public SocketSelectorObserver() {

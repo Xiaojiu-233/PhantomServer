@@ -9,7 +9,7 @@ public class ProtocolRequest extends Request {
 
     // 成员方法
     // 构造方法
-    public ProtocolRequest(byte[] data,String headMsg) {
-        super(data,headMsg);
+    public ProtocolRequest(byte[] data,String headMsg,String remoteIp) {
+        super(data,headMsg,remoteIp);
     }
 }

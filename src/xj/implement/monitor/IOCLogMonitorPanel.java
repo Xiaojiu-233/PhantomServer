@@ -3,6 +3,8 @@ package xj.implement.monitor;
 import xj.interfaces.component.MonitorPanel;
 
 import javax.swing.*;
+import java.util.Collections;
+import java.util.Map;
 
 // IOC容器和日志可视化界面
 public class IOCLogMonitorPanel implements MonitorPanel {
@@ -13,12 +15,17 @@ public class IOCLogMonitorPanel implements MonitorPanel {
     }
 
     @Override
-    public JPanel drawPanel() {
-        return null;
+    public String returnWebpagePath() {
+        return "";
     }
 
     @Override
-    public void refreshPanel() {
+    public Map<String, Object> getData(Map<String, Object> data) {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public void setData(Map<String, Object> data) {
 
     }
 }

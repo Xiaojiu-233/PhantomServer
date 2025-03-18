@@ -2,6 +2,7 @@ package xj.interfaces.component;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 /**
  * 可视化界面管理器使用的可视化界面接口，为可视化界面的实现提供规范
@@ -14,12 +15,17 @@ public interface MonitorPanel {
     String returnTitle();
 
     /**
-     * 完成界面渲染
+     * 返回界面HTTP页面路径
      * */
-    JPanel drawPanel();
+    String returnWebpagePath();
 
     /**
-     * 刷新界面
+     * 获取数据
      * */
-    void refreshPanel();
+    Map<String, Object> getData(Map<String, Object> data);
+
+    /**
+     * 存储数据
+     * */
+    void setData(Map<String, Object> data);
 }
