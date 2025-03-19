@@ -72,10 +72,8 @@ public class MonitorManager {
             synchronized (MonitorManager.class){
                 if(instance == null){
                     // 判定是否满足可视化条件
-                    if(!(Boolean)ConfigureManager.getInstance().getConfig(ConfigPool.MONITOR.ENABLE)){
-                        LogManager.warn_("可视化界面 并未在配置文件中开启，无法实现可视化界面模块");
+                    if(!(Boolean)ConfigureManager.getInstance().getConfig(ConfigPool.MONITOR.ENABLE))
                         return null;
-                    }
                     // 满足则进行可视化模组实现
                     instance = new MonitorManager();
                 }
