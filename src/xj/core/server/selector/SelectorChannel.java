@@ -21,6 +21,7 @@ import xj.tool.StrPool;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 // 被选择器管理的TCP通道处理封装对象
@@ -55,7 +56,7 @@ public class SelectorChannel {
 
     private String fromIp;// 来源IP
 
-    private long connectStartTime;// 连接开始时间
+    private long connectStartTime,connectStablishTime;// 连接开始时间 连接建立时间
 
     private List<Long> connectingTimes;// 连接持续时间列表
 
@@ -71,7 +72,8 @@ public class SelectorChannel {
         this.phase = SelectorPhase.PREPARE;
         signBytes = ByteBuffer.allocate(1);
         socketWaitTime = System.currentTimeMillis();
-        id = UUID.randomUUID().toString();
+        connectStablishTime = System.currentTimeMillis();
+        id = String.valueOf(System.currentTimeMillis());
         fromIp = client.socket().getRemoteSocketAddress().toString();
         connectingTimes = new ArrayList<>();
         connectStartTime = -1;
@@ -286,12 +288,16 @@ public class SelectorChannel {
     // 返回channel基础信息
     public Map<String,Object> returnChannelInfo(){
         Map<String, Object> ret = new HashMap<>();
+        long nowConnectTime = connectStartTime > 0 ? System.currentTimeMillis() - connectStartTime : 0;
+        long avgConnectTime = connectingTimes.stream().mapToInt(Long::intValue).sum() + nowConnectTime
+                / (connectingTimes.size() + 1);
         ret.put(StrPool.CHANNEL_ID,id);
         ret.put("来源IP",fromIp);
-        ret.put("当前连接持续时间(毫秒)",connectStartTime > 0 ? System.currentTimeMillis() - connectStartTime : 0);
-        ret.put("平均连接持续时间(毫秒)", connectingTimes.isEmpty() ? 0 :
-                connectingTimes.stream().mapToInt(Long::intValue).sum() / connectingTimes.size());
+        ret.put("当前连接持续时间(毫秒)",nowConnectTime);
+        ret.put("平均连接持续时间(毫秒)",avgConnectTime);
         ret.put("使用的处理器",handler == null ? "无" : handler.getClass().getSimpleName());
+        ret.put("连接建立时间", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(new Date(connectStablishTime)));
         ret.put(StrPool.CHANNEL_STATU, SelectorPhase.PREPARE.equals(phase) ? StrPool.PREPARE :
                 !isClosed ? StrPool.RUNNING :
                 connectStartTime == 0 ? StrPool.SUCC_END : StrPool.FAIL_END);
