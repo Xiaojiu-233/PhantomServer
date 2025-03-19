@@ -27,10 +27,11 @@ public class HTTPConnectHandler extends ConnectHandler {
         // 将协议请求转化为HTTP请求
         HTTPRequest httpRequest = new HTTPRequest(request);
         // 可视化界面模块进行处理
-        HTTPResponse response = Objects.requireNonNull(MonitorManager.getInstance())
-                .handle(httpRequest);
-        if(response != null)
-            return response;
+        if(MonitorManager.getInstance() != null) {
+            HTTPResponse response = MonitorManager.getInstance().handle(httpRequest);
+            if(response != null)
+                return response;
+        }
         // 转交给MVC模块进行处理
         return MVCManager.getInstance().handle(httpRequest);
     }

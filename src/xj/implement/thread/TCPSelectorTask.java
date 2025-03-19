@@ -1,9 +1,11 @@
 package xj.implement.thread;
 
+import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.server.ServerManager;
 import xj.core.server.selector.SelectorChannel;
 import xj.interfaces.thread.ThreadTask;
+import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
 import java.io.IOException;
@@ -24,12 +26,16 @@ public class TCPSelectorTask implements ThreadTask {
 
     private final Map<String,Map<String,Object>> channelInfos;// 存储的channel数据
 
+    private boolean openInfoListen = false;
+
     // 成员方法
     // 构造方法
     public TCPSelectorTask() {
         // 初始化容器
         channelMapping = new HashMap<>();
         channelInfos = new HashMap<>();
+        // 初始化数据
+        openInfoListen = (Boolean)ConfigureManager.getInstance().getConfig(ConfigPool.MONITOR.ENABLE);
         // 创建选择器
         synchronized (this) {
             try {
@@ -114,12 +120,16 @@ public class TCPSelectorTask implements ThreadTask {
     private void refreshChannelMapping() {
         List<SocketChannel> removeChannels = new ArrayList<>();
         for(Map.Entry<SocketChannel, SelectorChannel> entry : channelMapping.entrySet()) {
+            // 判定channel是否可删除
             Map<String,Object> info = entry.getValue().returnChannelInfo();
-            String id = (String) info.get(StrPool.CHANNEL_ID);
-            channelInfos.put(id,info);
             String statu = (String) info.get(StrPool.CHANNEL_STATU);
             if (StrPool.SUCC_END.equals(statu) || StrPool.FAIL_END.equals(statu))
                 removeChannels.add(entry.getKey());
+            // 当开启可视化界面模块时，监听channel数据
+            if(openInfoListen){
+                String id = (String) info.get(StrPool.CHANNEL_ID);
+                channelInfos.put(id,info);
+            }
         }
         for(SocketChannel channel : removeChannels) {
             channelMapping.remove(channel);
