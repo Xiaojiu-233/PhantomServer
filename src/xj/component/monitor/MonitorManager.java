@@ -36,6 +36,8 @@ public class MonitorManager {
 
     private String monitorIndex;// 可视化界面主页
 
+    private String monitorResourceDir;// 可视化界面资源目录
+
     // 成员方法
     // 初始化
     public MonitorManager() {
@@ -45,6 +47,7 @@ public class MonitorManager {
         // 读取基础配置
         monitorWebPath = (String) ConfigureManager.getInstance().getConfig(ConfigPool.MONITOR.WEB_PATH);
         monitorIndex = (String)ConfigureManager.getInstance().getConfig(ConfigPool.MONITOR.INDEX_PATH);
+        monitorResourceDir = monitorIndex.substring(0, monitorIndex.lastIndexOf(StrPool.SLASH)+1);
         allowIpList = new HashSet<>((List<String>) ConfigureManager.getInstance().getConfig(ConfigPool.MONITOR.ALLOW_IPS));
         allowIpList.add(StrPool.LOCAL_ADDRESS_IPV4);
         allowIpList.add(StrPool.LOCAL_ADDRESS_IPV6);
@@ -82,7 +85,7 @@ public class MonitorManager {
 
     // 当满足条件时，处理web请求
     public HTTPResponse handle(HTTPRequest req) {
-        // 如果请求IP为通过白名单，则不能被可视化界面模块处理
+        // 如果请求IP未通过白名单，则不能被可视化界面模块处理
         if (!allowIpList.contains(req.getRemoteIp()))
             return null;
         // 得到请求对象，并拆分URL
@@ -91,28 +94,30 @@ public class MonitorManager {
         if (splitUrl.length == 0 || !monitorWebPath.equals(splitUrl[0]))
             return null;
         // 如果只有一节，则返回可视化界面主页路径
-        if (splitUrl.length == 1){
-            // 在服务器资源目录中搜索
-            HTTPResponse resp = new HTTPResponse(StatuCode.OK, CharacterEncoding.UTF_8,
-                    FileIOUtil.getFileContent(monitorIndex));
-            resp.setHeaders(StrPool.CONTENT_TYPE, ContentType.TEXT_HTML.contentType);
-            return resp;
-        }
+        if (splitUrl.length == 1)
+            return returnWebpageHttpResponse(monitorIndex);
         // 如果只有两节
         if (splitUrl.length == 2){
-            // 如果第二节为list且请求方法为GET，则返回所有的子界面列表
-            if(RequestMethod.POST.equals(req.getMethod()) && StrPool.LIST.equals(splitUrl[1])){
-                List<MonitorPanelInfo> panelInfos = new ArrayList<>();
-                for(Map.Entry<String,MonitorPanel> panel : panelMapping.entrySet())
-                    panelInfos.add(new MonitorPanelInfo(panel.getValue().returnTitle(),panel.getKey()));
-                return returnJsonHttpResponse(panelInfos);
-            }
-            // 如果请求方法为POST并且寻找到了对应的可视化界面，则将对应的界面路径传给请求对象后交给MVC处理
-            if(RequestMethod.POST.equals(req.getMethod())){
+            // 如果请求方法为GET则继续执行
+            if(RequestMethod.GET.equals(req.getMethod())){
+                // 如果第二节为list，则返回所有的子界面列表
+                if(StrPool.LIST.equals(splitUrl[1])){
+                    List<MonitorPanelInfo> panelInfos = new ArrayList<>();
+                    for(Map.Entry<String,MonitorPanel> panel : panelMapping.entrySet())
+                        panelInfos.add(new MonitorPanelInfo(panel.getValue().returnTitle(),panel.getKey()));
+                    return returnJsonHttpResponse(panelInfos);
+                }
+                // 如果寻找到了对应的可视化界面，则将对应的界面路径传给请求对象后交给MVC处理
                 MonitorPanel panel = panelMapping.get(splitUrl[1]);
                 if(panel != null){
-                    req.setUrl(panel.returnWebpagePath());
-                    return null;
+                    String webpagePath = panel.returnWebpagePath();
+                    if(webpagePath != null){
+                        req.setUrl(webpagePath);
+                        return null;
+                    }else {
+                        String resourcePath = monitorResourceDir + splitUrl[1] + StrPool.HTML_POINT;
+                        return returnWebpageHttpResponse(resourcePath);
+                    }
                 }
             }
         }
@@ -157,6 +162,14 @@ public class MonitorManager {
         } catch (JsonProcessingException e) {
             LogManager.error_("可视化界面模块在解析对象为JSON时出现异常",e);
         }
+        return resp;
+    }
+
+    // 在服务器资源目录中搜索网页并返回响应
+    private HTTPResponse returnWebpageHttpResponse(String webpagePath) {
+        HTTPResponse resp = new HTTPResponse(StatuCode.OK, CharacterEncoding.UTF_8,
+                FileIOUtil.getFileContent(webpagePath));
+        resp.setHeaders(StrPool.CONTENT_TYPE, ContentType.TEXT_HTML.contentType);
         return resp;
     }
 }

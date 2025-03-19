@@ -51,6 +51,16 @@ public class SelectorChannel {
 
     private static String unitSplitBreak;// 单元分隔符
 
+    private String id;// channel的编号
+
+    private String fromIp;// 来源IP
+
+    private long connectStartTime;// 连接开始时间
+
+    private List<Long> connectingTimes;// 连接持续时间列表
+
+    private boolean isClosed;// 是否完成channel连接任务
+
     // 成员方法
     // 初始化
     public SelectorChannel(SocketChannel client) {
@@ -61,6 +71,10 @@ public class SelectorChannel {
         this.phase = SelectorPhase.PREPARE;
         signBytes = ByteBuffer.allocate(1);
         socketWaitTime = System.currentTimeMillis();
+        id = UUID.randomUUID().toString();
+        fromIp = client.socket().getRemoteSocketAddress().toString();
+        connectingTimes = new ArrayList<>();
+        connectStartTime = -1;
     }
 
     // 静态代码块加载
@@ -71,9 +85,9 @@ public class SelectorChannel {
     }
 
     // 分阶段执行
-    public void phaseExecute(boolean readable){
+    public void phaseExecute(){
         if(phase == SelectorPhase.PREPARE){
-            prepareRead(readable);
+            prepareRead();
         }else if(phase == SelectorPhase.WAIT_READ){
             handleData();
         }else if(phase == SelectorPhase.WAIT_WRITE){
@@ -86,13 +100,14 @@ public class SelectorChannel {
     }
 
     // 阶段1.准备读取数据
-    private void prepareRead(boolean readable){
+    private void prepareRead(){
         try {
             // 判定请求单元队列是否存在队列
             if(requestQueue.isEmpty()){
                 // 判定是否有数据可读
                 if(client.read(signBytes) > 0){
                     // 开始Socket的读IO
+                    connectStartTime = System.currentTimeMillis();
                     isReading = true;
                     signBytes.flip();
                     byte[] sign = new byte[1];
@@ -226,6 +241,10 @@ public class SelectorChannel {
     private void handleWrite(){
         // 如果已经执行完读IO则继续执行
         if(receiver.dataNotExist())return;
+        // 执行到此确定为一个流程的连接处理结束，进行连接持续时间结算
+        long nowTime = System.currentTimeMillis();
+        connectingTimes.add(nowTime - connectStartTime);
+        connectStartTime = 0;
         // 判断是否可以结束连接，如果不行则进入准备阶段
         if(handler.needEndConnection())
             phase = SelectorPhase.ENDING;
@@ -238,6 +257,7 @@ public class SelectorChannel {
         // 关闭连接，回收资源
         try {
             client.close();
+            isClosed = true;
         } catch (IOException e) {
             LogManager.error_("TCP通道对象结束socket连接时出现异常：{}",e);
         }
@@ -261,6 +281,21 @@ public class SelectorChannel {
             if(unitBreakdata[i] != data[i + start])
                 return false;
         return true;
+    }
+
+    // 返回channel基础信息
+    public Map<String,Object> returnChannelInfo(){
+        Map<String, Object> ret = new HashMap<>();
+        ret.put(StrPool.CHANNEL_ID,id);
+        ret.put("来源IP",fromIp);
+        ret.put("当前连接持续时间(毫秒)",connectStartTime > 0 ? System.currentTimeMillis() - connectStartTime : 0);
+        ret.put("平均连接持续时间(毫秒)", connectingTimes.isEmpty() ? 0 :
+                connectingTimes.stream().mapToInt(Long::intValue).sum() / connectingTimes.size());
+        ret.put("使用的处理器",handler == null ? "无" : handler.getClass().getSimpleName());
+        ret.put(StrPool.CHANNEL_STATU, SelectorPhase.PREPARE.equals(phase) ? StrPool.PREPARE :
+                !isClosed ? StrPool.RUNNING :
+                connectStartTime == 0 ? StrPool.SUCC_END : StrPool.FAIL_END);
+        return ret;
     }
 
     // 内部枚举：执行阶段

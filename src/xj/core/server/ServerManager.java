@@ -2,9 +2,11 @@ package xj.core.server;
 
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
+import xj.core.server.selector.SelectorChannel;
 import xj.implement.observer.SocketSelectorObserver;
 import xj.implement.observer.SocketChannelObserverContainer;
 import xj.implement.observer.SocketConfigObserver;
+import xj.implement.thread.TCPSelectorTask;
 import xj.interfaces.observer.SocketChannelObserver;
 import xj.tool.ConfigPool;
 
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Map;
 
 // 服务器模块，用于管理ServerSocket监听端口请求
 public class ServerManager {
@@ -22,6 +25,8 @@ public class ServerManager {
     private final int port;// 监听端口
 
     private SocketChannelObserverContainer observerContainer;// 观察者容器
+
+    private TCPSelectorTask selectorTask;// 主channel映射容器
 
     // 成员方法
     // 初始化
@@ -67,6 +72,17 @@ public class ServerManager {
             }
         } catch (IOException e) {
             LogManager.error_("服务器运行时出现异常", e);
+        }
+    }
+
+    // 设置与获取主选择器线程
+    public TCPSelectorTask getSelectorTask() {
+        return selectorTask;
+    }
+
+    public void setSelectorTask(TCPSelectorTask selectorTask) {
+        synchronized (ServerManager.class){
+            this.selectorTask = selectorTask;
         }
     }
 }

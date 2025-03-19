@@ -1,17 +1,18 @@
 package xj.implement.thread;
 
 import xj.component.log.LogManager;
+import xj.core.server.ServerManager;
 import xj.core.server.selector.SelectorChannel;
 import xj.interfaces.thread.ThreadTask;
+import xj.tool.StrPool;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 // 使用选择器进行TCP通道管理的线程任务
 public class TCPSelectorTask implements ThreadTask {
@@ -19,13 +20,16 @@ public class TCPSelectorTask implements ThreadTask {
     // 成员属性
     private Selector selector;// ServerChannel处理器
 
-    private Map<SocketChannel, SelectorChannel> channelMapping;// SocketChannel与SelectorChannel的映射容器
+    private final Map<SocketChannel, SelectorChannel> channelMapping;// SocketChannel与SelectorChannel的映射容器
+
+    private final Map<String,Map<String,Object>> channelInfos;// 存储的channel数据
 
     // 成员方法
     // 构造方法
     public TCPSelectorTask() {
         // 初始化容器
-        channelMapping = new HashMap<SocketChannel, SelectorChannel>();
+        channelMapping = new HashMap<>();
+        channelInfos = new HashMap<>();
         // 创建选择器
         synchronized (this) {
             try {
@@ -44,8 +48,6 @@ public class TCPSelectorTask implements ThreadTask {
                 channelMapping.put(channel, new SelectorChannel(channel));
             } catch (ClosedChannelException e) {
                 LogManager.error_("TCP选择器线程任务在注册事件时出现异常",e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         }
     }
@@ -54,29 +56,34 @@ public class TCPSelectorTask implements ThreadTask {
     public void doTask() {
         // 数据准备
         SocketChannel channel;
+        ServerManager.getInstance().setSelectorTask(this);
+        Iterator<SelectionKey> keys = null;
         // 循环执行，处理TCP请求
         while(true) {
             try {
-                Iterator<SelectionKey> keys = null;
                 synchronized (this) {
                     // 是否读取到事件
                     if(selector.selectNow() == 0)
                         continue;
                     // 获取处理器的事件Key
                     keys = selector.selectedKeys().iterator();
-                }
-                // 遍历事件Key
-                while (keys.hasNext()) {
-                    // 读取Key
-                    SelectionKey key = keys.next();
-                    // 处理Key
-                    if(key.isReadable() || key.isWritable()) {
-                        // 获取channel并进行分阶段工作，如果该channel还在IO阶段则跳入下一channel
-                        channel = (SocketChannel) key.channel();
-                        channelMapping.get(channel).phaseExecute(key.isReadable());
+                    // 遍历事件Key
+                    while (keys.hasNext()) {
+                        // 读取Key
+                        SelectionKey key = keys.next();
+                        // 处理Key
+                        if(key.isReadable() || key.isWritable()) {
+                            // 获取channel并进行分阶段工作，如果该channel还在IO阶段则跳入下一channel
+                            channel = (SocketChannel) key.channel();
+                            SelectorChannel selChannel = channelMapping.get(channel);
+                            if(selChannel != null)
+                                selChannel.phaseExecute();
+                        }
+                        // 删除Key
+                        keys.remove();
                     }
-                    // 删除Key
-                    keys.remove();
+                    // 刷新容器
+                    refreshChannelMapping();
                 }
             } catch (Exception e) {
                 LogManager.error_("TCP选择器线程任务在执行时出现异常",e);
@@ -97,4 +104,26 @@ public class TCPSelectorTask implements ThreadTask {
     public String getLogDescribe() {
         return "TCP选择器处理线程任务";
     }
+
+    // 获取channel信息列表
+    public List<Map<String,Object>> getChannelsInfo() {
+        return new ArrayList<>(channelInfos.values());
+    }
+
+    // 刷新channel容器，并设置缓存数据
+    private void refreshChannelMapping() {
+        List<SocketChannel> removeChannels = new ArrayList<>();
+        for(Map.Entry<SocketChannel, SelectorChannel> entry : channelMapping.entrySet()) {
+            Map<String,Object> info = entry.getValue().returnChannelInfo();
+            String id = (String) info.get(StrPool.CHANNEL_ID);
+            channelInfos.put(id,info);
+            String statu = (String) info.get(StrPool.CHANNEL_STATU);
+            if (StrPool.SUCC_END.equals(statu) || StrPool.FAIL_END.equals(statu))
+                removeChannels.add(entry.getKey());
+        }
+        for(SocketChannel channel : removeChannels) {
+            channelMapping.remove(channel);
+        }
+    }
+
 }

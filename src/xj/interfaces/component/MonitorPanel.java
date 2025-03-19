@@ -15,7 +15,7 @@ public interface MonitorPanel {
     String returnTitle();
 
     /**
-     * 返回界面HTTP页面路径
+     * 返回界面HTTP页面路径，返回null则从可视化界面主页目录附近查找
      * */
     String returnWebpagePath();
 

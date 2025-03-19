@@ -16,7 +16,7 @@ public class SystemMonitorPanel implements MonitorPanel {
 
     @Override
     public String returnWebpagePath() {
-        return "";
+        return null;
     }
 
     @Override

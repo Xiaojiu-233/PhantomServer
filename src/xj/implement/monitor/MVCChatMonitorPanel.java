@@ -16,7 +16,7 @@ public class MVCChatMonitorPanel implements MonitorPanel {
 
     @Override
     public String returnWebpagePath() {
-        return "";
+        return null;
     }
 
     @Override
