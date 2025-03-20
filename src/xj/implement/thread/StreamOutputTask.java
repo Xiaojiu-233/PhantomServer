@@ -4,16 +4,15 @@ import xj.component.log.LogManager;
 import xj.implement.server.ByteReceiver;
 import xj.interfaces.server.IReceiver;
 import xj.interfaces.thread.StreamIOTask;
-import xj.interfaces.thread.ThreadTask;
+import xj.abstracts.thread.ThreadTask;
 import xj.tool.Constant;
 import xj.tool.StrPool;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.Arrays;
 
 // 处理数据流的输出IO线程任务，将InputStream转为文件
-public class StreamOutputTask implements ThreadTask, StreamIOTask {
+public class StreamOutputTask extends ThreadTask implements StreamIOTask {
 
     // 成员属性
     private final InputStream source;// 输入流

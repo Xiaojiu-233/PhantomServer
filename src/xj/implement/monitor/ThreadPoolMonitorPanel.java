@@ -1,9 +1,14 @@
 package xj.implement.monitor;
 
+import xj.component.conf.ConfigureManager;
+import xj.core.server.ServerManager;
+import xj.core.threadPool.ThreadPoolManager;
 import xj.interfaces.component.MonitorPanel;
+import xj.tool.ConfigPool;
 
 import javax.swing.*;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 // 动态线程池可视化界面
@@ -21,7 +26,22 @@ public class ThreadPoolMonitorPanel implements MonitorPanel {
 
     @Override
     public Map<String, Object> getData(Map<String, Object> data) {
-        return Collections.emptyMap();
+        Map<String, Object> ret = new HashMap<>();
+        int k = (int) data.getOrDefault("k",1);
+        // 基础参数
+        ret.put("核心线程数", ThreadPoolManager.getInstance().getCoreThread());
+        ret.put("最大线程数", ThreadPoolManager.getInstance().getMaxThread());
+        ret.put("工作线程模板名", ThreadPoolManager.getInstance().getThreadName());
+        ret.put("任务队列大小", ThreadPoolManager.getInstance().getQueueCapacity());
+        ret.put("线程最大闲置时间(秒)", ThreadPoolManager.getInstance().getThreadMaxFreeTime());
+        ret.put("拒绝策略", ThreadPoolManager.getInstance().getStrategy());
+        ret.put("工作线程情况", ThreadPoolManager.getInstance().returnThreadInfos());
+        ret.put("普通线程数图表", ThreadPoolManager.getInstance().getCommonThreadChart().outputChart(k));
+        ret.put("所有线程数图表", ThreadPoolManager.getInstance().getAllThreadChart().outputChart(k));
+        ret.put("回收线程数图表", ThreadPoolManager.getInstance().getRecycledThreadChart().outputChart(k));
+        ret.put("队列任务数图表", ThreadPoolManager.getInstance().getQueueTaskChart().outputChart(k));
+        // 存储数据
+        return ret;
     }
 
     @Override

@@ -4,7 +4,7 @@ import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.threadPool.factory.ConnectHandlerFactory;
 import xj.implement.server.ByteReceiver;
-import xj.interfaces.thread.ThreadTask;
+import xj.abstracts.thread.ThreadTask;
 import xj.tool.ConfigPool;
 import xj.tool.Constant;
 
@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 // 处理SocketChannel的读IO线程任务
-public class ChannelReadTask implements ThreadTask {
+public class ChannelReadTask extends ThreadTask {
 
     // 成员属性
     private final SocketChannel in;// 输入流

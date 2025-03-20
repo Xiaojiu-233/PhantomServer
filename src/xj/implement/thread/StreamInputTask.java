@@ -1,22 +1,18 @@
 package xj.implement.thread;
 
-import jdk.internal.util.xml.impl.Input;
 import xj.component.log.LogManager;
 import xj.implement.server.ByteReceiver;
 import xj.interfaces.server.IReceiver;
 import xj.interfaces.thread.StreamIOTask;
-import xj.interfaces.thread.ThreadTask;
+import xj.abstracts.thread.ThreadTask;
 import xj.tool.Constant;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
-import java.util.Arrays;
 
 // 处理数据流的输入IO线程任务，将InputStream转为字节数组
-public class StreamInputTask implements ThreadTask, StreamIOTask {
+public class StreamInputTask extends ThreadTask implements StreamIOTask {
 
     // 成员属性
     private final InputStream in;// 输入流

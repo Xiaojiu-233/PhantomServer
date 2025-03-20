@@ -3,14 +3,14 @@ package xj.implement.thread;
 import xj.abstracts.web.Response;
 import xj.component.log.LogManager;
 import xj.implement.server.ByteReceiver;
-import xj.interfaces.thread.ThreadTask;
+import xj.abstracts.thread.ThreadTask;
 import xj.tool.StrPool;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
 // 处理SocketChannel的写IO线程任务
-public class ChannelWriteTask implements ThreadTask {
+public class ChannelWriteTask extends ThreadTask {
 
     // 成员属性
     private final SocketChannel out;// 输出流

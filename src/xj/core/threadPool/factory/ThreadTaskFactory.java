@@ -9,10 +9,9 @@ import xj.implement.thread.StreamInputTask;
 import xj.implement.thread.StreamOutputTask;
 import xj.interfaces.component.IThreadTaskFactory;
 import xj.interfaces.thread.StreamIOTask;
-import xj.interfaces.thread.ThreadTask;
+import xj.abstracts.thread.ThreadTask;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.channels.SocketChannel;
 
 // 线程任务的工厂，用单例工厂模式便捷生产线程任务对象

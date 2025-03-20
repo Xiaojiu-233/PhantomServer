@@ -3,7 +3,6 @@ package xj.component.monitor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import xj.abstracts.web.Request;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.extern.IOCManager;
@@ -99,7 +98,7 @@ public class MonitorManager {
             // 如果请求方法为GET则继续执行
             if(RequestMethod.GET.equals(req.getMethod())){
                 // 如果第二节为list，则返回所有的子界面列表
-                if(StrPool.LIST.equals(splitUrl[1])){
+                if(StrPool.WEB_LIST.equals(splitUrl[1])){
                     List<MonitorPanelInfo> panelInfos = new ArrayList<>();
                     for(Map.Entry<String,MonitorPanel> panel : panelMapping.entrySet())
                         panelInfos.add(new MonitorPanelInfo(panel.getValue().returnTitle(),panel.getKey()));
@@ -138,9 +137,9 @@ public class MonitorManager {
                 }
             }
             // 根据请求的内容返回对应结果
-            if (StrPool.GET_DATA.equals(splitUrl[2])){
+            if (StrPool.WEB_GET.equals(splitUrl[2])){
                 ret = panel.getData(jsonParam);
-            }else if (StrPool.SET_DATA.equals(splitUrl[2])){
+            }else if (StrPool.WEB_SET.equals(splitUrl[2])){
                 panel.setData(jsonParam);
                 ret.put("data","数据传入成功");
             }

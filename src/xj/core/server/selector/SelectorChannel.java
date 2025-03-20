@@ -1,6 +1,5 @@
 package xj.core.server.selector;
 
-import sun.rmi.runtime.Log;
 import xj.abstracts.connect.ConnectHandler;
 import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
@@ -12,7 +11,7 @@ import xj.core.threadPool.factory.ThreadTaskFactory;
 import xj.implement.server.ByteReceiver;
 import xj.implement.web.ProtocolRequest;
 import xj.interfaces.thread.StreamIOTask;
-import xj.interfaces.thread.ThreadTask;
+import xj.abstracts.thread.ThreadTask;
 import xj.tool.ConfigPool;
 import xj.tool.Constant;
 import xj.tool.FileIOUtil;
@@ -62,18 +61,22 @@ public class SelectorChannel {
 
     private boolean isClosed;// 是否完成channel连接任务
 
+    private static int channelCounter;// channel计数器
+
     // 成员方法
     // 初始化
     public SelectorChannel(SocketChannel client) {
         // 初始化属性
+        long nowTime = System.currentTimeMillis();
         this.client = client;
         this.receiver = new ByteReceiver();
         this.requestQueue = new LinkedList<>();
         this.phase = SelectorPhase.PREPARE;
         signBytes = ByteBuffer.allocate(1);
-        socketWaitTime = System.currentTimeMillis();
-        connectStablishTime = System.currentTimeMillis();
-        id = String.valueOf(System.currentTimeMillis());
+        socketWaitTime = nowTime;
+        connectStablishTime = nowTime;
+        channelCounter = (channelCounter + 1) % Constant.SELECTOR_CHANNEL_ID_MAXMIZE;
+        id = String.valueOf(nowTime / Constant.SELECTOR_CHANNEL_ID_MAXMIZE + channelCounter);
         fromIp = client.socket().getRemoteSocketAddress().toString();
         connectingTimes = new ArrayList<>();
         connectStartTime = -1;
@@ -269,6 +272,8 @@ public class SelectorChannel {
     private void startIOTask(ThreadTask task,SelectorPhase phase){
         // 接收器重置
         receiver.resetData();
+        // 存储channel的Id
+        task.setChannelId(id);
         // 将任务存于线程池开始运作
         ThreadPoolManager.getInstance().putThreadTask(task);
         // 进入下一个阶段
@@ -295,12 +300,12 @@ public class SelectorChannel {
         ret.put("来源IP",fromIp);
         ret.put("当前连接持续时间(毫秒)",nowConnectTime);
         ret.put("平均连接持续时间(毫秒)",avgConnectTime);
-        ret.put("使用的处理器",handler == null ? "无" : handler.getClass().getSimpleName());
+        ret.put("使用的处理器",handler == null ? StrPool.NONE : handler.getClass().getSimpleName());
         ret.put("连接建立时间", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(new Date(connectStablishTime)));
-        ret.put(StrPool.CHANNEL_STATU, SelectorPhase.PREPARE.equals(phase) ? StrPool.PREPARE :
-                !isClosed ? StrPool.RUNNING :
-                connectStartTime == 0 ? StrPool.SUCC_END : StrPool.FAIL_END);
+        ret.put(StrPool.CHANNEL_STATU, SelectorPhase.PREPARE.equals(phase) ? StrPool.WEB_PREPARE :
+                !isClosed ? StrPool.WEB_RUNNING :
+                connectStartTime == 0 ? StrPool.WEB_SUCC_END : StrPool.WEB_FAIL_END);
         return ret;
     }
 

@@ -9,5 +9,9 @@ public interface Constant {
 
     int BYTES_UNIT_CAPACITY = 2048;// 字节存储运输单元大小
 
+    int SELECTOR_CHANNEL_ID_MAXMIZE = 1000;// SelectorChannel的Id最大值，用于取模
+
     int ZERO_COUNT_LIMIT = 25;// 零数据上限，当超过指定次数没有获取数据，则直接读取下一轮数据
+
+
 }

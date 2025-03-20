@@ -1,10 +1,8 @@
 package xj.implement.observer;
 
 import xj.core.threadPool.ThreadPoolManager;
-import xj.core.threadPool.factory.ThreadTaskFactory;
 import xj.implement.thread.TCPSelectorTask;
 import xj.interfaces.observer.SocketChannelObserver;
-import xj.interfaces.thread.ThreadTask;
 
 import java.nio.channels.SocketChannel;
 

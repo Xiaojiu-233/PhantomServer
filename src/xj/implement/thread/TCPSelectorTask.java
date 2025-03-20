@@ -4,7 +4,7 @@ import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.server.ServerManager;
 import xj.core.server.selector.SelectorChannel;
-import xj.interfaces.thread.ThreadTask;
+import xj.abstracts.thread.ThreadTask;
 import xj.tool.ConfigPool;
 import xj.tool.StrPool;
 
@@ -14,10 +14,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.*;
-import java.util.stream.Collectors;
 
 // 使用选择器进行TCP通道管理的线程任务
-public class TCPSelectorTask implements ThreadTask {
+public class TCPSelectorTask extends ThreadTask {
 
     // 成员属性
     private Selector selector;// ServerChannel处理器
@@ -123,7 +122,7 @@ public class TCPSelectorTask implements ThreadTask {
             // 判定channel是否可删除
             Map<String,Object> info = entry.getValue().returnChannelInfo();
             String statu = (String) info.get(StrPool.CHANNEL_STATU);
-            if (StrPool.SUCC_END.equals(statu) || StrPool.FAIL_END.equals(statu))
+            if (StrPool.WEB_SUCC_END.equals(statu) || StrPool.WEB_FAIL_END.equals(statu))
                 removeChannels.add(entry.getKey());
             // 当开启可视化界面模块时，监听channel数据
             if(openInfoListen){

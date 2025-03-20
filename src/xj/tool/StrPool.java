@@ -49,19 +49,24 @@ public interface StrPool {
     String MESSAGE = "message";
     String NEW_OFFSET = "newOffset";
     String NULL = "null";
+    String NONE = "无";
     String LOCAL_ADDRESS_IPV4 = "127.0.0.1";// 本地地址IPV4
     String LOCAL_ADDRESS_IPV6 = "0:0:0:0:0:0:0:1";// 本地地址IPV6
 
     // 可视化界面
-    String LIST = "list";
-    String GET_DATA = "getData";
-    String SET_DATA = "setData";
-    String PREPARE = "准备中";
-    String RUNNING = "执行中";
-    String FAIL_END = "已失败";
+    String WEB_LIST = "list";
+    String WEB_GET = "getData";
+    String WEB_SET = "setData";
+    String WEB_FAIL_END = "已失败";
+    String WEB_SUCC_END = "已结束";
+    String WEB_PREPARE = "准备中";
+    String WEB_RUNNING = "执行中";
     String CHANNEL_ID = "编号";
     String CHANNEL_STATU = "当前的状态";
-    String SUCC_END = "已结束";
+    String THREAD_WAITING = "等待";
+    String THREAD_RUNNING = "执行";
+    String THREAD_COMMON = "普通线程";
+    String THREAD_CORE = "核心线程";
 
     // 日期格式
     String STANDARD_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

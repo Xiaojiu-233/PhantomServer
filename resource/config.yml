@@ -12,7 +12,6 @@ thread-pool:
     max-thread: 20 # 最大线程数
     core-thread: 10 # 核心线程数
     queue-capacity: 10 # 任务队列大小
-    long-connect-max-thread: 10 # 最大长连接线程数，推荐为最大线程数的一半
     # 拒绝策略，可提供的选择：THROW_EXCEPTION(抛出异常)
     # THROW_TASK(不执行该任务) THROW_QUEUE_TASK(将线程池里最早进入队列的任务抛弃)
     reject-strategy: THROW_TASK

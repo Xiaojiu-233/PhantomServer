@@ -3,10 +3,12 @@ package xj.core.threadPool;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.threadPool.factory.*;
+import xj.entity.monitor.MonitorChart;
 import xj.enums.thread.RejectStrategy;
-import xj.interfaces.thread.ThreadTask;
+import xj.abstracts.thread.ThreadTask;
 import xj.tool.ConfigPool;
 import xj.tool.Constant;
+import xj.tool.StrPool;
 
 import java.util.*;
 
@@ -19,7 +21,6 @@ public class ThreadPoolManager {
     private int maxThread = 0;// 最大线程数
     private int coreThread = 0;// 最大线程数
     private int queueCapacity = 0;// 任务队列大小
-    private int longConnectMaxThread;// 最大长连接线程数
     private int threadMaxFreeTime;// 普通线程最大闲置时间，超时会被回收
     private String threadName = "";// 工作线程名称
     private RejectStrategy strategy = RejectStrategy.THROW_TASK;// 拒绝策略，默认为抛弃任务
@@ -30,7 +31,8 @@ public class ThreadPoolManager {
     private Queue<ThreadTask> threadTaskQueue;// 线程任务队列
     private final Object queueLock = new Object();// 队列锁
     private final Object commonPoolLock = new Object();// 普通线程池锁
-
+    private MonitorChart commonThreadChart, allThreadChart, recycledThreadChart, queueTaskChart;
+    // 普通线程数图表 所有线程数图表 回收线程数图表 队列任务数图表
 
     // 成员方法
     // 初始化
@@ -49,19 +51,17 @@ public class ThreadPoolManager {
         maxThread = (int) ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.MAX_THREAD);
         coreThread = (int) ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.CORE_THREAD);
         queueCapacity = (int) ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.QUEUE_CAPACITY);
-        longConnectMaxThread = (int) ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.LONG_CONNECT_MAX_THREAD);
         threadMaxFreeTime = (int) ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.MAX_FREE_TIME);
         threadName = (String) ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.THREAD_NAME);
         strategy = RejectStrategy.getStrategyByString((String)ConfigureManager.getInstance()
                 .getConfig(ConfigPool.THREAD_POOL.REJECT_STRATEGY));
-        LogManager.info_("线程池参数 -> 核心线程数：{} 最大线程数：{} 任务队列大小：{} 最大长连接线程数：{}" +
-                        " 线程最大闲置时间：{} 工作线程名：{} 拒绝策略：{}", coreThread,maxThread,queueCapacity,
-                longConnectMaxThread,threadMaxFreeTime,threadName,strategy);
+        LogManager.info_("线程池参数 -> 核心线程数：{} 最大线程数：{} 任务队列大小：{}" +
+                        " 线程最大闲置时间：{} 工作线程模板名：{} 拒绝策略：{}", coreThread,maxThread,queueCapacity,
+                threadMaxFreeTime,threadName,strategy);
         // 数据检查
         if(coreThread == 0) LogManager.warn_("核心线程数为0，这将导致线程池只存在普通线程");
         if(threadMaxFreeTime < Constant.RECOMMEND_FREE_TIME)
             LogManager.warn_("线程最大闲置时间过短，推荐时长为{}秒",Constant.RECOMMEND_FREE_TIME);
-        if(longConnectMaxThread > maxThread / 2) LogManager.warn_("最大长连接线程数超过最大线程数的一半，推荐数量为小于等于最大线程数一半");
         if(maxThread < 0) LogManager.warn_("最大线程数不应为0！");
         if(maxThread - coreThread <= 0) LogManager.warn_("最大线程数不应小于核心线程数！");
     }
@@ -73,6 +73,10 @@ public class ThreadPoolManager {
             threadFactory = new WorkingThreadFactory(threadName);
             coreThreadPool = new ArrayList<>(coreThread);
             commonThreadPool = new LinkedList<>();
+            commonThreadChart = new MonitorChart(false);
+            allThreadChart = new MonitorChart(false);
+            recycledThreadChart = new MonitorChart(true);
+            queueTaskChart = new MonitorChart(false);
             threadTaskQueue = new PriorityQueue<>(queueCapacity);
         }catch (Exception e){
             LogManager.error_("线程池创建容器时出现异常",e);
@@ -101,6 +105,7 @@ public class ThreadPoolManager {
         // 如果核心线程池线程未满则创建核心线程
         if(coreThreadPool.size() < coreThread){
             WorkingThread thread = threadFactory.productCoreThread();
+            allThreadChart.inputData(coreThreadPool.size() + commonThreadPool.size());
             thread.setWorkingTask(task);
             coreThreadPool.add(thread);
             return;
@@ -120,6 +125,7 @@ public class ThreadPoolManager {
         if(threadTaskQueue.size() < queueCapacity){
             synchronized (queueLock){
                 threadTaskQueue.add(task);
+                queueTaskChart.inputData(threadTaskQueue.size()-1);
             }
             return;
         }
@@ -127,6 +133,8 @@ public class ThreadPoolManager {
         int commonThread = maxThread - coreThread;
         if(commonThreadPool.size() < commonThread){
             WorkingThread thread = threadFactory.productCommonThread();
+            allThreadChart.inputData(coreThreadPool.size() + commonThreadPool.size());
+            commonThreadChart.inputData(commonThreadPool.size());
             thread.setWorkingTask(task);
             synchronized (commonPoolLock){
                 commonThreadPool.add(thread);
@@ -170,6 +178,7 @@ public class ThreadPoolManager {
     // 获取队列任务
     public ThreadTask getQueueTask(){
         synchronized (queueLock){
+            queueTaskChart.inputData(threadTaskQueue.size()-1);
             return threadTaskQueue.poll();
         }
     }
@@ -183,11 +192,59 @@ public class ThreadPoolManager {
     public void delCommonPoolThread(WorkingThread thread){
         synchronized (commonPoolLock){
             commonThreadPool.remove(thread);
+            recycledThreadChart.inputData(1);
+            allThreadChart.inputData(coreThreadPool.size() + commonThreadPool.size());
+            commonThreadChart.inputData(commonThreadPool.size());
         }
     }
 
-    // 获取最大闲置时间
+    // 返回线程基础信息
+    public List<Map<String,Object>> returnThreadInfos(){
+        List<Map<String,Object>> ret = new ArrayList<>();
+        for(WorkingThread thread : coreThreadPool)
+            ret.add(thread.returnThreadInfo());
+        for(WorkingThread thread : commonThreadPool)
+            ret.add(thread.returnThreadInfo());
+        return ret;
+    }
+
     public int getThreadMaxFreeTime(){
         return threadMaxFreeTime;
+    }
+
+    public int getMaxThread() {
+        return maxThread;
+    }
+
+    public int getCoreThread() {
+        return coreThread;
+    }
+
+    public int getQueueCapacity() {
+        return queueCapacity;
+    }
+
+    public String getThreadName() {
+        return threadName;
+    }
+
+    public RejectStrategy getStrategy() {
+        return strategy;
+    }
+
+    public MonitorChart getCommonThreadChart() {
+        return commonThreadChart;
+    }
+
+    public MonitorChart getAllThreadChart() {
+        return allThreadChart;
+    }
+
+    public MonitorChart getRecycledThreadChart() {
+        return recycledThreadChart;
+    }
+
+    public MonitorChart getQueueTaskChart() {
+        return queueTaskChart;
     }
 }
