@@ -96,6 +96,7 @@ public class WorkingThread extends Thread {
     private void stopThread(){
         // 断开与线程池的连接
         ThreadPoolManager.getInstance().delCommonPoolThread(this);
+        ThreadPoolManager.getInstance().refreshRecycledThreadChart();
         // 结束线程循环
         enable = false;
     }

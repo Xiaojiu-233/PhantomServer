@@ -203,6 +203,10 @@ public class LogManager implements ILogManager {
         } catch (IOException e) {
             error_("关闭日志模块时出现异常", e);
         }
+    }
 
+    // 获取当前使用的日志服务类名称
+    public String getLogServiceName() {
+        return logService.getClass().getSimpleName();
     }
 }

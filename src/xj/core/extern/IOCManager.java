@@ -5,6 +5,7 @@ import xj.annotation.EnableInject;
 import xj.annotation.PAutowired;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
+import xj.core.threadPool.WorkingThread;
 import xj.core.threadPool.factory.ThreadTaskFactory;
 import xj.interfaces.component.IConfigureManager;
 import xj.interfaces.component.ILogManager;
@@ -142,5 +143,17 @@ public class IOCManager {
     // 返回指定名称的IOC实例
     public Object returnInstanceByName(String name){
         return iocContainer.get(name);
+    }
+
+    // 返回IOC容器实例信息
+    public List<Map<String,Object>> returnIOCInstancesInfo(){
+        List<Map<String,Object>> ret = new ArrayList<>();
+        for(Map.Entry<String,Object> entry : iocContainer.entrySet()){
+            Map<String,Object> map = new HashMap<>();
+            map.put("实例名称",entry.getKey());
+            map.put("实例类全限名",entry.getValue().getClass().getName());
+            ret.add(map);
+        }
+        return ret;
     }
 }

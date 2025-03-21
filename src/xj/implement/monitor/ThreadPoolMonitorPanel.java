@@ -1,6 +1,7 @@
 package xj.implement.monitor;
 
 import xj.component.conf.ConfigureManager;
+import xj.component.log.LogManager;
 import xj.core.server.ServerManager;
 import xj.core.threadPool.ThreadPoolManager;
 import xj.interfaces.component.MonitorPanel;
@@ -9,6 +10,7 @@ import xj.tool.ConfigPool;
 import javax.swing.*;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 // 动态线程池可视化界面

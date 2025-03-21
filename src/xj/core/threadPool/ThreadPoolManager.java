@@ -105,9 +105,9 @@ public class ThreadPoolManager {
         // 如果核心线程池线程未满则创建核心线程
         if(coreThreadPool.size() < coreThread){
             WorkingThread thread = threadFactory.productCoreThread();
-            allThreadChart.inputData(coreThreadPool.size() + commonThreadPool.size());
             thread.setWorkingTask(task);
             coreThreadPool.add(thread);
+            allThreadChart.inputData(commonThreadPool.size() + coreThreadPool.size());
             return;
         }
         // 如果核心线程池存在空闲线程则交予其处理
@@ -125,7 +125,7 @@ public class ThreadPoolManager {
         if(threadTaskQueue.size() < queueCapacity){
             synchronized (queueLock){
                 threadTaskQueue.add(task);
-                queueTaskChart.inputData(threadTaskQueue.size()-1);
+                queueTaskChart.inputData(threadTaskQueue.size());
             }
             return;
         }
@@ -133,11 +133,11 @@ public class ThreadPoolManager {
         int commonThread = maxThread - coreThread;
         if(commonThreadPool.size() < commonThread){
             WorkingThread thread = threadFactory.productCommonThread();
-            allThreadChart.inputData(coreThreadPool.size() + commonThreadPool.size());
-            commonThreadChart.inputData(commonThreadPool.size());
             thread.setWorkingTask(task);
             synchronized (commonPoolLock){
                 commonThreadPool.add(thread);
+                allThreadChart.inputData(commonThreadPool.size() + coreThreadPool.size());
+                commonThreadChart.inputData(commonThreadPool.size());
             }
             return;
         }
@@ -193,8 +193,6 @@ public class ThreadPoolManager {
         synchronized (commonPoolLock){
             commonThreadPool.remove(thread);
             recycledThreadChart.inputData(1);
-            allThreadChart.inputData(coreThreadPool.size() + commonThreadPool.size());
-            commonThreadChart.inputData(commonThreadPool.size());
         }
     }
 
@@ -208,6 +206,12 @@ public class ThreadPoolManager {
         return ret;
     }
 
+    // 刷新图表数值
+    public void refreshRecycledThreadChart() {
+        recycledThreadChart.inputData(1);
+    }
+
+    // 获取成员属性
     public int getThreadMaxFreeTime(){
         return threadMaxFreeTime;
     }
