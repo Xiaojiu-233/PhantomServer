@@ -38,10 +38,10 @@ public class ThreadPoolMonitorPanel implements MonitorPanel {
         ret.put("线程最大闲置时间(秒)", ThreadPoolManager.getInstance().getThreadMaxFreeTime());
         ret.put("拒绝策略", ThreadPoolManager.getInstance().getStrategy());
         ret.put("工作线程情况", ThreadPoolManager.getInstance().returnThreadInfos());
-        ret.put("普通线程数图表", ThreadPoolManager.getInstance().getCommonThreadChart().outputChart(k));
-        ret.put("所有线程数图表", ThreadPoolManager.getInstance().getAllThreadChart().outputChart(k));
-        ret.put("回收线程数图表", ThreadPoolManager.getInstance().getRecycledThreadChart().outputChart(k));
-        ret.put("队列任务数图表", ThreadPoolManager.getInstance().getQueueTaskChart().outputChart(k));
+        ret.put("普通线程数图表", ThreadPoolManager.getInstance().getCommonThreadChart().outputChart(k,false));
+        ret.put("所有线程数图表", ThreadPoolManager.getInstance().getAllThreadChart().outputChart(k,false));
+        ret.put("回收线程数图表", ThreadPoolManager.getInstance().getRecycledThreadChart().outputChart(k,false));
+        ret.put("队列任务数图表", ThreadPoolManager.getInstance().getQueueTaskChart().outputChart(k,false));
         // 存储数据
         return ret;
     }

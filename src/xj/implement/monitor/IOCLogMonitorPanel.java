@@ -27,6 +27,7 @@ public class IOCLogMonitorPanel implements MonitorPanel {
 
     @Override
     public Map<String, Object> getData(Map<String, Object> data) {
+        int k = (int) data.getOrDefault("k",1);
         Map<String, Object> ret = new HashMap<>();
         Map<String, Object> IOCRet = new HashMap<>();
         Map<String, Object> LogRet = new HashMap<>();
@@ -35,6 +36,7 @@ public class IOCLogMonitorPanel implements MonitorPanel {
         IOCRet.put("拓展程序注入class扫描路径", ConfigureManager.getInstance().getConfig(ConfigPool.IOC.EXT_PROGRAM_PATH));
         IOCRet.put("IOC容器实例信息", IOCManager.getInstance().returnIOCInstancesInfo());
         LogRet.put("当前使用的日志服务类", LogManager.getInstance().getLogServiceName());
+        LogRet.put("当前使用的日志分类详情", LogManager.getInstance().returnLogInfos(k));
         // 存储数据
         ret.put("IOC",IOCRet);
         ret.put("Log",LogRet);

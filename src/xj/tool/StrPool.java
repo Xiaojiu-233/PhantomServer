@@ -9,6 +9,7 @@ public interface StrPool {
     String BACK_SLASH = "\\";
     String QUOTATION_MARK = "\"";
     String SLASH = "/";
+    String COMMA = ",";
     String COLON = ":";
     String SEMICOLON = ";";
     String SPACE = " ";
