@@ -92,7 +92,7 @@ public class MonitorManager {
             return null;
         // 如果只有一节，则返回可视化界面主页路径
         if (splitUrl.length == 1)
-            return returnWebpageHttpResponse(monitorIndex);
+            return returnResourceHttpResponse(monitorIndex);
         // 如果只有两节
         if (splitUrl.length == 2){
             // 如果请求方法为GET则继续执行
@@ -113,10 +113,16 @@ public class MonitorManager {
                         return null;
                     }else {
                         String resourcePath = monitorResourceDir + splitUrl[1] + StrPool.HTML_POINT;
-                        return returnWebpageHttpResponse(resourcePath);
+                        return returnResourceHttpResponse(resourcePath);
                     }
                 }
             }
+        }
+        // 如果大于两节，并且路径被确定为文件，则调用服务器内部资源
+        if (req.getUrl().contains(StrPool.POINT)){
+            String url = req.getUrl().substring(1).replace(monitorWebPath + StrPool.SLASH, "");
+            String resourcePath = monitorResourceDir + url;
+            return returnResourceHttpResponse(resourcePath);
         }
         // 如果有三节，则寻找对应方法并做相应处理
         if (splitUrl.length == 3 && RequestMethod.POST.equals(req.getMethod())){
@@ -163,10 +169,11 @@ public class MonitorManager {
     }
 
     // 在服务器资源目录中搜索网页并返回响应
-    private HTTPResponse returnWebpageHttpResponse(String webpagePath) {
+    private HTTPResponse returnResourceHttpResponse(String resourcePath) {
         HTTPResponse resp = new HTTPResponse(StatuCode.OK, CharacterEncoding.UTF_8,
-                FileIOUtil.getFileContent(webpagePath));
-        resp.setHeaders(StrPool.CONTENT_TYPE, ContentType.TEXT_HTML.contentType);
+                FileIOUtil.getFileContent(resourcePath));
+        String extName = resourcePath.substring(resourcePath.lastIndexOf(StrPool.POINT));
+        resp.setHeaders(StrPool.CONTENT_TYPE, ContentType.getContentTypeByExtName(extName));
         return resp;
     }
 }

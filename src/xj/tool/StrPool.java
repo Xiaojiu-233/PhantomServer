@@ -25,6 +25,7 @@ public interface StrPool {
     String JAR = "jar";
     String HTML_POINT = ".html";
     String PNG_POINT = ".png";
+    String STAR = "*";
 
     // 协议
     String HTTP = "HTTP";
@@ -35,6 +36,7 @@ public interface StrPool {
 
     // 请求头
     String SERVER = "Server";
+    String ORIGIN = "origin";
     String CONTENT_TYPE = "Content-Type";
     String COOKIE = "Cookie";
     String SET_COOKIE = "Set-Cookie";
@@ -42,6 +44,7 @@ public interface StrPool {
 
     // 特殊名词
     String FILE = "file";
+    String TRUE = "true";
     String NAME = "name";
     String BOUNDARY = "boundary";
     String SUCCESS = "success";

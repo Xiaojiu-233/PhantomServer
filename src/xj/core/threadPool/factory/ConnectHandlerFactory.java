@@ -79,7 +79,7 @@ public class ConnectHandlerFactory {
                 }
             }
             // 如果没有合适的处理器对象，将抛出错误并返回null
-            LogManager.error_("没有找到合适的处理器对象");
+            LogManager.error_("没有找到合适的处理器对象 头信息",headMsg);
             return true;
         }
     }
