@@ -58,4 +58,8 @@ public class ContentTypeConverter {
             return null;
         }
     }
+
+    public List<ContentTypeHandler> getHandlerList() {
+        return handlerList;
+    }
 }

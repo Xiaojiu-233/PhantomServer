@@ -124,6 +124,11 @@ public class MonitorChart {
                 yRet[i] = yRet[i] == 0 ? yRet[i-1] : yRet[i];
             y.add(retFloat ? Float.parseFloat(String.format(FLOAT_FORMAT,yRet[i])) : (int)yRet[i]);
         }
+        // 刷新数据
+        recordTimer = nowTime;
+        for(Float[] f : list){
+            f[0] -= nowTimeNum;
+        }
         // 返回结果
         ret.put("x", x);
         ret.put("y", y);

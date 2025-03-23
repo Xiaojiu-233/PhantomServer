@@ -4,6 +4,8 @@ import sun.rmi.runtime.Log;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.threadPool.factory.ThreadTaskFactory;
+import xj.entity.monitor.MonitorChart;
+import xj.enums.log.LogLevel;
 import xj.enums.web.ChatType;
 import xj.implement.web.TCPChatRequest;
 import xj.implement.web.TCPChatResponse;
@@ -12,7 +14,7 @@ import xj.tool.StrPool;
 
 import java.io.*;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.*;
 
 // 聊天室管理器，用于提供TCP聊天室的解决方案
 public class ChatManager {
@@ -31,6 +33,8 @@ public class ChatManager {
     private int cacheNum;// 消息缓存块数量
 
     private int cacheCapacity;// 消息缓存块容量
+
+    private MonitorChart cacheChart;// 缓存块读取消息数统计图表
 
     // 成员方法
     // 初始化
@@ -63,6 +67,8 @@ public class ChatManager {
         messageCache = new ChatObject[cacheNum][cacheCapacity];
         cacheIds = new String[cacheNum];
         cacheIds[0] = UUID.randomUUID().toString();
+        // 图表统计
+        cacheChart = new MonitorChart(true);
         // 创建图片存储文件夹
         File imagePath = new File(chatImagePath);
         if(!imagePath.exists())
@@ -115,6 +121,7 @@ public class ChatManager {
                 }
                 // 将数据装入缓存区
                 messageCache[0][pointer++] = chatObject;
+                cacheChart.inputData(1);
                 return true;
             } catch (Exception e) {
                 LogManager.error_("聊天室模块在存储消息时出现异常",e);
@@ -196,6 +203,41 @@ public class ChatManager {
             LogManager.error_("聊天室模块在获取消息时出现异常",e);
             return false;
         }
+    }
+
+    // 返回存储块基础信息
+    public Map<String,Object> returnMessageCacheInfos(int k,int maxMsg){
+        Map<String,Object> ret = new HashMap<>();
+        Map<String,Object> cacheRet = new HashMap<>();
+        // 整体
+        // 读取折线图
+        ret.put("缓存块读取消息图表",cacheChart.outputChart(k,false));
+        ret.put("最新缓存块容量",cacheCapacity);
+        ret.put("最新缓存块当前消息数",pointer);
+        ret.put("最新缓存块空间剩余",cacheCapacity - pointer);
+        // 缓存块
+        // 将每个缓存块的信息导入
+        for(int i = 0;i < cacheNum;i++){
+            List<Map<String,Object>> cacheMessages = new ArrayList<>();
+            ChatObject[] cache = messageCache[i];
+            if(cacheIds[i] != null) {
+                for(int j = cache.length -1,c = 0; j >= 0 && c < maxMsg; j--){
+                    if(cache[j] == null)
+                        continue;
+                    c++;
+                    Map<String,Object> chatOb = new HashMap<>();
+                    ChatObject ob = cache[j];
+                    chatOb.put("类型",ob.getType());
+                    chatOb.put("用户名",ob.getName());
+                    chatOb.put("时间",ob.getDate());
+                    chatOb.put("内容",ob.getMessage());
+                    cacheMessages.add(chatOb);
+                }
+                cacheRet.put(cacheIds[i],cacheMessages);
+            }
+        }
+        ret.put("缓存块",cacheRet);
+        return ret;
     }
 
 }

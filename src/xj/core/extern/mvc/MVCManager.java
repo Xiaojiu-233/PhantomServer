@@ -13,6 +13,7 @@ import xj.enums.web.RequestMethod;
 import xj.enums.web.StatuCode;
 import xj.implement.web.HTTPRequest;
 import xj.implement.web.HTTPResponse;
+import xj.interfaces.mvc.ContentTypeHandler;
 import xj.interfaces.web.IHttpRequest;
 import xj.interfaces.web.IHttpResponse;
 import xj.tool.ConfigPool;
@@ -24,6 +25,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -216,6 +218,30 @@ public class MVCManager {
         HTTPResponse resp = new HTTPResponse(status,CharacterEncoding.UTF_8, bytes);
         resp.setHeaders(StrPool.CONTENT_TYPE, ContentType.TEXT_HTML.contentType);
         return resp;
+    }
+
+    // 返回MVC请求拦截处理器信息
+    public List<Map<String,Object>> returnHandlerMappingInfo(){
+        List<Map<String,Object>> ret = new ArrayList<>();
+        for(Map.Entry<String,HandlerMapper> entry : handlerMappers.entrySet()){
+            Map<String,Object> map = new HashMap<>();
+            map.put("处理路径",entry.getKey());
+            map.put("处理器请求方法",entry.getValue().getMethod());
+            ret.add(map);
+        }
+        return ret;
+    }
+
+    // 返回MVC的ContentType转移器信息
+    public List<Map<String,Object>> returnContentTypeConverterInfo(){
+        List<Map<String,Object>> ret = new ArrayList<>();
+        for(ContentTypeHandler handler : ContentTypeConverter.getInstance().getHandlerList()){
+            Map<String,Object> map = new HashMap<>();
+            map.put("转移器名称",handler.getClass().getSimpleName());
+            map.put("转移器全限名",handler.getClass().getName());
+            ret.add(map);
+        }
+        return ret;
     }
 
 }
