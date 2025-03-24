@@ -2,10 +2,43 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>欢迎来到Phantom可视化管理界面</title>
+    <title>子界面</title>
+    <link rel="stylesheet" href="/monitor-service/css/iframe.css"> 
+    <script src="/monitor-service/js/base_request.js"></script> <!-- 引用外部JavaScript文件 -->
+    <script src="/monitor-service/js/chart_script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>欢迎你</h1>
-    <p>请开始你需要的可视化操作吧！Web</p>
+
+    <div class="vertical_layout">
+        <div class="background_block_layout" style="width: 30%;">
+            <table>
+              <thead id="args_table_head">
+              </thead>
+              <tbody id="args_table_body">
+              </tbody>
+            </table>
+        </div>
+        <div class="background_block_layout" style="width: 70%;">
+            <table>
+                <thead id="data_table_head">
+                </thead>
+                <tbody id="data_table_body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        postData("/monitor-service/WebMonitorPanel/getData",null,function(data){
+          var theadNames = ["编号","来源IP","当前连接持续时间(毫秒)","平均连接持续时间(毫秒)","使用的处理器","连接建立时间","当前的状态"];
+          var styleMapping = {"已失败":"color : red","已结束":"color : gray","准备中":"color : blue","执行中":"color : green"};
+          dataElementName = "服务器channel连接信息";
+          dataElements = data[dataElementName];
+          renderArgTable("args_table_head","args_table_body",dataElementName,data);
+          renderTable("data_table_head","data_table_body",theadNames,dataElements,styleMapping);
+      });
+    </script>
+    
 </body>
 </html>

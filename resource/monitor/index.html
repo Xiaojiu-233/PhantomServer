@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>欢迎来到Phantom可视化管理系统</title>
-  <link rel="stylesheet" href="/monitor-service/css/styles.css"> <!-- 引用外部CSS文件 /monitor-service/css/table.css-->
+  <link rel="stylesheet" href="/monitor-service/css/styles.css"> 
   <script src="/monitor-service/js/base_request.js"></script> <!-- 引用外部JavaScript文件 -->
-  <script src="/monitor-service/js/chart_script.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -22,7 +20,7 @@
     </nav>
 
     <!-- 子页面 --> 
-    <iframe id="IFrame" src="/monitor-service/WebMonitorPanel.html" width="100%" height="700px"></iframe>
+    <iframe id="IFrame" src="/monitor-service/WebMonitorPanel.html" width="100%" height="600px"></iframe>
 
     <!-- 程序执行 -->
     <script>
@@ -32,7 +30,6 @@
       }
       var navi_bar = document.getElementById("navigate_bar");
       getData("/monitor-service/list",function(data){
-        console.log(data);
         for(var i = 0; i < data.length; i++){
           navi_bar.innerHTML += 
            `<li><button class="nav-button" onclick="changeIFrame('${data[i].panelName}')">${data[i].panelTitle}</button></li>`;

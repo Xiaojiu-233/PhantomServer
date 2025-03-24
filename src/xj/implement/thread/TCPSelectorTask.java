@@ -23,7 +23,7 @@ public class TCPSelectorTask extends ThreadTask {
 
     private final Map<SocketChannel, SelectorChannel> channelMapping;// SocketChannel与SelectorChannel的映射容器
 
-    private final Map<String,Map<String,Object>> channelInfos;// 存储的channel数据
+    private final Map<String,Object> channelInfos;// 存储的channel数据
 
     private boolean openInfoListen = false;
 
@@ -111,7 +111,7 @@ public class TCPSelectorTask extends ThreadTask {
     }
 
     // 获取channel信息列表
-    public List<Map<String,Object>> getChannelsInfo() {
+    public List<Object> getChannelsInfo() {
         return new ArrayList<>(channelInfos.values());
     }
 
