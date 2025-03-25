@@ -10,12 +10,94 @@
 </head>
 <body>
 
-    <div>
-
+    <div class="vertical-layout">
+        <div style="width : 50%">
+            <div class="unit-layout arg-table-layout" style="height : 30%;">
+                <div class="color-bg">
+                    <table>
+                        <thead id="ioc-args-table-head">
+                        </thead>
+                        <tbody style="max-height: 120px;" id="ioc-args-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="unit-layout data-table-layout" style="height : 70%;">
+                <div class="color-bg">
+                    <table>
+                        <thead id="ioc-data-table-head">
+                        </thead>
+                        <tbody style="max-height: 350px;" id="ioc-data-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div style="width : 50%">
+            <div style="height: 30%; display:flex;">
+                <div class="unit-layout arg-table-layout" style="width : 70%;">
+                    <div class="color-bg">
+                        <table>
+                            <thead id="args-table-head">
+                            </thead>
+                            <tbody style="max-height: 120px" id="args-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="unit-layout controller-layout" style="width : 30%;">
+                    <div class="color-bg">
+                        <div class="unit">
+                            <div class="title">这是标题</div>
+                            <div class="block">这是内容</div>
+                        </div>
+                        <div class="unit">
+                            <div class="title">这是标题</div>
+                            <div class="block">这是内容</div>
+                        </div>
+                        <div class="unit">
+                            <div class="title">这是标题</div>
+                            <div class="block">
+                                <button>go</button>
+                                <button>go</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="unit-layout multi-layer-layout" style="height : 30%;">
+                <div class="chart">
+                    <div class="title">
+                        这是标题
+                    </div>
+                    <div class="block">
+                        这是内容
+                    </div>
+                </div>
+                <div class="controller">
+                    1
+                </div>
+            </div>
+            <div id="log-list" class="unit-layout scroll-unit-layout" style="height : 40%;">
+            </div>
+        </div>
     </div>
 
     <script>
-        
+        var dt = {k:getK()};
+        postJsonData("/monitor-service/IOCLogMonitorPanel/getData",dt,function(data){
+            var ioc = data.IOC;
+            var theadNames = ["实例名称","实例类全限名"];
+            dataElementName = ["IOC容器实例信息"];
+            dataElements = ioc[dataElementName];
+            renderArgTable("ioc-args-table-head","ioc-args-table-body",dataElementName,ioc);
+            renderTable("ioc-data-table-head","ioc-data-table-body",theadNames,dataElements, {});
+            var log = data.Log;
+            dataElementNameLog = ["当前使用的日志分类详情"];
+            dataElementsLog = log[dataElementNameLog];
+            renderArgTable("args-table-head","args-table-body",dataElementNameLog,log);
+            renderList("log-list",dataElementsLog[0]["日志详情"]);
+        });
     </script>
     
 </body>

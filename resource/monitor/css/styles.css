@@ -158,11 +158,6 @@
     align-items: center;
   }
 
-  .Ccontainer {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 50px;
-  }
   .canvas-container {
     width: 100%;
     max-width: 400px; /* 可以根据需要调整宽度 */
@@ -177,4 +172,5 @@
 
 iframe {
     border: none; /* 移除边框 */
+  overflow-y: auto;
 }

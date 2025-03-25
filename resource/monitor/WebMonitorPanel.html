@@ -10,33 +10,33 @@
 </head>
 <body>
 
-    <div class="vertical_layout">
-        <div class="background_block_layout" style="width: 30%;">
+    <div class="vertical-layout">
+        <div class="color-bg" style="width: 30%;">
             <table>
-              <thead id="args_table_head">
+              <thead id="args-table-head">
               </thead>
-              <tbody id="args_table_body">
+              <tbody style="max-height: 500px;" id="args-table-body">
               </tbody>
             </table>
         </div>
-        <div class="background_block_layout" style="width: 70%;">
+        <div class="color-bg" style="width: 70%;">
             <table>
-                <thead id="data_table_head">
+                <thead id="data-table-head">
                 </thead>
-                <tbody id="data_table_body">
+                <tbody style="max-height: 500px;" id="data-table-body">
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        postData("/monitor-service/WebMonitorPanel/getData",null,function(data){
+        postData("/monitor-service/WebMonitorPanel/getData", null,function(data){
           var theadNames = ["编号","来源IP","当前连接持续时间(毫秒)","平均连接持续时间(毫秒)","使用的处理器","连接建立时间","当前的状态"];
           var styleMapping = {"已失败":"color : red","已结束":"color : gray","准备中":"color : blue","执行中":"color : green"};
-          dataElementName = "服务器channel连接信息";
+          dataElementName = ["服务器channel连接信息"];
           dataElements = data[dataElementName];
-          renderArgTable("args_table_head","args_table_body",dataElementName,data);
-          renderTable("data_table_head","data_table_body",theadNames,dataElements,styleMapping);
+          renderArgTable("args-table-head","args-table-body",dataElementName,data);
+          renderTable("data-table-head","data-table-body",theadNames,dataElements,styleMapping);
       });
     </script>
     

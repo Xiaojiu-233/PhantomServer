@@ -10,12 +10,108 @@
 </head>
 <body>
 
-    <div>
-
+    <div class="vertical-layout">
+        <div style="width : 50%">
+            <div class="unit-layout arg-table-layout" style="height : 30%;">
+                <div class="color-bg">
+                    <table>
+                        <thead id="mvc-args-table-head">
+                        </thead>
+                        <tbody style="max-height: 100px;" id="mvc-args-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="unit-layout data-table-layout" style="height : 35%;">
+                <div class="color-bg">
+                    <table>
+                        <thead id="mvc-data-table-head-1">
+                        </thead>
+                        <tbody style="max-height: 130px;" id="mvc-data-table-body-1">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="unit-layout data-table-layout" style="height : 35%;">
+                <div class="color-bg">
+                    <table>
+                        <thead id="mvc-data-table-head-2">
+                        </thead>
+                        <tbody style="max-height: 130px;" id="mvc-data-table-body-2">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div style="width : 50%">
+            <div style="height: 30%; display:flex;">
+                <div class="unit-layout arg-table-layout" style="width : 70%;">
+                    <div class="color-bg">
+                        <table>
+                            <thead id="chat-args-table-head">
+                            </thead>
+                            <tbody style="max-height: 100px" id="chat-args-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="unit-layout controller-layout" style="width : 30%;">
+                    <div class="color-bg">
+                        <div class="unit">
+                            <div class="title">这是标题</div>
+                            <div class="block">这是内容</div>
+                        </div>
+                        <div class="unit">
+                            <div class="title">这是标题</div>
+                            <div class="block">这是内容</div>
+                        </div>
+                        <div class="unit">
+                            <div class="title">这是标题</div>
+                            <div class="block">
+                                <button>go</button>
+                                <button>go</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="unit-layout multi-layer-layout" style="height : 30%;">
+                <div class="chart">
+                    <div class="title">
+                        这是标题
+                    </div>
+                    <div class="block">
+                        这是内容
+                    </div>
+                </div>
+                <div class="controller">
+                    1
+                </div>
+            </div>
+            <div id="chat-list" class="unit-layout scroll-unit-layout" style="height : 40%;">
+            </div>
+        </div>
     </div>
 
     <script>
-        
+        var dt = {k:getK()};
+        postJsonData("/monitor-service/MVCChatMonitorPanel/getData",dt,function(data){
+            var mvc = data.MVC;
+            var theadNames1 = ["处理路径","处理器请求方法"];
+            var theadNames2 = ["转移器名称","转移器全限名"];
+            dataElementName = ["MVC请求拦截处理器信息","MVC的ContentType转移器信息"];
+            dataElements1 = mvc["MVC请求拦截处理器信息"];
+            dataElements2 = mvc["MVC的ContentType转移器信息"];
+            renderArgTable("mvc-args-table-head","mvc-args-table-body",dataElementName,mvc);
+            renderTable("mvc-data-table-head-1","mvc-data-table-body-1",theadNames1,dataElements1, {});
+            renderTable("mvc-data-table-head-2","mvc-data-table-body-2",theadNames2,dataElements2, {});
+            var chat = data.Chat;
+            dataElementName = ["聊天室消息缓存块详情"];
+            dataElements3 = chat[dataElementName];
+            cacheMessage = dataElements3["缓存块"];
+            renderArgTable("chat-args-table-head","chat-args-table-body",dataElementName,chat);
+            renderList("chat-list",cacheMessage[Object.keys(cacheMessage)[0]]);
+        });
     </script>
     
 </body>

@@ -1,6 +1,7 @@
 // 数据准备
 var hostName = "http://" + (window.location.hostname == "localhost" ? "127.0.0.1" : window.location.hostname);
 var baseUrl = hostName + ":" +  window.location.port;
+var k = 1;
 
 // 方法内容
 // 1. get请求
@@ -35,14 +36,31 @@ function postData(url,dt,func){
     .catch(error => {
         console.error('There has been a problem with your fetch operation:', error);
     });
-
+}
+// 3. post带Json的请求
+function postJsonData(url,dt,func){
+  fetch(baseUrl+ url,{
+    method: 'POST',
+    body: JSON.stringify(dt)
+  }) // 替换成后端提供数据的端点
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {func(data);})
+      .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+      });
 }
 
 // 渲染参数表格内容
-function renderArgTable(theadId,tbodyId,excludeElement,data){
+function renderArgTable(theadId,tbodyId,excludeElements,data){
   var thead = document.getElementById(theadId);
   var tbody = document.getElementById(tbodyId);
-  delete data[excludeElement];
+  for(var exclude of excludeElements)
+    delete data[exclude];
   theadNames = ["参数名","参数值"];
   // 渲染表头
   var theadContent = `<tr>`;
@@ -74,6 +92,7 @@ function renderArgTable(theadId,tbodyId,excludeElement,data){
 function renderTable(theadId,tbodyId,theadNames,data,styleMapping){
   var thead = document.getElementById(theadId);
   var tbody = document.getElementById(tbodyId);
+  console.log(tbody)
   // 渲染表头
   var theadContent = `<tr>`;
   for(var i=0;i<theadNames.length;i++){
@@ -95,4 +114,28 @@ function renderTable(theadId,tbodyId,theadNames,data,styleMapping){
     tbodyContent += `</tr>`;
   }
   tbody.innerHTML = tbodyContent;
+}
+
+// 渲染列表内容
+// 渲染表格内容
+function renderList(listId,data){
+  var list = document.getElementById(listId);
+  // 渲染表头
+  var content = ``;
+  if(data.length > 0){
+    for(var i=0;i<data.length;i++){
+      content += `<div class="unit">
+                    ${data[i]}
+                </div>`;
+    }
+  }else{
+    content = `<div class="unit">数据空空如也...</div>`;
+  }
+
+  list.innerHTML = content;
+}
+
+// 获取k值
+function getK(){
+  return k;
 }
