@@ -10,78 +10,130 @@
 </head>
 <body>
 
+    <!-- 线程池界面 -->
     <div class="vertical-layout">
-    <div style="width : 40%">
-        <div class="unit-layout four-block-layout">
-            <div class="unit">
-                <div class="title">
-                    这是标题
-                </div>
-                <div class="block">
-                    这是内容
-                </div>
-            </div>
-            <div class="unit">
-                <div class="title">
-                    这是标题
-                </div>
-                <div class="block">
-                    这是内容
-                </div>
-            </div>
-            <div class="unit">
-                <div class="title">
-                    这是标题
-                </div>
-                <div class="block">
-                    这是内容
-                </div>
-            </div>
-            <div class="unit">
-                <div class="title">
-                    这是标题
-                </div>
-                <div class="block">
-                    这是内容
-                </div>
-            </div>
-        </div>
-        <div class="unit-layout arg-table-layout" style="height : 36%;">
-            <div class="color-bg">
-                2
-            </div>
-        </div>
-        <div class="unit-layout controller-layout">
-            <div class="color-bg">
+        <div style="width : 40%">
+            <div class="unit-layout four-block-layout">
                 <div class="unit">
-                    <div class="title">这是标题</div>
-                    <div class="block">这是内容</div>
+                    <div class="title">
+                        普通线程数图表
+                    </div>
+                    <div class="block" id="chart1"></div>
                 </div>
                 <div class="unit">
-                    <div class="title">这是标题</div>
-                    <div class="block">这是内容</div>
+                    <div class="title">
+                        所有线程数图表
+                    </div>
+                    <div class="block" id="chart2"></div>
                 </div>
                 <div class="unit">
-                    <div class="title">这是标题</div>
-                    <div class="block">
-                        <button>go</button>
-                        <button>go</button>
+                    <div class="title">
+                        回收线程数图表
+                    </div>
+                    <div class="block" id="chart3"></div>
+                </div>
+                <div class="unit">
+                    <div class="title">
+                        队列任务数图表
+                    </div>
+                    <div class="block" id="chart4"></div>
+                </div>
+            </div>
+            <div class="unit-layout arg-table-layout" style="height : 36%;">
+                <div class="color-bg">
+                    <table>
+                        <thead id="args-table-head"></thead>
+                        <tbody style="max-height : 150px" id="args-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="unit-layout controller-layout">
+                <div class="color-bg">
+                    <div class="unit">
+                        <div class="title">普通线程上限</div>
+                        <div class="block">
+                            <input id="common-thread-num" type="number" name="age" min="1" max="100" value="10">
+                        </div>
+                    </div>
+                    <div class="unit">
+                        <div class="title">队列任务上限</div>
+                        <div class="block">
+                            <input id="queue-task-num" type="number" name="age" min="1" max="100" value="10">
+                        </div>
+                    </div>
+                    <div class="unit">
+                        <div class="title">线程回收策略</div>
+                        <div class="block">
+                            <select id="recycle-strategy">
+                                <option value="timeout">超时回收</option>
+                                <option value="wait">等待算法智能回收</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="unit">
+                        <div class="title">任务拒绝策略</div>
+                        <div class="block">
+                            <select id="refuse-strategy">
+                                <option value="THROW_TASK">抛弃任务</option>
+                                <option value="THROW_EXCEPTION">抛出异常</option>
+                                <option value="THROW_QUEUE_TASK">抛弃最早队列任务</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="unit">
+                        <div class="title">修改配置</div>
+                        <div class="block">
+                            <button onclick="changeProp()">提交修改</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div style="width : 60%">
-        <div class="unit-layout data-table-layout" style="height : 100%;">
-            <div class="color-bg">
-                2
+        <div style="width : 60%">
+            <div class="unit-layout data-table-layout" style="height : 100%;">
+                <div class="color-bg">
+                    <table>
+                        <thead id="data-table-head"></thead>
+                        <tbody style="max-height : 500px"  id="data-table-body"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-    </div>
 
     <script>
-        
+        function refresh(){
+            postData("/monitor-service/ThreadPoolMonitorPanel/getData",null,function(data){
+                var theadNames = ["线程名","线程任务名","来源channel","线程类别","线程当前运行时间(毫秒)","线程当前等待时间(毫秒)","线程平均等待时间(毫秒)","状态"];
+                var styleMapping = {"等待":"color : red","执行":"color : blue"};
+                dataElementName = ["工作线程情况","普通线程数图表","所有线程数图表","回收线程数图表","队列任务数图表"];
+                dataElements = data["工作线程情况"];
+                chartData1 = data["普通线程数图表"];
+                chartData2 = data["所有线程数图表"];
+                chartData3 = data["回收线程数图表"];
+                chartData4 = data["队列任务数图表"];
+                document.getElementById("common-thread-num").value = Number(data["最大线程数"]) - Number(data["核心线程数"]);
+                document.getElementById("queue-task-num").value = data["任务队列大小"];
+                renderArgTable("args-table-head","args-table-body",dataElementName,data);
+                renderTable("data-table-head","data-table-body",theadNames,dataElements,styleMapping);
+                DoChart(chartData1,"时间","线程数","chart1");
+                DoChart(chartData2,"时间","线程数","chart2");
+                DoChart(chartData3,"时间","线程数","chart3");
+                DoChart(chartData4,"时间","任务数","chart4");
+            })
+        }
+
+        function changeProp(){
+            var dt = {commonThreadNum : Number(document.getElementById("common-thread-num").value),
+                queueTaskNum : Number(document.getElementById("queue-task-num").value),
+                recycleStrategy : document.getElementById("recycle-strategy").value,
+                refuseStrategy : document.getElementById("refuse-strategy").value
+            }
+            postJsonData("/monitor-service/ThreadPoolMonitorPanel/setData",dt,function(data){});
+            refresh();
+        }
+
+        refresh();
     </script>
     
 </body>

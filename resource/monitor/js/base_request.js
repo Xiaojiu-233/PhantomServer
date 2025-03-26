@@ -135,6 +135,23 @@ function renderList(listId,data){
   list.innerHTML = content;
 }
 
+// 渲染选择器
+function renderSelector(selector,data){
+  var select = document.getElementById(selector);
+  // 渲染内容
+  var content = ``;
+  if(data !== null){
+    for(var i in data){
+      if(i == 0)continue;
+      content += `<option value="${i}">${data[i]}</option>`
+    }
+  }
+  else{
+    content += `<option value="1">1</option>`
+  }
+  select.innerHTML = content;
+}
+
 // 获取k值
 function getK(){
   return k;

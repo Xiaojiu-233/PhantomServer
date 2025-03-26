@@ -1,16 +1,19 @@
 function DoChart(jsonData,XLabel,YLabel,chart){
-  
+    // 元素构建
+    var canvas = document.createElement('canvas');
+    var c = document.getElementById(chart);
+    c.innerHTML = "";
+    c.appendChild(canvas);
+
+    // 数据执行
     if(jsonData.length == 0){
       // 准备横坐标和纵坐标数据
       labels = ['null','null','null']; // 横坐标数据
       values = [0,0,0]; // 纵坐标数据
     }else{
-      // 获取每个对象的第一个和第二个属性名
-      firstPropertyName = Object.keys(jsonData[0])[0];
-      secondPropertyName = Object.keys(jsonData[0])[1];
       // 准备横坐标和纵坐标数据
-      labels = jsonData.map(data => data[firstPropertyName]); // 横坐标数据
-      values = jsonData.map(data => data[secondPropertyName]); // 纵坐标数据
+      labels = jsonData['x']
+      values = jsonData['y']
     }
 
     // 创建 Chart.js 配置对象
@@ -49,7 +52,7 @@ function DoChart(jsonData,XLabel,YLabel,chart){
     };
 
     // 创建图表
-    const ctx = document.getElementById(chart).getContext('2d');
+    const ctx = canvas.getContext('2d');
     const myChart = new Chart(ctx, config);
 }
 

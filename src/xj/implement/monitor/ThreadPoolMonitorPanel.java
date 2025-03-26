@@ -48,6 +48,10 @@ public class ThreadPoolMonitorPanel implements MonitorPanel {
 
     @Override
     public void setData(Map<String, Object> data) {
-
+        int commonThreadNum = (int) data.getOrDefault("commonThreadNum",10);
+        int queueTaskNum = (int)  data.getOrDefault("queueTaskNum",10);
+        String recycleStrategy = (String) data.getOrDefault("recycleStrategy","timeout");
+        String refuseStrategy = (String) data.getOrDefault("refuseStrategy","THROW_TASK");
+        ThreadPoolManager.getInstance().changeProperties(commonThreadNum,queueTaskNum,recycleStrategy,refuseStrategy);
     }
 }

@@ -135,4 +135,8 @@ public class TCPSelectorTask extends ThreadTask {
         }
     }
 
+    public void clearInfos(){
+        channelInfos.clear();
+    }
+
 }

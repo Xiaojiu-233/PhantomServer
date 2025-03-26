@@ -12,12 +12,36 @@
 
     <div class="vertical-layout">
         <div class="color-bg" style="width: 30%;">
-            <table>
+            <table style="height : 80%">
               <thead id="args-table-head">
               </thead>
               <tbody style="max-height: 500px;" id="args-table-body">
               </tbody>
             </table>
+            <div class="unit-layout controller-layout" style="height : 20%">
+                <div class="color-bg">
+                    <div class="unit">
+                        <div class="title">分页大小</div>
+                        <div class="block">
+                            <input id="page-size" type="number" name="age" min="1" max="100" value="20">
+                            <button onclick="refresh()">读取</button>
+                        </div>
+                    </div>
+                    <div class="unit">
+                        <div class="title">读取页</div>
+                        <div class="block">
+                            <select id="page-num">
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="unit">
+                        <div class="title">清空连接记录</div>
+                        <div class="block"><button onclick="cleanRecord()">清空</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="color-bg" style="width: 70%;">
             <table>
@@ -30,14 +54,36 @@
     </div>
 
     <script>
-        postData("/monitor-service/WebMonitorPanel/getData", null,function(data){
-          var theadNames = ["编号","来源IP","当前连接持续时间(毫秒)","平均连接持续时间(毫秒)","使用的处理器","连接建立时间","当前的状态"];
-          var styleMapping = {"已失败":"color : red","已结束":"color : gray","准备中":"color : blue","执行中":"color : green"};
-          dataElementName = ["服务器channel连接信息"];
-          dataElements = data[dataElementName];
-          renderArgTable("args-table-head","args-table-body",dataElementName,data);
-          renderTable("data-table-head","data-table-body",theadNames,dataElements,styleMapping);
-      });
+        function refresh(){
+            var size = Number(document.getElementById("page-size").value);
+            var num = Number(document.getElementById("page-num").value === "" ? 1 : document.getElementById("page-num").value);
+            var dt = {pageSize : size, pageNum : num}
+            postJsonData("/monitor-service/WebMonitorPanel/getData", dt,function(data){
+                var theadNames = ["编号","来源IP","当前连接持续时间(毫秒)","平均连接持续时间(毫秒)","使用的处理器","连接建立时间","当前的状态"];
+                var styleMapping = {"已失败":"color : red","已结束":"color : gray","准备中":"color : blue","执行中":"color : green"};
+                dataElementName = ["服务器channel连接信息","信息分页总页数"];
+                dataElements= data["服务器channel连接信息"];
+                dataElementsPage= data["信息分页总页数"];
+                renderArgTable("args-table-head","args-table-body",dataElementName,data);
+                renderTable("data-table-head","data-table-body",theadNames,dataElements,styleMapping);
+                var pageList = {}
+                if(dataElementsPage !== null){
+                    for (var i = 1;i <= dataElementsPage;i++){
+                        pageList[i] = i;
+                    }
+                }else{
+                    pageList[1] = 1;
+                }
+                renderSelector("page-num",pageList);
+            });
+        }
+
+        function cleanRecord(){
+            postData("/monitor-service/WebMonitorPanel/setData",null,function(data){});
+            document.getElementById("data-table-body").innerHTML = "";
+        }
+
+        refresh();
     </script>
     
 </body>

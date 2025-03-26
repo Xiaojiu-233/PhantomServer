@@ -251,4 +251,10 @@ public class ThreadPoolManager {
     public MonitorChart getQueueTaskChart() {
         return queueTaskChart;
     }
+
+    public void changeProperties(int commonThreadNum,int queueTaskNum,String recycleStrategy,String refuseStrategy){
+        maxThread = commonThreadNum + coreThread;
+        queueCapacity = queueTaskNum;
+        strategy = RejectStrategy.getStrategyByString(refuseStrategy);
+    }
 }
