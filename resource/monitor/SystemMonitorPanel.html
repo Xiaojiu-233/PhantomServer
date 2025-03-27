@@ -15,44 +15,35 @@
         <div class="unit-layout four-block-layout">
             <div class="unit">
                 <div class="title">
-                    这是标题
+                    jvm线程图表
                 </div>
-                <div class="block">
-                    这是内容
-                </div>
+                <div class="block"  id="chart1"></div>
             </div>
             <div class="unit">
                 <div class="title">
-                    这是标题
+                    jvm内存图表
                 </div>
-                <div class="block">
-                    这是内容
-                </div>
+                <div class="block"  id="chart2"></div>
             </div>
             <div class="unit">
                 <div class="title">
-                    这是标题
+                    jvm内存占比图表
                 </div>
-                <div class="block">
-                    这是内容
-                </div>
+                <div class="block"  id="chart3"></div>
             </div>
             <div class="unit">
                 <div class="unit-layout controller-layout">
                     <div class="color-bg">
                         <div class="unit">
-                            <div class="title">这是标题</div>
-                            <div class="block">这是内容</div>
-                        </div>
-                        <div class="unit">
-                            <div class="title">这是标题</div>
-                            <div class="block">这是内容</div>
-                        </div>
-                        <div class="unit">
-                            <div class="title">这是标题</div>
+                            <div class="title">数据刷新频率(秒/次)</div>
                             <div class="block">
-                                <button>go</button>
-                                <button>go</button>
+                                <input id="data-refresh-rate" type="number" min="5" max="60" value="5">
+                            </div>
+                        </div>
+                        <div class="unit">
+                            <div class="title">修改配置</div>
+                            <div class="block">
+                                <button onclick="changeProp()">提交修改</button>
                             </div>
                         </div>
                     </div>
@@ -63,14 +54,36 @@
     <div style="width : 50%">
         <div class="unit-layout arg-table-layout" style="height : 40%;">
             <div class="color-bg">
-                2
+                <table>
+                    <thead id="args-table-head"></thead>
+                    <tbody style="max-height : 300px" id="args-table-body"></tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
     <script>
-        
+        var dt = {k:getK()};
+        function refresh(){
+            postJsonData("/monitor-service/SystemMonitorPanel/getData",dt,function(data){
+                console.log(data);
+                dataElementName = ["JVM详细数据图表"];
+                chartData1 = data["JVM详细数据图表"]["jvm线程图表"];
+                chartData2 = data["JVM详细数据图表"]["jvm内存图表(单位MB)"];
+                chartData3 = data["JVM详细数据图表"]["jvm内存占比图表(%)"];
+                renderArgTable("args-table-head","args-table-body",dataElementName,data);
+                DoChart(chartData1,"时间","线程数","chart1");
+                DoChart(chartData2,"时间","单位(MB)","chart2");
+                DoChart(chartData3,"时间","单位(%)","chart3");
+            })
+        }
+
+        function changeProp(){
+
+        }
+
+        refresh();
     </script>
     
 </body>

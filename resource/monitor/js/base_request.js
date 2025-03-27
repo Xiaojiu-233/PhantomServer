@@ -92,7 +92,6 @@ function renderArgTable(theadId,tbodyId,excludeElements,data){
 function renderTable(theadId,tbodyId,theadNames,data,styleMapping){
   var thead = document.getElementById(theadId);
   var tbody = document.getElementById(tbodyId);
-  console.log(tbody)
   // 渲染表头
   var theadContent = `<tr>`;
   for(var i=0;i<theadNames.length;i++){

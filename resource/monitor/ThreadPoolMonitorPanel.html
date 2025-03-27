@@ -52,13 +52,13 @@
                     <div class="unit">
                         <div class="title">普通线程上限</div>
                         <div class="block">
-                            <input id="common-thread-num" type="number" name="age" min="1" max="100" value="10">
+                            <input id="common-thread-num" type="number"  min="1" max="100" value="10">
                         </div>
                     </div>
                     <div class="unit">
                         <div class="title">队列任务上限</div>
                         <div class="block">
-                            <input id="queue-task-num" type="number" name="age" min="1" max="100" value="10">
+                            <input id="queue-task-num" type="number"  min="1" max="100" value="10">
                         </div>
                     </div>
                     <div class="unit">
@@ -102,8 +102,9 @@
     </div>
 
     <script>
+        var dt = {k:getK()};
         function refresh(){
-            postData("/monitor-service/ThreadPoolMonitorPanel/getData",null,function(data){
+            postJsonData("/monitor-service/ThreadPoolMonitorPanel/getData",dt,function(data){
                 var theadNames = ["线程名","线程任务名","来源channel","线程类别","线程当前运行时间(毫秒)","线程当前等待时间(毫秒)","线程平均等待时间(毫秒)","状态"];
                 var styleMapping = {"等待":"color : red","执行":"color : blue"};
                 dataElementName = ["工作线程情况","普通线程数图表","所有线程数图表","回收线程数图表","队列任务数图表"];
