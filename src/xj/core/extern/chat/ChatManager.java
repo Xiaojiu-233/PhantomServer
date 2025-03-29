@@ -214,7 +214,7 @@ public class ChatManager {
         ret.put("缓存块读取消息图表",cacheChart.outputChart(k,false));
         ret.put("最新缓存块容量",cacheCapacity);
         ret.put("最新缓存块当前消息数",pointer);
-        ret.put("最新缓存块空间剩余",cacheCapacity - pointer);
+        ret.put("最新缓存块空间剩余",Math.max(cacheCapacity - pointer,0));
         // 缓存块
         // 将每个缓存块的信息导入
         for(int i = 0;i < cacheNum;i++){
@@ -240,4 +240,11 @@ public class ChatManager {
         return ret;
     }
 
+    public int getCacheCapacity() {
+        return cacheCapacity;
+    }
+
+    public void setCacheCapacity(int cacheCapacity) {
+        this.cacheCapacity = cacheCapacity;
+    }
 }

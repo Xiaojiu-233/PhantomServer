@@ -33,6 +33,7 @@ public class SystemMonitorPanel implements MonitorPanel {
     @Override
     public Map<String, Object> getData(Map<String, Object> data) {
         int k = (int) data.getOrDefault("k",1);
+        k = Math.max(k, 1);
         Map<String, Object> ret = new HashMap<>();
         // 读取数据
         ret.put("JVM堆内存最大值(单位MB)", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() / Constant.MB);

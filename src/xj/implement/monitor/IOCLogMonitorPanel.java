@@ -15,6 +15,8 @@ import java.util.Map;
 // IOC容器和日志可视化界面
 public class IOCLogMonitorPanel implements MonitorPanel {
 
+    private final int MAX_LOG_SHOW = 20;
+
     @Override
     public String returnTitle() {
         return "IOC与日志";
@@ -28,6 +30,7 @@ public class IOCLogMonitorPanel implements MonitorPanel {
     @Override
     public Map<String, Object> getData(Map<String, Object> data) {
         int k = (int) data.getOrDefault("k",1);
+        k = Math.max(k, 1);
         Map<String, Object> ret = new HashMap<>();
         Map<String, Object> IOCRet = new HashMap<>();
         Map<String, Object> LogRet = new HashMap<>();
@@ -45,6 +48,8 @@ public class IOCLogMonitorPanel implements MonitorPanel {
 
     @Override
     public void setData(Map<String, Object> data) {
-
+        int logNum = (int)  data.getOrDefault("logNum",1);
+        logNum = Math.max(logNum, 1);
+        LogManager.setCateMessageCapacity(logNum);
     }
 }

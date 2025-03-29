@@ -37,7 +37,12 @@
                         <div class="unit">
                             <div class="title">数据刷新频率(秒/次)</div>
                             <div class="block">
-                                <input id="data-refresh-rate" type="number" min="5" max="60" value="5">
+                                <select id="data-refresh-rate">
+                                    <option value="1">5秒</option>
+                                    <option value="2">10秒</option>
+                                    <option value="6">30秒</option>
+                                    <option value="12">1分钟</option>
+                                </select>
                             </div>
                         </div>
                         <div class="unit">
@@ -53,6 +58,7 @@
     </div>
     <div style="width : 50%">
         <div class="unit-layout arg-table-layout" style="height : 40%;">
+            <p>系统模块参数</p>
             <div class="color-bg">
                 <table>
                     <thead id="args-table-head"></thead>
@@ -64,10 +70,11 @@
 </div>
 
     <script>
-        var dt = {k:getK()};
+        var timer = null;
+
         function refresh(){
+            var dt = {k:getK()};
             postJsonData("/monitor-service/SystemMonitorPanel/getData",dt,function(data){
-                console.log(data);
                 dataElementName = ["JVM详细数据图表"];
                 chartData1 = data["JVM详细数据图表"]["jvm线程图表"];
                 chartData2 = data["JVM详细数据图表"]["jvm内存图表(单位MB)"];
@@ -80,10 +87,19 @@
         }
 
         function changeProp(){
-
+            setK(document.getElementById("data-refresh-rate").value);
+            refresh();
+            if(timer !== null)
+                clearInterval(timer);
+            timer = setInterval(function (){
+                refresh();
+            }, getK() * 5000);
         }
 
         refresh();
+        timer = setInterval(function (){
+            refresh();
+        }, getK() * 5000);
     </script>
     
 </body>

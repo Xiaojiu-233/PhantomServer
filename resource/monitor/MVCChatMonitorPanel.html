@@ -13,6 +13,7 @@
     <div class="vertical-layout">
         <div style="width : 50%">
             <div class="unit-layout arg-table-layout" style="height : 30%;">
+                <p>MVC模块参数</p>
                 <div class="color-bg">
                     <table>
                         <thead id="mvc-args-table-head">
@@ -23,6 +24,7 @@
                 </div>
             </div>
             <div class="unit-layout data-table-layout" style="height : 35%;">
+                <p>MVC请求拦截处理器信息</p>
                 <div class="color-bg">
                     <table>
                         <thead id="mvc-data-table-head-1">
@@ -33,6 +35,7 @@
                 </div>
             </div>
             <div class="unit-layout data-table-layout" style="height : 35%;">
+                <p>MVC的ContentType转移器信息</p>
                 <div class="color-bg">
                     <table>
                         <thead id="mvc-data-table-head-2">
@@ -44,33 +47,35 @@
             </div>
         </div>
         <div style="width : 50%">
-            <div style="height: 30%; display:flex;">
+            <div style="height: 32%; display:flex;">
                 <div class="unit-layout arg-table-layout" style="width : 70%;">
+                    <p>聊天室模块参数</p>
                     <div class="color-bg">
                         <table>
                             <thead id="chat-args-table-head">
                             </thead>
-                            <tbody style="max-height: 100px" id="chat-args-table-body">
+                            <tbody style="max-height: 80px" id="chat-args-table-body">
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="unit-layout controller-layout" style="width : 30%;">
-                    <div class="color-bg">
-                        <div class="unit">
-                            <div class="title">这是标题</div>
-                            <div class="block">这是内容</div>
+                    <div class="unit">
+                        <div class="title">缓存消息数上限</div>
+                        <div class="block">
+                            <input id="msg-cache-num" type="number" min="1" value="500">
                         </div>
-                        <div class="unit">
-                            <div class="title">这是标题</div>
-                            <div class="block">这是内容</div>
+                    </div>
+                    <div class="unit">
+                        <div class="title">消息数上限</div>
+                        <div class="block">
+                            <input id="msg-show-num" type="number"  min="1" max="100" value="20">
                         </div>
-                        <div class="unit">
-                            <div class="title">这是标题</div>
-                            <div class="block">
-                                <button>go</button>
-                                <button>go</button>
-                            </div>
+                    </div>
+                    <div class="unit">
+                        <div class="title">修改配置</div>
+                        <div class="block">
+                            <button onclick="changeProp()">提交修改</button>
                         </div>
                     </div>
                 </div>
@@ -78,40 +83,94 @@
             <div class="unit-layout multi-layer-layout" style="height : 30%;">
                 <div class="chart">
                     <div class="title">
-                        这是标题
+                        消息数图表
                     </div>
-                    <div class="block">
-                        这是内容
-                    </div>
+                    <div class="block" id="chart1"></div>
                 </div>
                 <div class="controller">
-                    1
+                    <div class="unit">
+                        <div class="title">容量：</div>
+                        <div class="block" id="cache-capacity"></div>
+                    </div>
+                    <div class="unit">
+                        <div class="title">剩余空间大小：</div>
+                        <div class="block" id="cache-remain"></div>
+                    </div>
+                    <div class="unit">
+                        <div class="title" >
+                            <select id="caches" style="width: 10rem"></select>
+                            <button onclick="getCacheMsg()">查询</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div id="chat-list" class="unit-layout scroll-unit-layout" style="height : 40%;">
-            </div>
+                <p>聊天室消息缓存块详情</p>
+                <table>
+                    <thead id="chat-data-table-head">
+                    </thead>
+                    <tbody style="max-height: 250px;" id="chat-data-table-body">
+                    </tbody>
+                </table>
         </div>
     </div>
 
     <script>
-        var dt = {k:getK()};
-        postJsonData("/monitor-service/MVCChatMonitorPanel/getData",dt,function(data){
-            var mvc = data.MVC;
-            var theadNames1 = ["处理路径","处理器请求方法"];
-            var theadNames2 = ["转移器名称","转移器全限名"];
-            dataElementName = ["MVC请求拦截处理器信息","MVC的ContentType转移器信息"];
-            dataElements1 = mvc["MVC请求拦截处理器信息"];
-            dataElements2 = mvc["MVC的ContentType转移器信息"];
-            renderArgTable("mvc-args-table-head","mvc-args-table-body",dataElementName,mvc);
-            renderTable("mvc-data-table-head-1","mvc-data-table-body-1",theadNames1,dataElements1, {});
-            renderTable("mvc-data-table-head-2","mvc-data-table-body-2",theadNames2,dataElements2, {});
-            var chat = data.Chat;
-            dataElementName = ["聊天室消息缓存块详情"];
-            dataElements3 = chat[dataElementName];
-            cacheMessage = dataElements3["缓存块"];
-            renderArgTable("chat-args-table-head","chat-args-table-body",dataElementName,chat);
-            renderList("chat-list",cacheMessage[Object.keys(cacheMessage)[0]]);
-        });
+        var cacheMessage = {};
+        var cacheKeys = {};
+        var nowCacheKey = null;
+
+        function refresh(){
+            var dt = {k:getK(),maxMsg:Number(document.getElementById("msg-show-num").value)};
+            postJsonData("/monitor-service/MVCChatMonitorPanel/getData",dt,function(data){
+                // MVC
+                var mvc = data.MVC;
+                var theadNames1 = ["处理路径","处理器请求方法"];
+                var theadNames2 = ["转移器名称","转移器全限名"];
+                dataElementName = ["MVC请求拦截处理器信息","MVC的ContentType转移器信息"];
+                dataElements1 = mvc["MVC请求拦截处理器信息"];
+                dataElements2 = mvc["MVC的ContentType转移器信息"];
+                renderArgTable("mvc-args-table-head","mvc-args-table-body",dataElementName,mvc);
+                renderTable("mvc-data-table-head-1","mvc-data-table-body-1",theadNames1,dataElements1, {});
+                renderTable("mvc-data-table-head-2","mvc-data-table-body-2",theadNames2,dataElements2, {});
+                // 聊天室
+                var chat = data.Chat;
+                dataElementName = ["聊天室消息缓存块详情"];
+                dataElements3 = chat[dataElementName];
+                renderArgTable("chat-args-table-head","chat-args-table-body",dataElementName,chat);
+                // 聊天室详情
+                document.getElementById("cache-capacity").innerText = dataElements3["最新缓存块当前消息数"] + " / " + dataElements3["最新缓存块容量"];
+                document.getElementById("cache-remain").innerText = dataElements3["最新缓存块空间剩余"]
+                chartData = dataElements3["缓存块读取消息图表"];
+                DoChart(chartData,"时间","消息数","chart1");
+                cacheMessage = dataElements3["缓存块"];
+                cacheKeys = Object.keys(cacheMessage);
+                if(nowCacheKey === null)
+                    nowCacheKey = cacheKeys[0];
+                var cacheNames = {}
+                for (var i of cacheKeys){
+                    cacheNames[i] = i;
+                }
+                renderSelector("caches",cacheNames);
+                getCacheMsg();
+            });
+        }
+
+        function getCacheMsg(){
+            var theadNames = ["类型","用户名","时间","内容"];
+            renderTable("chat-data-table-head","chat-data-table-body",theadNames,cacheMessage[nowCacheKey], {});
+        }
+
+        function changeProp(){
+            var dt = {cacheCapacity : Number(document.getElementById("msg-cache-num").value)
+            }
+            postJsonData("/monitor-service/MVCChatMonitorPanel/setData",dt,function(data){});
+            refresh();
+        }
+
+        refresh();
+        setInterval(function (){
+            refresh();
+        }, getK() * 5000);
     </script>
     
 </body>

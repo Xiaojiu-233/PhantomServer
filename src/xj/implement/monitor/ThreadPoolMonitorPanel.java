@@ -30,6 +30,7 @@ public class ThreadPoolMonitorPanel implements MonitorPanel {
     public Map<String, Object> getData(Map<String, Object> data) {
         Map<String, Object> ret = new HashMap<>();
         int k = (int) data.getOrDefault("k",1);
+        k = Math.max(k, 1);
         // 基础参数
         ret.put("核心线程数", ThreadPoolManager.getInstance().getCoreThread());
         ret.put("最大线程数", ThreadPoolManager.getInstance().getMaxThread());
@@ -50,6 +51,8 @@ public class ThreadPoolMonitorPanel implements MonitorPanel {
     public void setData(Map<String, Object> data) {
         int commonThreadNum = (int) data.getOrDefault("commonThreadNum",10);
         int queueTaskNum = (int)  data.getOrDefault("queueTaskNum",10);
+        commonThreadNum = Math.max(commonThreadNum, 0);
+        queueTaskNum = Math.max(queueTaskNum, 0);
         String recycleStrategy = (String) data.getOrDefault("recycleStrategy","timeout");
         String refuseStrategy = (String) data.getOrDefault("refuseStrategy","THROW_TASK");
         ThreadPoolManager.getInstance().changeProperties(commonThreadNum,queueTaskNum,recycleStrategy,refuseStrategy);

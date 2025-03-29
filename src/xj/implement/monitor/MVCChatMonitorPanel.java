@@ -31,7 +31,9 @@ public class MVCChatMonitorPanel implements MonitorPanel {
     @Override
     public Map<String, Object> getData(Map<String, Object> data) {
         int k = (int) data.getOrDefault("k",1);
+        k = Math.max(k, 1);
         int maxMsg = (int) data.getOrDefault("maxMsg",MAX_MESSAGE_SHOW);
+        maxMsg = Math.max(maxMsg, 1);
         Map<String, Object> ret = new HashMap<>();
         Map<String, Object> MVCRet = new HashMap<>();
         Map<String, Object> ChatRet = new HashMap<>();
@@ -41,7 +43,7 @@ public class MVCChatMonitorPanel implements MonitorPanel {
         MVCRet.put("MVC请求拦截处理器信息", MVCManager.getInstance().returnHandlerMappingInfo());
         MVCRet.put("MVC的ContentType转移器信息", MVCManager.getInstance().returnContentTypeConverterInfo());
         ChatRet.put("聊天室消息缓存块数量", ConfigureManager.getInstance().getConfig(ConfigPool.CHAT.MESSAGE_CACHE_NUM));
-        ChatRet.put("聊天室消息缓存块容量", ConfigureManager.getInstance().getConfig(ConfigPool.CHAT.CACHE_CAPACITY));
+        ChatRet.put("聊天室消息缓存块容量", ChatManager.getInstance().getCacheCapacity());
         ChatRet.put("聊天室消息图片存储路径", ConfigureManager.getInstance().getConfig(ConfigPool.CHAT.CHAT_IMAGE_PATH));
         ChatRet.put("聊天室消息缓存块详情", ChatManager.getInstance().returnMessageCacheInfos(k,maxMsg));
         // 存储数据
@@ -52,6 +54,8 @@ public class MVCChatMonitorPanel implements MonitorPanel {
 
     @Override
     public void setData(Map<String, Object> data) {
-
+        int cacheCapacity = (int)  data.getOrDefault("cacheCapacity",1);
+        cacheCapacity = Math.max(cacheCapacity, 1);
+        ChatManager.getInstance().setCacheCapacity(cacheCapacity);
     }
 }

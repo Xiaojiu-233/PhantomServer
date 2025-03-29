@@ -25,6 +25,8 @@ public class WebMonitorPanel implements MonitorPanel {
         Map<String, Object> ret = new HashMap<>();
         int pageSize = (int) data.get("pageSize");
         int pageNum = (int) data.get("pageNum");
+        pageSize = Math.max(pageSize, 1);
+        pageNum = Math.max(pageNum, 1);
         // 基础参数
         ret.put("监听端口", ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.PORT));
         ret.put("请求单元分隔符", ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.UNIT_SPLIT_BREAK));

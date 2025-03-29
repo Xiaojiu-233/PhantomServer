@@ -12,6 +12,7 @@
 
     <div class="vertical-layout">
         <div class="color-bg" style="width: 30%;">
+            <p>Web模块参数</p>
             <table style="height : 80%">
               <thead id="args-table-head">
               </thead>
@@ -44,6 +45,7 @@
             </div>
         </div>
         <div class="color-bg" style="width: 70%;">
+            <p>服务器channel连接信息</p>
             <table>
                 <thead id="data-table-head">
                 </thead>
@@ -84,6 +86,9 @@
         }
 
         refresh();
+        setInterval(function (){
+            refresh();
+        }, getK() * 5000);
     </script>
     
 </body>

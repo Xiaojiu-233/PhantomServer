@@ -1,7 +1,8 @@
 // 数据准备
 var hostName = "http://" + (window.location.hostname == "localhost" ? "127.0.0.1" : window.location.hostname);
 var baseUrl = hostName + ":" +  window.location.port;
-var k = 1;
+if(localStorage.getItem("k") === null || Number(localStorage.getItem("k")) < 1)
+  localStorage.setItem("k","1");
 
 // 方法内容
 // 1. get请求
@@ -153,5 +154,10 @@ function renderSelector(selector,data){
 
 // 获取k值
 function getK(){
-  return k;
+  return Number(localStorage.getItem("k"));
+}
+
+// 设置k值
+function setK(k){
+  localStorage.setItem("k",k);
 }

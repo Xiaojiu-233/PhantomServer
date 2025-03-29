@@ -40,10 +40,11 @@
                 </div>
             </div>
             <div class="unit-layout arg-table-layout" style="height : 36%;">
+                <p>线程池模块参数</p>
                 <div class="color-bg">
                     <table>
                         <thead id="args-table-head"></thead>
-                        <tbody style="max-height : 150px" id="args-table-body"></tbody>
+                        <tbody style="max-height : 120px" id="args-table-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -92,6 +93,7 @@
         <div style="width : 60%">
             <div class="unit-layout data-table-layout" style="height : 100%;">
                 <div class="color-bg">
+                    <p>工作线程情况</p>
                     <table>
                         <thead id="data-table-head"></thead>
                         <tbody style="max-height : 500px"  id="data-table-body"></tbody>
@@ -102,8 +104,8 @@
     </div>
 
     <script>
-        var dt = {k:getK()};
         function refresh(){
+            var dt = {k:getK()};
             postJsonData("/monitor-service/ThreadPoolMonitorPanel/getData",dt,function(data){
                 var theadNames = ["线程名","线程任务名","来源channel","线程类别","线程当前运行时间(毫秒)","线程当前等待时间(毫秒)","线程平均等待时间(毫秒)","状态"];
                 var styleMapping = {"等待":"color : red","执行":"color : blue"};
@@ -135,6 +137,9 @@
         }
 
         refresh();
+        setInterval(function (){
+            refresh();
+        }, getK() * 5000);
     </script>
     
 </body>

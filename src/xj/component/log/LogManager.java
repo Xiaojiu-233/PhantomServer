@@ -24,7 +24,7 @@ public class LogManager implements ILogManager {
 
     private final String OUTPUT_FILE_PATH = "log";// 输出文件路径
     private final String PREPARE_FILE_NAME = "preparePeriodLog";// 准备阶段日志文件名
-    private static final int CATE_MESSAGE_CAPACITY = 20;// 分类消息容器大小
+    private static int CATE_MESSAGE_CAPACITY = 20;// 分类消息容器大小
 
     private Writer outputWriter;// 字符输出流
     private final Object writerLock = new Object();// 写锁
@@ -232,8 +232,8 @@ public class LogManager implements ILogManager {
     }
 
     // 返回日志基础信息
-    public List<Map<String,Object>> returnLogInfos(int k){
-        List<Map<String,Object>> ret = new ArrayList<>();
+    public Map<String,Object> returnLogInfos(int k){
+        Map<String,Object> ret = new HashMap<>();
         // 将四个日志分类分别导入
         for(LogLevel level : LogLevel.values()){
             Map<String,Object> logInfo = new HashMap<>();
@@ -243,8 +243,21 @@ public class LogManager implements ILogManager {
             logInfo.put("日志图表",logStrategyCharts.get(level).outputChart(k,false));
             // 日志详情
             logInfo.put("日志详情",logMessageCate.get(level));
-            ret.add(logInfo);
+            ret.put(level.name(),logInfo);
         }
         return ret;
+    }
+
+    public static void setCateMessageCapacity(int cateMessageCapacity) {
+        synchronized (LogManager.class){
+            CATE_MESSAGE_CAPACITY = cateMessageCapacity;
+            // 清除多出来的数据
+            for(LogLevel level : LogLevel.values()){
+                Deque<String> queue = getInstance().logMessageCate.get(level);
+                while(queue.size() > CATE_MESSAGE_CAPACITY){
+                    queue.pollLast();
+                }
+            }
+        }
     }
 }

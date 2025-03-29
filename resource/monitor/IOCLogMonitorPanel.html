@@ -13,6 +13,7 @@
     <div class="vertical-layout">
         <div style="width : 50%">
             <div class="unit-layout arg-table-layout" style="height : 30%;">
+                <p>IOC模块参数</p>
                 <div class="color-bg">
                     <table>
                         <thead id="ioc-args-table-head">
@@ -23,6 +24,7 @@
                 </div>
             </div>
             <div class="unit-layout data-table-layout" style="height : 70%;">
+                <p>IOC容器实例信息</p>
                 <div class="color-bg">
                     <table>
                         <thead id="ioc-data-table-head">
@@ -36,6 +38,7 @@
         <div style="width : 50%">
             <div style="height: 30%; display:flex;">
                 <div class="unit-layout arg-table-layout" style="width : 70%;">
+                    <p>日志模块参数</p>
                     <div class="color-bg">
                         <table>
                             <thead id="args-table-head">
@@ -48,18 +51,15 @@
                 <div class="unit-layout controller-layout" style="width : 30%;">
                     <div class="color-bg">
                         <div class="unit">
-                            <div class="title">这是标题</div>
-                            <div class="block">这是内容</div>
-                        </div>
-                        <div class="unit">
-                            <div class="title">这是标题</div>
-                            <div class="block">这是内容</div>
-                        </div>
-                        <div class="unit">
-                            <div class="title">这是标题</div>
+                            <div class="title">日志数上限</div>
                             <div class="block">
-                                <button>go</button>
-                                <button>go</button>
+                                <input id="log-show-num" type="number"  min="1" max="100" value="20">
+                            </div>
+                        </div>
+                        <div class="unit">
+                            <div class="title">修改配置</div>
+                            <div class="block">
+                                <button onclick="changeProp()">提交修改</button>
                             </div>
                         </div>
                     </div>
@@ -68,36 +68,82 @@
             <div class="unit-layout multi-layer-layout" style="height : 30%;">
                 <div class="chart">
                     <div class="title">
-                        这是标题
+                        日志数图表
                     </div>
-                    <div class="block">
-                        这是内容
-                    </div>
+                    <div class="block" id="chart1"></div>
                 </div>
                 <div class="controller">
-                    1
+                    <div class="unit">
+                        <div class="title">日志数量：</div>
+                        <div class="block" id="log-num"></div>
+                    </div>
+                    <div class="unit">
+                        <div class="title">日志类型：</div>
+                        <div class="block">
+                            <select id="log-type">
+                                <option value="INFO">INFO</option>
+                                <option value="DEBUG">DEBUG</option>
+                                <option value="WARNING">WARNING</option>
+                                <option value="ERROR">ERROR</option>
+                            </select>
+                            <button onclick="getLogMsg()">查询</button>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <p>日志内容</p>
             <div id="log-list" class="unit-layout scroll-unit-layout" style="height : 40%;">
             </div>
         </div>
     </div>
 
     <script>
-        var dt = {k:getK()};
-        postJsonData("/monitor-service/IOCLogMonitorPanel/getData",dt,function(data){
-            var ioc = data.IOC;
-            var theadNames = ["实例名称","实例类全限名"];
-            dataElementName = ["IOC容器实例信息"];
-            dataElements = ioc[dataElementName];
-            renderArgTable("ioc-args-table-head","ioc-args-table-body",dataElementName,ioc);
-            renderTable("ioc-data-table-head","ioc-data-table-body",theadNames,dataElements, {});
-            var log = data.Log;
-            dataElementNameLog = ["当前使用的日志分类详情"];
-            dataElementsLog = log[dataElementNameLog];
-            renderArgTable("args-table-head","args-table-body",dataElementNameLog,log);
-            renderList("log-list",dataElementsLog[0]["日志详情"]);
-        });
+        var logData = {};
+        var logKeys = {info:"INFO",debug:"DEBUG",warning:"WARNING",error:"ERROR"};
+        var nowLogKey = logKeys.info;
+
+        function refresh(){
+            var dt = {k:getK()};
+            postJsonData("/monitor-service/IOCLogMonitorPanel/getData",dt,function(data){
+                // IOC
+                var ioc = data.IOC;
+                var theadNames = ["实例名称","实例类全限名"];
+                dataElementName = ["IOC容器实例信息"];
+                dataElements = ioc[dataElementName];
+                renderArgTable("ioc-args-table-head","ioc-args-table-body",dataElementName,ioc);
+                renderTable("ioc-data-table-head","ioc-data-table-body",theadNames,dataElements, {});
+                // Log
+                var log = data.Log;
+                dataElementNameLog = ["当前使用的日志分类详情"];
+                logData = log[dataElementNameLog];
+                renderArgTable("args-table-head","args-table-body",dataElementNameLog,log);
+                getLogMessageByKey(nowLogKey);
+            });
+        }
+
+        function getLogMessageByKey(key){
+            document.getElementById("log-num").innerText = logData[key]["日志总数"];
+            chartData1 = logData[key]["日志图表"];
+            DoChart(chartData1,"时间","日志数","chart1");
+            renderList("log-list",logData[key]["日志详情"]);
+        }
+
+        function getLogMsg(){
+            nowLogKey = document.getElementById("log-type").value;
+            getLogMessageByKey(nowLogKey);
+        }
+
+        function changeProp(){
+            var dt = {logNum : Number(document.getElementById("log-show-num").value)
+            }
+            postJsonData("/monitor-service/IOCLogMonitorPanel/setData",dt,function(data){});
+            refresh();
+        }
+
+        refresh();
+        setInterval(function (){
+            refresh();
+        }, getK() * 5000);
     </script>
     
 </body>
