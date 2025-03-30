@@ -97,8 +97,6 @@ public class SelectorChannel {
             handleData();
         }else if(phase == SelectorPhase.WAIT_WRITE){
             handleIO();
-        }else if(phase == SelectorPhase.WAIT_RESP){
-            handleWrite();
         }else if(phase == SelectorPhase.ENDING){
             endSocket();
         }
@@ -211,16 +209,9 @@ public class SelectorChannel {
                 return;
             }
         }
-        // 将数据包消息传递给处理器进行处理，处理器处理完成后返回消息并打包成响应数据包发送给客户端
-        response = handler.handle(request);
-        // 如果响应体有IO任务，为任务添加接收器
-        StreamIOTask task = response.getStreamIOTask();
-        if(task != null)
-            task.setReceiver(receiver);
         // 开始数据流的读写IO
-        startIOTask(task != null ? (ThreadTask) task :
-                        ThreadTaskFactory.getInstance().createChannelWriteTask(client,response,receiver)
-                ,task != null ? SelectorPhase.WAIT_WRITE : SelectorPhase.WAIT_RESP);
+        startIOTask(ThreadTaskFactory.getInstance().createChannelWriteTask(client,receiver,request,handler),
+                 SelectorPhase.WAIT_WRITE);
     }
 
     // 阶段3.处理服务器内部IO
@@ -231,21 +222,9 @@ public class SelectorChannel {
         byte[] data = receiver.getData();
         if(data.length == 0){
             // 如果数据为空，则报错
-            LogManager.error_("TCP通道对象的服务器内部数据流IO发生异常");
+            LogManager.error_("TCP通道对象的服务器内部IO发生异常");
             response = handler.whenException();
-        }else if(data.length > StrPool.SUCCESS.length() != StrPool.SUCCESS.equals(new String(data))){
-            // 如果数据不为成功符号，则储存至响应体
-            response.storeData(data);
         }
-        // 开始Socket的写IO
-        startIOTask(ThreadTaskFactory.getInstance().createChannelWriteTask(client,response,receiver)
-                ,SelectorPhase.WAIT_RESP);
-    }
-
-    // 阶段4.返回数据与后续处理
-    private void handleWrite(){
-        // 如果已经执行完读IO则继续执行
-        if(receiver.dataNotExist())return;
         // 执行到此确定为一个流程的连接处理结束，进行连接持续时间结算
         long nowTime = System.currentTimeMillis();
         connectingTimes.add(nowTime - connectStartTime);
@@ -257,7 +236,7 @@ public class SelectorChannel {
             phase = SelectorPhase.PREPARE;
     }
 
-    // 阶段5.结束
+    // 阶段4.结束
     private void endSocket(){
         // 关闭连接，回收资源
         try {
@@ -311,6 +290,6 @@ public class SelectorChannel {
 
     // 内部枚举：执行阶段
     private enum SelectorPhase {
-        PREPARE,WAIT_READ,WAIT_WRITE,WAIT_RESP,ENDING
+        PREPARE,WAIT_READ,WAIT_WRITE,ENDING
     }
 }

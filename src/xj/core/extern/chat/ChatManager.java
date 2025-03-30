@@ -10,6 +10,7 @@ import xj.enums.web.ChatType;
 import xj.implement.web.TCPChatRequest;
 import xj.implement.web.TCPChatResponse;
 import xj.tool.ConfigPool;
+import xj.tool.FileIOUtil;
 import xj.tool.StrPool;
 
 import java.io.*;
@@ -134,12 +135,11 @@ public class ChatManager {
     // 存储图片
     private boolean storeImage(ChatObject ob,TCPChatRequest req,TCPChatResponse resp) {
         // 随机生成UUID作为存储的图片key
-        String key = UUID.randomUUID().toString() + StrPool.PNG_POINT;
+        String key = UUID.randomUUID() + StrPool.PNG_POINT;
         resp.setFileKey(key);
         // 将图片二进制数据转化为输入流并存储在线程任务中
         ByteArrayInputStream bis = new ByteArrayInputStream(req.getBodyBytes());
-        resp.setStreamIOTask(ThreadTaskFactory.getInstance().createStreamOutputTask
-                (bis, chatImagePath + StrPool.SLASH + key));
+        FileIOUtil.writeFileByInputStream(chatImagePath + StrPool.SLASH + key,bis);
         // 将消息存储在消息缓存块里
         ob.setMessage(key);
         return storeMessage(ob);
@@ -181,10 +181,14 @@ public class ChatManager {
                     else if(ChatType.IMAGE.equals(ob.getType())) {
                         resp.getObs().add(ob);
                         pos++;
-                        // 开启线程任务
+                        // 开启任务
                         String filePath = chatImagePath + StrPool.SLASH + ob.getMessage();
-                        FileInputStream fis = new FileInputStream(filePath);
-                        resp.setStreamIOTask(ThreadTaskFactory.getInstance().createStreamInputTask(fis));
+                        if(new File(filePath).exists()){
+                            FileInputStream fis = new FileInputStream(filePath);
+                            resp.storeData(FileIOUtil.getByteByInputStream(fis));
+                        }else{
+                            resp.storeData(new byte[0]);
+                        }
                         break;
                     }
                     else
@@ -245,6 +249,8 @@ public class ChatManager {
     }
 
     public void setCacheCapacity(int cacheCapacity) {
-        this.cacheCapacity = cacheCapacity;
+        synchronized (ChatManager.class) {
+            this.cacheCapacity = cacheCapacity;
+        }
     }
 }

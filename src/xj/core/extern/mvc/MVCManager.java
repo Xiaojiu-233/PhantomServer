@@ -105,9 +105,9 @@ public class MVCManager {
         // 初始化响应对象
         HTTPResponse response = null;
         // 判定是否为GET请求
-        if(req.getMethod().equals(RequestMethod.GET)){
+        if(!req.getMethod().equals(RequestMethod.GET)){
             // 如果不是，则返回405响应
-            response = (HTTPResponse) getHttpRespByStatuCode(StatuCode.METHOD_NOT_ALLOWED);
+            return (HTTPResponse) getHttpRespByStatuCode(StatuCode.METHOD_NOT_ALLOWED);
         }
         // 对路径进行解析，获取扩展名
         String url = req.getUrl();
@@ -120,7 +120,11 @@ public class MVCManager {
         }else{
             // 寻找到资源则根据扩展名类型确定对应的Content-Type
             response = new HTTPResponse(StatuCode.OK,CharacterEncoding.UTF_8,null);
-            response.setStreamIOTask(ThreadTaskFactory.getInstance().createStreamInputTask(in));
+            try {
+                response.storeData(FileIOUtil.getByteByInputStream(in));
+            } catch (IOException e) {
+                LogManager.error_("MVC模块读取资源时出现异常",e);
+            }
             response.setHeaders(StrPool.CONTENT_TYPE,ContentType.getContentTypeByExtName(extName));
         }
         // 返回HTTP响应

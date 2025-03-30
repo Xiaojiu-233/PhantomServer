@@ -30,10 +30,9 @@ public class FileIOUtil {
     }
 
     // 从InputStream中获取byte数组
-    public static byte[] getByteByInputStream(InputStream in) throws IOException, InterruptedException {
+    public static byte[] getByteByInputStream(InputStream in) throws IOException {
         byte[] buffer = new byte[Constant.BYTES_UNIT_CAPACITY];
         int bytesRead = 0;
-        Thread.sleep(50);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         while (in.available() > 0) {
             bytesRead = in.read(buffer);
@@ -42,6 +41,44 @@ public class FileIOUtil {
             }
         }
         return bos.toByteArray();
+    }
+
+    // 从InputStream中获取数据存入文件系统里
+    public static void writeFileByInputStream(String targetPath, InputStream source) {
+        try {
+            // 生成路径文件夹
+            if(targetPath.lastIndexOf(File.separator) != -1){
+                String dirPath = targetPath.substring(0, targetPath.lastIndexOf(File.separator));
+                File dir = new File(dirPath);
+                if(!dir.exists()){
+                    if(!dir.mkdirs()){
+                        LogManager.error_("执行数据存入文件系统任务时，无法创建文件夹: {}",dirPath);
+                        return;
+                    }
+                }
+            }
+            // 打开文件
+            File file = new File(targetPath);
+            if (!file.exists())
+                if(!file.createNewFile()){
+                    LogManager.error_("执行数据存入文件系统任务时，无法创建文件: {}",targetPath);
+                    return;
+                }
+            // 数据准备
+            byte[] buffer = new byte[Constant.BYTES_UNIT_CAPACITY];// 开始读取数据
+            OutputStream target = Files.newOutputStream(file.toPath());
+            // 1.读取数据并存入文件中
+            int getByte = 0;
+            while ((getByte = source.read(buffer))!= -1) {
+                // 数据
+                target.write(buffer,0,getByte);
+            }
+            // 3.读取结束
+            source.close();
+            target.close();
+        } catch (IOException e) {
+            LogManager.error_("执行数据存入文件系统任务时，出现异常：{}",e);
+        }
     }
 
     // 根据换行符分割字符数组(返回值中，奇数为数据段开头，偶数为数据段结尾)

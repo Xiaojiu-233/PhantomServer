@@ -16,23 +16,11 @@ public abstract class Response {
 
     protected String unitSplitBreak;// 单元分隔符
 
-    protected StreamIOTask ioTask;// 数据流IO线程任务
-
     // 成员方法
     // 构造方法
     public Response() {
         lineBreak = (String) ConfigureManager.getInstance().getConfig(ConfigPool.SYSTEM_ARG.LINE_BREAK);
         unitSplitBreak = (String) ConfigureManager.getInstance().getConfig(ConfigPool.SERVER.UNIT_SPLIT_BREAK);
-    }
-
-    // 获取IO线程任务
-    public StreamIOTask getStreamIOTask() {
-        return ioTask;
-    }
-
-    // 设置数据流IO线程任务
-    public void setStreamIOTask(StreamIOTask task) {
-        ioTask = task;
     }
 
     // 将数据响应给socket输出流

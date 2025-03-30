@@ -1,5 +1,7 @@
 package xj.implement.thread;
 
+import xj.abstracts.connect.ConnectHandler;
+import xj.abstracts.web.Request;
 import xj.abstracts.web.Response;
 import xj.component.log.LogManager;
 import xj.implement.server.ByteReceiver;
@@ -15,17 +17,20 @@ public class ChannelWriteTask extends ThreadTask {
     // 成员属性
     private final SocketChannel out;// 输出流
 
-    private final Response response;// Web响应对象
-
     private ByteReceiver receiver;// 数据发送目标
+
+    private Request request;// 请求
+
+    private ConnectHandler handler;// 连接处理器
 
     // 成员方法
     // 初始化
-    public ChannelWriteTask(SocketChannel out, Response response, ByteReceiver receiver) {
+    public ChannelWriteTask(SocketChannel out, Request request, ConnectHandler handler, ByteReceiver receiver) {
         // 存入数据
         this.out = out;
-        this.response = response;
         this.receiver = receiver;
+        this.request = request;
+        this.handler = handler;
     }
 
     @Override
@@ -34,6 +39,9 @@ public class ChannelWriteTask extends ThreadTask {
         String threadName = Thread.currentThread().getName();
         // 执行数据写入
         try {
+            // 将数据包消息传递给处理器进行处理，处理器处理完成后返回消息并打包成响应数据包发送给客户端
+            Response response = handler.handle(request);
+            // 响应填入信息
             response.writeMessage(out);
         } catch (IOException e) {
             LogManager.error_("[{}] 的TCP通道写IO任务在输出数据时出现异常：{}",threadName,e);
@@ -42,6 +50,8 @@ public class ChannelWriteTask extends ThreadTask {
             } catch (IOException ex) {
                 LogManager.error_("[{}] 的TCP通道写IO任务在因异常关闭时出现异常：{}",threadName,e);
             }
+            receiver.storeData(new byte[0]);
+            return;
         }
         // 将成功消息传输给接收器
         receiver.storeData(StrPool.SUCCESS.getBytes());
@@ -54,6 +64,6 @@ public class ChannelWriteTask extends ThreadTask {
 
     @Override
     public String getLogDescribe() {
-        return "TCP通道写IO任务";
+        return "TCP通道IO处理任务";
     }
 }
