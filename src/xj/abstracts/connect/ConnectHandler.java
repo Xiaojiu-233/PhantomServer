@@ -90,7 +90,9 @@ public abstract class ConnectHandler {
         try {
             Constructor<? extends ConnectHandler> con = getClass().getDeclaredConstructor();
             con.setAccessible(true);
-            return con.newInstance();
+            ConnectHandler h = con.newInstance();
+            h.setWebFilters(webFilters);
+            return h;
         } catch (Exception e) {
             LogManager.error_("连接处理器复制时出现异常", e);
             return null;
@@ -103,11 +105,17 @@ public abstract class ConnectHandler {
      * */
     public Response doHandle(Request request) {
         // 进行过滤器过滤
-        if (!webFilters.isEmpty())
-            for (WebFilter webFilter : webFilters)
-                if (!webFilter.doFilter(request))
-                    return whenException();
+        synchronized (this){
+            if (!webFilters.isEmpty())
+                for (WebFilter webFilter : webFilters)
+                    if (!webFilter.doFilter(request))
+                        return whenException();
+        }
         // 如果所有过滤器通过过滤，执行
         return handle(request);
+    }
+
+    public void setWebFilters(PriorityQueue<WebFilter> webFilters) {
+        this.webFilters = webFilters;
     }
 }

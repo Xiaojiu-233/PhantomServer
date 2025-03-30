@@ -1,15 +1,12 @@
 package xj.entity.monitor;
 
-import xj.component.log.LogManager;
-import xj.tool.StrPool;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * 可视化界面使用的图表数据对象，用于快捷生成图表数据
- * */
+ */
 public class MonitorChart {
 
     // 成员属性
@@ -37,7 +34,7 @@ public class MonitorChart {
     // 成员方法
     /**
      * 初始化
-     * */
+     */
     public MonitorChart(boolean isAccel) {
         this.isAccel = isAccel;
         list = new ArrayList<>();
@@ -47,7 +44,7 @@ public class MonitorChart {
 
     /**
      * 填入数据
-     * */
+     */
     public void inputData(int number) {
         // 数据存储或增值
         storeNumber = isAccel ? (number + storeNumber) : number;
@@ -81,7 +78,7 @@ public class MonitorChart {
 
     /**
      * 输出图表数据
-     * */
+     */
     public Map<String,Object> outputChart(int k,boolean retFloat) {
         refreshInputData();
         // 数据准备
@@ -117,7 +114,7 @@ public class MonitorChart {
             // x轴
             LocalDateTime minusTime =
                     now.minusSeconds((long) (MONITOR_CHART_X_RANGE - i) * k * MONITOR_CHART_UNIT_TIME);
-            x.add(String.format(TIME_FORMAT,minusTime.getMinute()) + StrPool.COLON
+            x.add(String.format(TIME_FORMAT,minusTime.getMinute()) + ":"
                     + String.format(TIME_FORMAT,minusTime.getSecond()));
             // y轴
             if (!isAccel)

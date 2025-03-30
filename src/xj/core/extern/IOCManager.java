@@ -91,7 +91,7 @@ public class IOCManager {
         List<Object> ret = new ArrayList<>();
         for(Map.Entry<String,Object> entry : iocContainer.entrySet()){
             Object bean = entry.getValue();
-            if(bean.getClass().isInstance(clazz)){
+            if(clazz.isInstance(bean)){
                 ret.add(bean);
             }
         }
