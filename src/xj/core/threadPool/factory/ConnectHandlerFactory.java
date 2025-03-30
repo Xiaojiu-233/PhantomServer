@@ -39,6 +39,10 @@ public class ConnectHandlerFactory {
         handlerList.add(new HTTPConnectHandler());
         handlerList.add(new TCPChatConnectHandler());
         handlerList.add(new TCPCloudConnectHandler());
+        // 连接处理器开始装填过滤器
+        for(ConnectHandler handler : handlerList){
+            handler.initFilter(handler.getClass());
+        }
     }
 
     // 通过IOC容器导入拓展连接处理器对象

@@ -7,6 +7,7 @@ import xj.implement.observer.SocketSelectorObserver;
 import xj.implement.observer.SocketChannelObserverContainer;
 import xj.implement.observer.SocketConfigObserver;
 import xj.implement.thread.TCPSelectorTask;
+import xj.interfaces.web.WebFilter;
 import xj.tool.ConfigPool;
 import xj.tool.Constant;
 
@@ -16,8 +17,7 @@ import java.lang.management.*;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 // 服务器模块，用于管理ServerSocket监听端口请求
 public class ServerManager {
@@ -31,8 +31,9 @@ public class ServerManager {
 
     private TCPSelectorTask selectorTask;// 主channel映射容器
 
-    private MonitorChart jvmThreadChart,jvmMemoryChart,jvmMemoryRateChart;
     // jvm的线程、内存、内存占比、对象图表
+    private MonitorChart jvmThreadChart,jvmMemoryChart,jvmMemoryRateChart;
+
 
     // 成员方法
     // 初始化

@@ -10,7 +10,6 @@ import xj.core.threadPool.factory.ConnectHandlerFactory;
 import xj.core.threadPool.factory.ThreadTaskFactory;
 import xj.implement.server.ByteReceiver;
 import xj.implement.web.ProtocolRequest;
-import xj.interfaces.thread.StreamIOTask;
 import xj.abstracts.thread.ThreadTask;
 import xj.tool.ConfigPool;
 import xj.tool.Constant;

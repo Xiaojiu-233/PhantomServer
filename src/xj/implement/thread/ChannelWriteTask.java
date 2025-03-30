@@ -40,7 +40,7 @@ public class ChannelWriteTask extends ThreadTask {
         // 执行数据写入
         try {
             // 将数据包消息传递给处理器进行处理，处理器处理完成后返回消息并打包成响应数据包发送给客户端
-            Response response = handler.handle(request);
+            Response response = handler.doHandle(request);
             // 响应填入信息
             response.writeMessage(out);
         } catch (IOException e) {
