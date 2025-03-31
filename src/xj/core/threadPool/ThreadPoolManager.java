@@ -252,9 +252,11 @@ public class ThreadPoolManager {
         return queueTaskChart;
     }
 
-    public void changeProperties(int commonThreadNum,int queueTaskNum,String recycleStrategy,String refuseStrategy){
+    public void changeProperties(int commonThreadNum,int queueTaskNum,int threadMaxFreeTime,
+                                 String recycleStrategy,String refuseStrategy){
         maxThread = commonThreadNum + coreThread;
         queueCapacity = queueTaskNum;
+        this.threadMaxFreeTime = threadMaxFreeTime;
         strategy = RejectStrategy.getStrategyByString(refuseStrategy);
     }
 }

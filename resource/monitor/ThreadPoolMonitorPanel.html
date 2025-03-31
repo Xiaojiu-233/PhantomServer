@@ -63,6 +63,12 @@
                         </div>
                     </div>
                     <div class="unit">
+                        <div class="title">线程最大闲置时间(秒)</div>
+                        <div class="block">
+                            <input id="thread-wait-time" type="number"  min="1000" max="100000" value="10">
+                        </div>
+                    </div>
+                    <div class="unit">
                         <div class="title">线程回收策略</div>
                         <div class="block">
                             <select id="recycle-strategy">
@@ -129,6 +135,7 @@
         function changeProp(){
             var dt = {commonThreadNum : Number(document.getElementById("common-thread-num").value),
                 queueTaskNum : Number(document.getElementById("queue-task-num").value),
+                threadMaxFreeTime : Number(document.getElementById("thread-wait-time").value),
                 recycleStrategy : document.getElementById("recycle-strategy").value,
                 refuseStrategy : document.getElementById("refuse-strategy").value
             }

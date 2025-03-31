@@ -16,6 +16,8 @@ import java.util.Map;
 // 动态线程池可视化界面
 public class ThreadPoolMonitorPanel implements MonitorPanel {
 
+    private final int THREAD_MIN_FREE_TIME = 1000;
+
     @Override
     public String returnTitle() {
         return "线程池";
@@ -51,10 +53,14 @@ public class ThreadPoolMonitorPanel implements MonitorPanel {
     public void setData(Map<String, Object> data) {
         int commonThreadNum = (int) data.getOrDefault("commonThreadNum",10);
         int queueTaskNum = (int)  data.getOrDefault("queueTaskNum",10);
+        int threadMaxFreeTime = (int)  data.getOrDefault("threadMaxFreeTime",
+                (int) ConfigureManager.getInstance().getConfig(ConfigPool.THREAD_POOL.MAX_FREE_TIME));
         commonThreadNum = Math.max(commonThreadNum, 0);
+        threadMaxFreeTime = Math.max(threadMaxFreeTime,THREAD_MIN_FREE_TIME);
         queueTaskNum = Math.max(queueTaskNum, 0);
         String recycleStrategy = (String) data.getOrDefault("recycleStrategy","timeout");
         String refuseStrategy = (String) data.getOrDefault("refuseStrategy","THROW_TASK");
-        ThreadPoolManager.getInstance().changeProperties(commonThreadNum,queueTaskNum,recycleStrategy,refuseStrategy);
+        ThreadPoolManager.getInstance().changeProperties
+                (commonThreadNum,queueTaskNum,threadMaxFreeTime,recycleStrategy,refuseStrategy);
     }
 }
