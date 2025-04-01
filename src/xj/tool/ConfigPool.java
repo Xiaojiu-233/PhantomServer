@@ -12,6 +12,7 @@ public interface ConfigPool {
         String THREAD_NAME = "thread-pool.thread.thread-name";
         String MAX_FREE_TIME = "thread-pool.thread.max-free-time";
         String REJECT_STRATEGY = "thread-pool.pool.reject-strategy";
+        String THREAD_MANAGE_STRATEGY = "thread-pool.thread.thread-manage-strategy";
     }
 
     // 服务器

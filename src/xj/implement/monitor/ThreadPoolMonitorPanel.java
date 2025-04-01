@@ -40,6 +40,7 @@ public class ThreadPoolMonitorPanel implements MonitorPanel {
         ret.put("任务队列大小", ThreadPoolManager.getInstance().getQueueCapacity());
         ret.put("线程最大闲置时间(秒)", ThreadPoolManager.getInstance().getThreadMaxFreeTime());
         ret.put("拒绝策略", ThreadPoolManager.getInstance().getStrategy());
+        ret.put("线程管理策略", ThreadPoolManager.getInstance().getThreadStrategy());
         ret.put("工作线程情况", ThreadPoolManager.getInstance().returnThreadInfos());
         ret.put("普通线程数图表", ThreadPoolManager.getInstance().getCommonThreadChart().outputChart(k,false));
         ret.put("所有线程数图表", ThreadPoolManager.getInstance().getAllThreadChart().outputChart(k,false));

@@ -71,11 +71,19 @@ public class WorkingThread extends Thread {
                     receiveThreadTask(ThreadPoolManager.getInstance().getQueueTask());
                 }else if(commonThread){
                     // 当前线程没有任务同时也没有队列任务，且该线程为普通线程
-                    // 开始计时，如果时间超过最大闲置时间，回收该线程
-                    long time = ChronoUnit.SECONDS.between(timer,LocalTime.now());
-                    if(time < 0) time += Constant.DAY_SECONDS;
-                    if(time >= ThreadPoolManager.getInstance().getThreadMaxFreeTime()){
-                        stopThread();
+                    // 根据当前线程管理策略进行判定
+                    if(ThreadPoolManager.getInstance().isTimeoutThreadStrategy()){
+                        // 开始计时，如果时间超过最大闲置时间，回收该线程
+                        long time = ChronoUnit.SECONDS.between(timer,LocalTime.now());
+                        if(time < 0) time += Constant.DAY_SECONDS;
+                        if(time >= ThreadPoolManager.getInstance().getThreadMaxFreeTime()){
+                            stopThread();
+                        }
+                    }else{
+                        // 如果接收到线程池管理器的回收需求，则直接回收
+                        if(ThreadPoolManager.getInstance().needRecycleItSelf()){
+                            stopThread();
+                        }
                     }
                 }
                 // 当前线程是否可运作

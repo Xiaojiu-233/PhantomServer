@@ -8,6 +8,8 @@ public abstract class ThreadTask {
     // 成员属性
     private String channelId;// channel的Id
 
+    private long queueWaitStartTime;// 开始在队列等待的时间戳
+
     // 成员方法
     /**
      * 执行任务（从开始到回收）
@@ -30,5 +32,13 @@ public abstract class ThreadTask {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    }
+
+    public long getQueueWaitStartTime() {
+        return queueWaitStartTime;
+    }
+
+    public void setQueueWaitStartTime(long queueWaitStartTime) {
+        this.queueWaitStartTime = queueWaitStartTime;
     }
 }
