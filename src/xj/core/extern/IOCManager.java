@@ -4,9 +4,11 @@ import xj.annotation.ComponentImport;
 import xj.annotation.PAutowired;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
+import xj.core.threadPool.ThreadPoolManager;
 import xj.core.threadPool.factory.ThreadTaskFactory;
 import xj.interfaces.component.IConfigureManager;
 import xj.interfaces.component.ILogManager;
+import xj.interfaces.component.IThreadPoolManager;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -74,6 +76,8 @@ public class IOCManager {
                             field.set(bean,LogManager.getInstance());
                         else if(field.getType().equals(IConfigureManager.class))
                             field.set(bean, ConfigureManager.getInstance());
+                        else if(field.getType().equals(IThreadPoolManager.class))
+                            field.set(bean, ThreadPoolManager.getInstance());
                     }
                     // 对于其他自定义对象的依赖注入
                     if(field.isAnnotationPresent(PAutowired.class)){

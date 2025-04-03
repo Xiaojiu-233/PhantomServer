@@ -35,11 +35,11 @@ public class ThreadPoolManager {
     private MonitorChart commonThreadChart, allThreadChart, recycledThreadChart, queueTaskChart;
     // 普通线程数图表 所有线程数图表 回收线程数图表 队列任务数图表
 
-    private List<Long> questWaitTime;// 请求在队列的等待时间，五个为一组
+    private List<Long> questWaitTime;// 请求在队列的等待时间，三个为一组
     private Queue<Float> avgQuestWaitTime;// 以组为单位的请求在队列的平均等待时间，取最新的三组
-    private Integer recycleThreadNum;// 因智能管理策略需要义务回收的线程数
+    private int recycleThreadNum;// 因智能管理策略需要义务回收的线程数
     private final int R = 200;// 常量，满足智能线程管理阈值的时间间隔(毫秒)
-    private final int GROUP_UNITS = 5;// 常量，请求在队列等待时间中一组包含数据
+    private final int GROUP_UNITS = 3;// 常量，请求在队列等待时间中一组包含数据
     private final int GROUP_NUMS = 3;// 常量，请求在队列等待时间中组的上限
 
     // 成员方法
@@ -89,7 +89,7 @@ public class ThreadPoolManager {
             allThreadChart = new MonitorChart(false);
             recycledThreadChart = new MonitorChart(true);
             queueTaskChart = new MonitorChart(false);
-            threadTaskQueue = new PriorityQueue<>(queueCapacity);
+            threadTaskQueue = new LinkedList<>();
         }catch (Exception e){
             LogManager.error_("线程池创建容器时出现异常",e);
         }
@@ -194,8 +194,8 @@ public class ThreadPoolManager {
     // 获取队列任务
     public ThreadTask getQueueTask(){
         synchronized (queueLock){
-            queueTaskChart.inputData(threadTaskQueue.size()-1);
             ThreadTask task = threadTaskQueue.poll();
+            queueTaskChart.inputData(threadTaskQueue.size());
             if (task != null && task.getQueueWaitStartTime() > 0 && !isTimeoutThreadStrategy()) {
                 waitThreadStrategyAnalysis(task.getQueueWaitStartTime());
             }
@@ -205,7 +205,9 @@ public class ThreadPoolManager {
 
     // 当前任务队列是否为空
     public boolean queueEmpty(){
-        return threadTaskQueue.isEmpty();
+        synchronized (queueLock){
+            return threadTaskQueue.isEmpty();
+        }
     }
 
     // 普通线程池中回收工作线程对象
@@ -213,6 +215,8 @@ public class ThreadPoolManager {
         synchronized (commonPoolLock){
             commonThreadPool.remove(thread);
             recycledThreadChart.inputData(1);
+            allThreadChart.inputData(commonThreadPool.size() + coreThreadPool.size());
+            commonThreadChart.inputData(commonThreadPool.size());
         }
     }
 
@@ -224,11 +228,6 @@ public class ThreadPoolManager {
         for(WorkingThread thread : commonThreadPool)
             ret.add(thread.returnThreadInfo());
         return ret;
-    }
-
-    // 刷新图表数值
-    public void refreshRecycledThreadChart() {
-        recycledThreadChart.inputData(1);
     }
 
     // 获取成员属性
@@ -308,6 +307,9 @@ public class ThreadPoolManager {
                 avgQuestWaitTime.poll();
             avgQuestWaitTime.add((float) T /GROUP_UNITS);
         }
+        // 如果数据满足可管理条件，则进行线程管理
+        if(avgQuestWaitTime.size() < GROUP_NUMS)
+            return;
         // 线程管理
         List<Float> avgTimeList = (List<Float>) avgQuestWaitTime;
         int r1 = (int)(avgTimeList.get(0) - avgTimeList.get(1));
@@ -320,11 +322,15 @@ public class ThreadPoolManager {
                     allThreadChart.inputData(commonThreadPool.size() + coreThreadPool.size());
                     commonThreadChart.inputData(commonThreadPool.size());
                 }
+                // 更新平均数据
+                avgQuestWaitTime.poll();
             }else{
                 // 如果时间差距值都为负，则添加回收普通线程的需求
                 synchronized (commonPoolLock){
                     recycleThreadNum++;
                 }
+                // 更新平均数据
+                avgQuestWaitTime.poll();
             }
         }
     }

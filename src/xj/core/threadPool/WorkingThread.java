@@ -67,8 +67,10 @@ public class WorkingThread extends Thread {
                     }
                 }else if(!ThreadPoolManager.getInstance().queueEmpty()){
                     // 当前线程没有任务但是任务队列有任务存在
-                    // 读取队列任务
-                    receiveThreadTask(ThreadPoolManager.getInstance().getQueueTask());
+                    // 读取队列任务，如果为空则跳过
+                    ThreadTask t = ThreadPoolManager.getInstance().getQueueTask();
+                    if(t != null)
+                        receiveThreadTask(t);
                 }else if(commonThread){
                     // 当前线程没有任务同时也没有队列任务，且该线程为普通线程
                     // 根据当前线程管理策略进行判定
@@ -104,7 +106,6 @@ public class WorkingThread extends Thread {
     private void stopThread(){
         // 断开与线程池的连接
         ThreadPoolManager.getInstance().delCommonPoolThread(this);
-        ThreadPoolManager.getInstance().refreshRecycledThreadChart();
         // 结束线程循环
         enable = false;
     }

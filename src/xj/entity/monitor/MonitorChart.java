@@ -1,5 +1,7 @@
 package xj.entity.monitor;
 
+import xj.component.log.LogManager;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -101,15 +103,21 @@ public class MonitorChart {
         }
         // 分析数据
         float[] yRet = new float[MONITOR_CHART_X_RANGE + 1];
+        if(!isAccel)
+            Arrays.fill(yRet, -1);
         int[] xRange = new int[MONITOR_CHART_X_RANGE + 1];
         for (int i = 0; i < xRange.length; i++)
             xRange[i] = nowTimeNum - (MONITOR_CHART_X_RANGE - i) * k * MONITOR_CHART_UNIT_TIME;
-        for (Float[] integers : list)
-            for (int j = 0; j < xRange.length; j++)
-                if (integers[0] <= xRange[j]) {
-                    yRet[j] = isAccel ? (yRet[j] + integers[1]) : integers[1];
-                    break;
-                }
+        if(!list.isEmpty()){
+            for (Float[] integers : list)
+                for (int j = 0; j < xRange.length; j++)
+                    if (integers[0] <= xRange[j]) {
+                        yRet[j] = isAccel ? (yRet[j] + integers[1]) : integers[1];
+                        break;
+                    }
+        }else if(!isAccel){
+            yRet[0] = 0;
+        }
         for(int i=1;i<xRange.length;i++){
             // x轴
             LocalDateTime minusTime =
@@ -118,7 +126,7 @@ public class MonitorChart {
                     + String.format(TIME_FORMAT,minusTime.getSecond()));
             // y轴
             if (!isAccel)
-                yRet[i] = yRet[i] == 0 ? yRet[i-1] : yRet[i];
+                yRet[i] = yRet[i] == -1 ? yRet[i-1] : yRet[i];
             y.add(retFloat ? Float.parseFloat(String.format(FLOAT_FORMAT,yRet[i])) : (int)yRet[i]);
         }
         // 刷新数据

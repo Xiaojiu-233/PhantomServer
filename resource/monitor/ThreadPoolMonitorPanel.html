@@ -65,15 +65,15 @@
                     <div class="unit">
                         <div class="title">线程最大闲置时间(秒)</div>
                         <div class="block">
-                            <input id="thread-wait-time" type="number"  min="1000" max="100000" value="10">
+                            <input id="thread-wait-time" type="number"  min="10" max="100000" value="10">
                         </div>
                     </div>
                     <div class="unit">
                         <div class="title">线程管理策略</div>
                         <div class="block">
                             <select id="recycle-strategy">
-                                <option value="timeout">超时回收管理</option>
-                                <option value="wait">算法智能管理</option>
+                                <option value="TIMEOUT">超时回收管理</option>
+                                <option value="WAIT">算法智能管理</option>
                             </select>
                         </div>
                     </div>

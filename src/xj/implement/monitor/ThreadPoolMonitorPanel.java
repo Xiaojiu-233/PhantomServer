@@ -16,7 +16,7 @@ import java.util.Map;
 // 动态线程池可视化界面
 public class ThreadPoolMonitorPanel implements MonitorPanel {
 
-    private final int THREAD_MIN_FREE_TIME = 1000;
+    private final int THREAD_MIN_FREE_TIME = 10;
 
     @Override
     public String returnTitle() {
