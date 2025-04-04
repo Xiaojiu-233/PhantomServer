@@ -5,7 +5,6 @@ import xj.abstracts.connect.ConnectHandler;
 import xj.core.extern.IOCManager;
 import xj.implement.connect.HTTPConnectHandler;
 import xj.implement.connect.TCPChatConnectHandler;
-import xj.implement.connect.TCPCloudConnectHandler;
 import xj.abstracts.web.Request;
 
 import java.util.ArrayList;
@@ -38,7 +37,6 @@ public class ConnectHandlerFactory {
         // 导入默认的连接处理器
         handlerList.add(new HTTPConnectHandler());
         handlerList.add(new TCPChatConnectHandler());
-        handlerList.add(new TCPCloudConnectHandler());
         // 连接处理器开始装填过滤器
         for(ConnectHandler handler : handlerList){
             handler.initFilter(handler.getClass());
