@@ -43,14 +43,14 @@ public class ChannelWriteTask extends ThreadTask {
             Response response = handler.doHandle(request);
             // 响应填入信息
             response.writeMessage(out);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LogManager.error_("[{}] 的TCP通道写IO任务在输出数据时出现异常：{}",threadName,e);
+            receiver.storeData(new byte[0]);
             try {
                 out.close();
             } catch (IOException ex) {
                 LogManager.error_("[{}] 的TCP通道写IO任务在因异常关闭时出现异常：{}",threadName,e);
             }
-            receiver.storeData(new byte[0]);
             return;
         }
         // 将成功消息传输给接收器

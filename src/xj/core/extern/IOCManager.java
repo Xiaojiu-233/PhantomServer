@@ -9,6 +9,7 @@ import xj.core.threadPool.factory.ThreadTaskFactory;
 import xj.interfaces.component.IConfigureManager;
 import xj.interfaces.component.ILogManager;
 import xj.interfaces.component.IThreadPoolManager;
+import xj.interfaces.ioc.Instantiation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -33,6 +34,8 @@ public class IOCManager {
         doInstanceFromJars();
         // 对IOC容器的实例进行依赖注入
         autowiredInjection();
+        // 对IOC容器的实例进行自定义初始化
+        initInstances();
         LogManager.info_("【IOC模块】初始化完成");
     }
 
@@ -86,6 +89,22 @@ public class IOCManager {
                 }
             } catch (Exception e) {
                 LogManager.error_("对IOC容器内实例依赖注入时出现异常",e);
+            }
+        }
+    }
+
+    // 自定义初始化
+    private void initInstances(){
+        LogManager.info_("【IOC模块】正在对容器实例进行自定义初始化...");
+        for(Map.Entry<String,Object> entry : iocContainer.entrySet()){
+            Object bean = entry.getValue();
+            try {
+                if (bean instanceof Instantiation) {
+                    Instantiation inst = (Instantiation) bean;
+                    inst.instantiate();
+                }
+            } catch (Exception e) {
+                LogManager.error_("对IOC容器内实例自定义初始化时出现异常",e);
             }
         }
     }

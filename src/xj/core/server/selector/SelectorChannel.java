@@ -222,7 +222,6 @@ public class SelectorChannel {
         if(data.length == 0){
             // 如果数据为空，则报错
             LogManager.error_("TCP通道对象的服务器内部IO发生异常");
-            response = handler.whenException();
         }
         // 执行到此确定为一个流程的连接处理结束，进行连接持续时间结算
         long nowTime = System.currentTimeMillis();

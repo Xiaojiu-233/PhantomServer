@@ -61,6 +61,7 @@ public class HTTPResponse extends Response implements IHttpResponse {
 
     @Override
     public void writeMessage(SocketChannel os) throws IOException {
+        // 进行bodyBytes判定
         // 添加统一的响应
         headers.put(StrPool.SERVER,(String)ConfigureManager.getInstance()
                 .getConfig(ConfigPool.SERVER.NAME));

@@ -37,10 +37,6 @@ public class ConnectHandlerFactory {
         // 导入默认的连接处理器
         handlerList.add(new HTTPConnectHandler());
         handlerList.add(new TCPChatConnectHandler());
-        // 连接处理器开始装填过滤器
-        for(ConnectHandler handler : handlerList){
-            handler.initFilter(handler.getClass());
-        }
     }
 
     // 通过IOC容器导入拓展连接处理器对象
@@ -52,6 +48,11 @@ public class ConnectHandlerFactory {
             handlerList.add(0, (ConnectHandler) handler);
         }
         LogManager.info_("连接处理器工厂导入拓展处理器对象完成");
+        // 连接处理器开始装填过滤器
+        for(ConnectHandler handler : handlerList){
+            handler.initFilter(handler.getClass());
+        }
+        LogManager.info_("连接处理器工厂过滤器装填完成");
     }
 
     // 根据提供的请求，返回合适的连接处理器对象

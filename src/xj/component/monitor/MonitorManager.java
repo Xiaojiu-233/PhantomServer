@@ -105,14 +105,15 @@ public class MonitorManager {
                     return returnJsonHttpResponse(panelInfos);
                 }
                 // 如果寻找到了对应的可视化界面，则将对应的界面路径传给请求对象后交给MVC处理
-                MonitorPanel panel = panelMapping.get(splitUrl[1]);
+                String panelName = splitUrl[1].replace(StrPool.HTML_POINT, StrPool.EMPTY);
+                MonitorPanel panel = panelMapping.get(panelName);
                 if(panel != null){
                     String webpagePath = panel.returnWebpagePath();
                     if(webpagePath != null){
                         req.setUrl(webpagePath);
                         return null;
                     }else {
-                        String resourcePath = monitorResourceDir + splitUrl[1] + StrPool.HTML_POINT;
+                        String resourcePath = monitorResourceDir + panelName + StrPool.HTML_POINT;
                         return returnResourceHttpResponse(resourcePath);
                     }
                 }

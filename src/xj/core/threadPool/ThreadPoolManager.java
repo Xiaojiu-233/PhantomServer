@@ -6,6 +6,7 @@ import xj.component.log.LogManager;
 import xj.core.threadPool.factory.*;
 import xj.entity.monitor.MonitorChart;
 import xj.abstracts.thread.ThreadTask;
+import xj.interfaces.component.IThreadPoolManager;
 import xj.tool.ConfigPool;
 import xj.tool.Constant;
 import xj.tool.StrPool;
@@ -13,7 +14,7 @@ import xj.tool.StrPool;
 import java.util.*;
 
 // 动态线程池管理器，用于管理服务器内部的工作线程
-public class ThreadPoolManager {
+public class ThreadPoolManager implements IThreadPoolManager {
 
     // 成员属性
     private static volatile ThreadPoolManager instance;// 单例模式实现
