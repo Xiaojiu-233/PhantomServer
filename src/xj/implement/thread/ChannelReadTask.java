@@ -115,7 +115,8 @@ public class ChannelReadTask extends ThreadTask {
 
     @Override
     public void doDestroy() {
-
+        LogManager.error_("TCP通道读IO任务，由于拒接策略触发，被迫放弃");
+        receiver.storeData(new byte[0]);
     }
 
     @Override
