@@ -59,12 +59,13 @@ public class ConnectHandlerFactory {
     public ConnectHandler getMatchConnectHandler(Request request){
         synchronized(ConnectHandlerFactory.class){
             // 遍历列表，寻找合适的处理器
-            for(ConnectHandler handler : handlerList){
-                // 判定是否匹配，匹配成功则复制并返回指定对象
-                if(handler.isMatchedRequest(request.getHeadMsg())){
-                    return handler.cloneSelf();
+            if(request.getHeadMsg() != null)
+                for(ConnectHandler handler : handlerList){
+                    // 判定是否匹配，匹配成功则复制并返回指定对象
+                    if(handler.isMatchedRequest(request.getHeadMsg())){
+                        return handler.cloneSelf();
+                    }
                 }
-            }
             // 如果没有合适的处理器对象，将抛出错误并返回null
             LogManager.error_("没有找到合适的处理器对象",request.getClass().getName());
             return null;
