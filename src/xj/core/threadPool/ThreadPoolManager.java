@@ -1,6 +1,5 @@
 package xj.core.threadPool;
 
-import com.sun.javafx.scene.control.skin.IntegerFieldSkin;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
 import xj.core.threadPool.factory.*;

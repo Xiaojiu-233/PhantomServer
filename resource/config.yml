@@ -19,7 +19,7 @@ thread-pool:
     thread-name: thread # 工作线程名称
     max-free-time: 180 # 普通线程池线程最大闲置时间(秒)，超时后会被线程池回收
     # 线程管理策略，可提供的选择：TIMEOUT(超时回收管理) WAIT(等待时间算法管理)
-    thread-manage-strategy: TIMEOUT
+    thread-manage-strategy: WAIT
 
 # 可视化界面配置
 monitor:

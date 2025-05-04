@@ -1,11 +1,8 @@
 package xj.core.extern.chat;
 
-import sun.rmi.runtime.Log;
 import xj.component.conf.ConfigureManager;
 import xj.component.log.LogManager;
-import xj.core.threadPool.factory.ThreadTaskFactory;
 import xj.entity.monitor.MonitorChart;
-import xj.enums.log.LogLevel;
 import xj.enums.web.ChatType;
 import xj.implement.web.TCPChatRequest;
 import xj.implement.web.TCPChatResponse;
@@ -14,7 +11,6 @@ import xj.tool.FileIOUtil;
 import xj.tool.StrPool;
 
 import java.io.*;
-import java.time.LocalDateTime;
 import java.util.*;
 
 // 聊天室管理器，用于提供TCP聊天室的解决方案

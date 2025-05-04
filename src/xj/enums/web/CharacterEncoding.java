@@ -1,7 +1,5 @@
 package xj.enums.web;
 
-import sun.nio.cs.ext.GBK;
-
 /**
  * 对文字的编码形式
  */
